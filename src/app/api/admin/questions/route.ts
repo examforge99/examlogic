@@ -1,21 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
-
-async function checkAdmin() {
-  const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized", status: 401 };
-  }
-
-  const client = await clerkClient();
-  const user = await client.users.getUser(userId);
-  if (user.publicMetadata.role !== "admin") {
-    return { error: "Forbidden", status: 403 };
-  }
-
-  return { userId };
-}
 
 function getServiceRoleClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,6 +16,30 @@ function getServiceRoleClient() {
       persistSession: false,
     },
   });
+}
+
+async function checkAdmin() {
+  const { userId } = await auth();
+  if (!userId) {
+    return { error: "Unauthorized", status: 401 };
+  }
+
+  const supabase = getServiceRoleClient();
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  if (error || !user) {
+    return { error: "Unauthorized", status: 401 };
+  }
+
+  if (user.role !== "admin") {
+    return { error: "Forbidden", status: 403 };
+  }
+
+  return { userId };
 }
 
 export async function GET(request: Request) {
@@ -165,5 +174,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(data, { status: 201 });
-    }
-      
+}
