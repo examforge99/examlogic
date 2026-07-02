@@ -335,7 +335,7 @@ export async function POST(request: Request) {
     subjectId: subject_id,
     topicId: topic_id,
     startingDifficultyBand,
-    playerChosenDifficulty,
+    player_chosen_difficulty: playerChosenDifficulty,
     allowedSubjectIds,
     supabase,
   });
