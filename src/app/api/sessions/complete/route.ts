@@ -91,11 +91,11 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Service-role Supabase client (inline) ───────────────────
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
   // ── Parse & validate body ───────────────────────────────────
   let body: CompleteSessionBody;
   try {
