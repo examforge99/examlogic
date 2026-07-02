@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
   const allowedSubjectIds = [englishSubjectId, ...user.jamb_subjects];
 
-  // ── Validate campaign subject enrollment ─────────────────────────────
+  // ── Validate campaign subject enrollment ────────────────────────────────
   if (mode === "campaign") {
     if (!allowedSubjectIds.includes(subject_id)) {
       return NextResponse.json(
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
     startingDifficultyBand = user.current_difficulty_band ?? 1;
   }
 
-  // ── Resolve total_questions ──────────────────────────────────────────
+  // ── Resolve total_questions ────────────────────────────────────────────
   const totalQuestions: Record<string, number> = {
     quick_fire: 20,
     campaign: 50,
@@ -158,20 +158,21 @@ export async function POST(request: Request) {
     sudden_death: 40,
   };
 
-  // ── Resolve strikes_remaining ────────────────────────────────────────
+  // ── Resolve strikes_remaining ──────────────────────────────────────────
   let strikesRemaining: number | null = null;
   if (mode === "campaign" && variant === "accuracy_challenge") {
     strikesRemaining = 3;
   }
 
-  // ── Rate limit check ─────────────────────────────────────────────────
+  // ── Rate limit check ───────────────────────────────────────────────────
   const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
   const { count: todaySessionCount, error: rateError } = await supabase
     .from("sessions")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
     .gte("started_at", `${today}T00:00:00Z`)
-    .lt("started_at", `${today}T23:59:59Z`);
+    .lt("started_at", `${tomorrow}T00:00:00Z`);
 
   if (rateError) {
     console.error("Rate limit check error:", rateError);
@@ -184,7 +185,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── Insert session row ───────────────────────────────────────────────
+  // ── Insert session row ─────────────────────────────────────────────────
   const modeMultiplier = MODE_MULTIPLIERS[mode];
   const variantMultiplier = mode === "campaign" ? VARIANT_MULTIPLIERS[variant] : null;
 
@@ -228,7 +229,7 @@ export async function POST(request: Request) {
 
   const sessionId = session.id;
 
-  // ── Sudden Death: special handling ───────────────────────────────────
+  // ── Sudden Death: special handling ─────────────────────────────────────
   if (mode === "sudden_death") {
     const { questions, pool_exhausted, questions_available } = await fetchQuestions({
       userId,
@@ -281,7 +282,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // ── Simulation: grouped by subject ───────────────────────────────────
+  // ── Simulation: grouped by subject ──────────────────────────────────────
   if (mode === "simulation") {
     // Resolve other subjects (JAMB subjects excluding English)
     const otherSubjectIds = user.jamb_subjects.filter(
@@ -327,7 +328,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // ── Quick Fire & Campaign ──────────────────────────────────────────
+  // ── Quick Fire & Campaign ──────────────────────────────────────────────
   const { questions, pool_exhausted, questions_available } = await fetchQuestions({
     userId,
     mode,
@@ -335,7 +336,7 @@ export async function POST(request: Request) {
     subjectId: subject_id,
     topicId: topic_id,
     startingDifficultyBand,
-    player_chosen_difficulty: playerChosenDifficulty,
+    playerChosenDifficulty: player_chosen_difficulty,
     allowedSubjectIds,
     supabase,
   });
@@ -349,5 +350,4 @@ export async function POST(request: Request) {
     pool_exhausted,
     questions_available,
   });
-                        }
-    
+}
