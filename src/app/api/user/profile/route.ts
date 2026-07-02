@@ -74,3 +74,68 @@ export async function GET() {
     equipped_cosmetics: equippedCosmetics ?? [],
   });
     }
+
+export async function PATCH(request: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  let body: { username?: string; avatar_url?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const allowedFields = ["username", "avatar_url"];
+  const safeUpdate = Object.fromEntries(
+    Object.entries(body).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(safeUpdate).length === 0) {
+    return NextResponse.json(
+      { error: "No valid fields to update" },
+      { status: 400 }
+    );
+  }
+
+  // Check username uniqueness if updating username
+  if (safeUpdate.username) {
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", safeUpdate.username)
+      .neq("id", userId)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Username already taken" },
+        { status: 409 }
+      );
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .update(safeUpdate)
+    .eq("id", userId)
+    .select("id, username, avatar_url")
+    .single();
+
+  if (error) {
+    return NextResponse.json(
+      { error: "Failed to update profile" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true, profile: data });
+}
