@@ -5,16 +5,9 @@ import { createClient } from "@supabase/supabase-js";
 function getServiceRoleClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !key) {
-    throw new Error("Missing Supabase service role configuration");
-  }
-
+  if (!url || !key) throw new Error("Missing Supabase service role configuration");
   return createClient(url, key, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+    auth: { autoRefreshToken: false, persistSession: false },
   });
 }
 
@@ -34,15 +27,11 @@ export async function POST(request: Request) {
   const { session_id, total_time_seconds } = body;
 
   if (!session_id) {
-    return NextResponse.json(
-      { error: "session_id is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "session_id is required" }, { status: 400 });
   }
 
   const supabase = getServiceRoleClient();
 
-  // Fetch active SD session
   const { data: sd, error: sdError } = await supabase
     .from("sd_active_sessions")
     .select("*")
@@ -52,20 +41,19 @@ export async function POST(request: Request) {
     .single();
 
   if (sdError || !sd) {
-    return NextResponse.json(
-      { error: "Active session not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Active session not found" }, { status: 404 });
   }
 
-  // Deactivate SD session
-  await supabase
+  const { error: deactivateError } = await supabase
     .from("sd_active_sessions")
     .update({ is_active: false })
     .eq("session_id", session_id);
 
-  // Update session as abandoned
-  await supabase
+  if (deactivateError) {
+    return NextResponse.json({ error: "Failed to end session" }, { status: 500 });
+  }
+
+  const { error: sessionUpdateError } = await supabase
     .from("sessions")
     .update({
       is_completed: true,
@@ -79,7 +67,10 @@ export async function POST(request: Request) {
     })
     .eq("id", session_id);
 
-  // Increment total_sessions_completed, NO daily streak update
+  if (sessionUpdateError) {
+    return NextResponse.json({ error: "Failed to update session" }, { status: 500 });
+  }
+
   const { data: userData } = await supabase
     .from("users")
     .select("total_sessions_completed")
@@ -97,5 +88,4 @@ export async function POST(request: Request) {
     questions_survived: sd.questions_answered,
     session_ended: true,
   });
-          }
-
+}
