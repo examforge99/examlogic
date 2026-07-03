@@ -1,29 +1,38 @@
 @import "tailwindcss";
 
-:root {
-  --background: #FFFFFF;
-  --surface: #F0F6FF;
-  --surface-elevated: #E8F1FF;
-  --primary: #3B82F6;
-  --primary-dark: #2563EB;
-  --primary-light: #DBEAFE;
-  --accent: #60A5FA;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --success: #22C55E;
-  --success-light: #DCFCE7;
-  --danger: #EF4444;
-  --danger-light: #FEE2E2;
-  --warning: #F59E0B;
-  --warning-light: #FEF3C7;
-  --black: #0F172A;
-  --white: #FFFFFF;
-  --border: #BFDBFE;
-  --shadow: 0 4px 24px rgba(59, 130, 246, 0.08);
-  --shadow-md: 0 8px 32px rgba(59, 130, 246, 0.12);
-  --radius: 16px;
-  --radius-sm: 8px;
-  --radius-lg: 24px;
+@theme {
+  --color-background: #FFFFFF;
+  --color-surface: #F0F6FF;
+  --color-surface-elevated: #E8F1FF;
+  --color-primary: #3B82F6;
+  --color-primary-dark: #2563EB;
+  --color-primary-light: #DBEAFE;
+  --color-accent: #60A5FA;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-success: #22C55E;
+  --color-success-light: #DCFCE7;
+  --color-danger: #EF4444;
+  --color-danger-light: #FEE2E2;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-border: #BFDBFE;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes streakPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 * {
@@ -33,27 +42,12 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--text-primary);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: var(--surface);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
-  border-radius: 4px;
-}
-
-/* Selection */
 ::selection {
-  background: var(--primary-light);
-  color: var(--primary-dark);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
