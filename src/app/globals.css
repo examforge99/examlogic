@@ -17,6 +17,24 @@
   --color-warning: #F59E0B;
   --color-warning-light: #FEF3C7;
   --color-border: #BFDBFE;
+  --color-black: #0F172A;
+  --color-white: #FFFFFF;
+
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+
+  --shadow-blue: 0 4px 24px rgba(59, 130, 246, 0.08);
+  --shadow-blue-md: 0 8px 32px rgba(59, 130, 246, 0.12);
+  --shadow-blue-lg: 0 16px 48px rgba(59, 130, 246, 0.16);
+
+  --animate-fade-in: fadeIn 0.3s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-streak-pop: streakPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes fadeIn {
@@ -35,19 +53,66 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
 ::selection {
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-light);
+  border-radius: 4px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-sans);
+  outline: none;
 }
