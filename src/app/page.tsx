@@ -1,8 +1,8 @@
-import Navbar from "@/components/dashboard/Navbar";
-import StatCards from "@/components/dashboard/StatCards";
-import PracticeModes from "@/components/dashboard/PracticeModes";
-import ScoreDistribution from "@/components/dashboard/ScoreDistribution";
-import RecentTests from "@/components/dashboard/RecentTests";
+import Navbar from "@/components/Navbar";
+import StatCards from "@/components/StatCards";
+import PracticeModes from "@/components/PracticeModes";
+import ScoreDistribution from "@/components/ScoreDistribution";
+import RecentTests from "@/components/RecentTests";
 
 export default function DashboardPage() {
   return (
