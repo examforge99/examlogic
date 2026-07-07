@@ -66,8 +66,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
 body {
   background-color: var(--color-background);
+}
+
+body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -115,4 +119,13 @@ textarea,
 select {
   font-family: var(--font-sans);
   outline: none;
+}
+
+/* ── Dark dashboard override ─────────────────────────────────── */
+/* Scoped so the rest of the app (light theme) is unaffected.    */
+/* Prevents the white body from showing through during scroll    */
+/* overscroll/elastic bounce behind the dashboard's own surfaces. */
+html:has(.dashboard-page),
+body:has(.dashboard-page) {
+  background-color: #0A1628;
 }
