@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
-import PracticeModes from "@/components/PracticeModes";
 import ScoreDistribution from "@/components/ScoreDistribution";
+import PracticeModes from "@/components/PracticeModes";
 import RecentTests from "@/components/RecentTests";
 
 export default function DashboardPage() {
@@ -9,21 +9,10 @@ export default function DashboardPage() {
 
       <Navbar />
 
-      <main>
-    
+      <main style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <ScoreDistribution />
         <PracticeModes />
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "16px",
-            padding: "24px",
-          }}
-        >
-          <ScoreDistribution />
-          <RecentTests />
-        </div>
+        <RecentTests />
       </main>
 
     </div>
