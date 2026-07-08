@@ -15,8 +15,6 @@
   --color-danger: #F97316;
   --color-border: rgba(255, 255, 255, 0.08);
 
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
@@ -66,7 +64,7 @@ body {
 
 body {
   color: var(--color-text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -104,12 +102,12 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  font-family: var(--font-sans);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 input,
 textarea,
 select {
-  font-family: var(--font-sans);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   outline: none;
 }
