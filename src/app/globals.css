@@ -1,36 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #FFFFFF;
-  --color-surface: #F0F6FF;
-  --color-surface-elevated: #E8F1FF;
-  --color-primary: #3B82F6;
-  --color-primary-dark: #2563EB;
-  --color-primary-light: #DBEAFE;
-  --color-accent: #60A5FA;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #64748B;
-  --color-success: #22C55E;
-  --color-success-light: #DCFCE7;
-  --color-danger: #EF4444;
-  --color-danger-light: #FEE2E2;
-  --color-warning: #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-border: #BFDBFE;
-  --color-black: #0F172A;
-  --color-white: #FFFFFF;
+  --color-background: #071426;
+  --color-surface: #0D1B2E;
+  --color-surface-elevated: #0F1535;
+  --color-primary: #3FB7FF;
+  --color-primary-dark: #2f80ff;
+  --color-accent: #25d6a2;
+  --color-text-primary: #D8E0E8;
+  --color-text-secondary: #7D8A9A;
+  --color-text-muted: #A8B2C1;
+  --color-success: #22c55e;
+  --color-warning: #EAB308;
+  --color-danger: #F97316;
+  --color-border: rgba(255, 255, 255, 0.08);
 
-  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 
-  --radius: 16px;
   --radius-sm: 8px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
-  --shadow-blue: 0 4px 24px rgba(59, 130, 246, 0.08);
-  --shadow-blue-md: 0 8px 32px rgba(59, 130, 246, 0.12);
-  --shadow-blue-lg: 0 16px 48px rgba(59, 130, 246, 0.16);
+  --shadow-card: 0 20px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  --shadow-float: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
 
   --animate-fade-in: fadeIn 0.3s ease-in-out;
   --animate-slide-up: slideUp 0.3s ease-out;
@@ -80,8 +73,8 @@ body {
 }
 
 ::selection {
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background: rgba(63, 183, 255, 0.2);
+  color: #3FB7FF;
 }
 
 ::-webkit-scrollbar {
@@ -93,7 +86,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary-light);
+  background: rgba(63, 183, 255, 0.2);
   border-radius: 4px;
 }
 
@@ -119,13 +112,4 @@ textarea,
 select {
   font-family: var(--font-sans);
   outline: none;
-}
-
-/* ── Dark dashboard override ─────────────────────────────────── */
-/* Scoped so the rest of the app (light theme) is unaffected.    */
-/* Prevents the white body from showing through during scroll    */
-/* overscroll/elastic bounce behind the dashboard's own surfaces. */
-html:has(.dashboard-page),
-body:has(.dashboard-page) {
-  background-color: #0A1628;
 }
