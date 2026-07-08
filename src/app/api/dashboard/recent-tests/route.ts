@@ -44,16 +44,19 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const tests = data.map((session) => ({
-    id: session.id,
-    title: formatTitle(session.mode, session.subjects?.name),
-    date: formatDate(session.completed_at),
-    subjects: session.subjects?.name ?? 'Mixed',
-    score: Math.round(session.overall_accuracy_percent ?? 0),
-  }))
-
-  return NextResponse.json({ tests })
-}
+  const tests = (data ?? []).map((session: {
+  id: string
+  mode: string
+  overall_accuracy_percent: number | null
+  completed_at: string
+  subjects: { name: string } | null
+}) => ({
+  id: session.id,
+  title: formatTitle(session.mode, session.subjects?.name),
+  date: formatDate(session.completed_at),
+  subjects: session.subjects?.name ?? 'Mixed',
+  score: Math.round(session.overall_accuracy_percent ?? 0),
+}))
 
 function formatTitle(mode: string, subjectName?: string): string {
   const subject = subjectName ?? 'Mixed'
