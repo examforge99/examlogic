@@ -9,22 +9,20 @@ interface Test {
   date: string;
   subjects: string;
   score: number;
-  icon: ReactNode;
-  iconBg: string;
 }
 
 interface RecentTestsProps {
-  tests?: Omit<Test, "icon" | "iconBg">[];
+  tests?: Test[];
 }
 
-const iconMap = [
+const iconMap: { icon: ReactNode; iconBg: string }[] = [
   { icon: <FileText size={18} color="#3FB7FF" />, iconBg: "rgba(63,183,255,0.12)" },
   { icon: <Leaf size={18} color="#25d6a2" />, iconBg: "rgba(37,214,162,0.12)" },
   { icon: <Sigma size={18} color="#EAB308" />, iconBg: "rgba(234,179,8,0.12)" },
   { icon: <ClipboardList size={18} color="#8B5CF6" />, iconBg: "rgba(139,92,246,0.12)" },
 ];
 
-const defaultTests = [
+const defaultTests: Test[] = [
   { id: "1", title: "JAMB Mock Test 12", date: "May 21, 2024", subjects: "Physics, Chemistry, Maths", score: 82 },
   { id: "2", title: "NEET Biology Practice Test", date: "May 20, 2024", subjects: "Biology", score: 74 },
   { id: "3", title: "JAMB Mock Test 11", date: "May 19, 2024", subjects: "Physics, Chemistry, Maths", score: 68 },
@@ -41,6 +39,7 @@ export default function RecentTests({ tests = defaultTests }: RecentTestsProps) 
   return (
     <div
       style={{
+        width: "100%",
         borderRadius: "16px",
         padding: "20px",
         background:
@@ -86,14 +85,20 @@ export default function RecentTests({ tests = defaultTests }: RecentTestsProps) 
             </div>
 
             {/* Text */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#D8E0E8" }}>{test.title}</span>
-              <span style={{ fontSize: "11px", color: "#7D8A9A" }}>{test.date} • {test.subjects}</span>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "#D8E0E8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {test.title}
+              </span>
+              <span style={{ fontSize: "11px", color: "#7D8A9A" }}>
+                {test.date} • {test.subjects}
+              </span>
             </div>
 
             {/* Score */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", flexShrink: 0 }}>
-              <span style={{ fontSize: "16px", fontWeight: 700, color: scoreColor(test.score) }}>{test.score}%</span>
+              <span style={{ fontSize: "16px", fontWeight: 700, color: scoreColor(test.score) }}>
+                {test.score}%
+              </span>
               <span style={{ fontSize: "11px", color: "#7D8A9A" }}>Score</span>
             </div>
           </div>
@@ -101,4 +106,4 @@ export default function RecentTests({ tests = defaultTests }: RecentTestsProps) 
       })}
     </div>
   );
-            }
+}
