@@ -22,6 +22,10 @@ export async function GET() {
           Authorization: `Bearer ${token}`,
         },
       },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
     }
   )
 
@@ -44,24 +48,24 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const tests = (data ?? []).map((session: {
-    id: string
-    mode: string
-    overall_accuracy_percent: number | null
-    completed_at: string
-    subjects: { name: string } | null
-  }) => ({
-    id: session.id,
-    title: formatTitle(session.mode, session.subjects?.name),
-    date: formatDate(session.completed_at),
-    subjects: session.subjects?.name ?? 'Mixed',
-    score: Math.round(session.overall_accuracy_percent ?? 0),
-  }))
+  const tests = (data ?? []).map((session) => {
+    const subjectName = Array.isArray(session.subjects)
+      ? session.subjects[0]?.name ?? null
+      : (session.subjects as { name: string } | null)?.name ?? null
+
+    return {
+      id: session.id,
+      title: formatTitle(session.mode, subjectName),
+      date: formatDate(session.completed_at ?? ''),
+      subjects: subjectName ?? 'Mixed',
+      score: Math.round(session.overall_accuracy_percent ?? 0),
+    }
+  })
 
   return NextResponse.json({ tests })
 }
 
-function formatTitle(mode: string, subjectName?: string): string {
+function formatTitle(mode: string, subjectName: string | null): string {
   const subject = subjectName ?? 'Mixed'
   switch (mode) {
     case 'quick_fire':   return `Quick Fire — ${subject}`
@@ -73,6 +77,7 @@ function formatTitle(mode: string, subjectName?: string): string {
 }
 
 function formatDate(timestamp: string): string {
+  if (!timestamp) return '—'
   return new Date(timestamp).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
