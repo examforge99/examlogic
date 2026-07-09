@@ -4,6 +4,15 @@ import { createClient } from '@supabase/supabase-js'
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
+const subjectColors: Record<string, string> = {
+  Mathematics: '#3FB7FF',
+  Physics: '#8B5CF6',
+  Chemistry: '#25d6a2',
+  Biology: '#EAB308',
+  English: '#F97316',
+  Literature: '#EC4899',
+}
+
 export async function GET() {
   const { userId, getToken } = await auth()
 
@@ -22,6 +31,10 @@ export async function GET() {
           Authorization: `Bearer ${token}`,
         },
       },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
     }
   )
 
@@ -39,20 +52,17 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const subjectColors: Record<string, string> = {
-    Mathematics: '#3FB7FF',
-    Physics: '#8B5CF6',
-    Chemistry: '#25d6a2',
-    Biology: '#EAB308',
-    English: '#F97316',
-    Literature: '#EC4899',
-  }
+  const subjects = (data ?? []).map((row) => {
+    const subjectName = Array.isArray(row.subjects)
+      ? row.subjects[0]?.name ?? null
+      : (row.subjects as { name: string } | null)?.name ?? null
 
-  const subjects = data.map((row) => ({
-    name: row.subjects?.name ?? 'Unknown',
-    count: row.total_questions,
-    color: subjectColors[row.subjects?.name ?? ''] ?? '#A8B2C1',
-  }))
+    return {
+      name: subjectName ?? 'Unknown',
+      count: row.total_questions,
+      color: subjectColors[subjectName ?? ''] ?? '#A8B2C1',
+    }
+  })
 
   return NextResponse.json({ subjects })
-                            }
+}
