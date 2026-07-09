@@ -1,5 +1,9 @@
 "use client";
 
+interface PracticeModesProps {
+  loading?: boolean;
+}
+
 const CARD_STYLE: React.CSSProperties = {
   width: "100%",
   borderRadius: "16px",
@@ -85,7 +89,7 @@ const modes: Mode[] = [
   },
 ];
 
-export default function PracticeModes() {
+export default function PracticeModes({ loading = false }: PracticeModesProps) {
   return (
     <div style={CARD_STYLE}>
 
@@ -95,7 +99,13 @@ export default function PracticeModes() {
       </div>
 
       {/* Mode cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        opacity: loading ? 0.4 : 1,
+        transition: "opacity 0.3s",
+      }}>
         {modes.map((mode, i) => (
           <div key={i} style={MODE_CARD_STYLE}>
 
