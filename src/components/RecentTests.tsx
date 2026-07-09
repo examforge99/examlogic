@@ -13,6 +13,7 @@ interface Test {
 
 interface RecentTestsProps {
   tests?: Test[];
+  loading?: boolean;
 }
 
 const iconMap: { icon: ReactNode; iconBg: string }[] = [
@@ -29,81 +30,127 @@ const defaultTests: Test[] = [
   { id: "4", title: "Full Syllabus Test 3", date: "May 18, 2024", subjects: "All Subjects", score: 91 },
 ];
 
+const skeletonTests = Array.from({ length: 4 }, (_, i) => ({ id: String(i) }));
+
 function scoreColor(score: number) {
   if (score >= 80) return "#22c55e";
   if (score >= 60) return "#EAB308";
   return "#F97316";
 }
 
-export default function RecentTests({ tests = defaultTests }: RecentTestsProps) {
+const CARD_STYLE: React.CSSProperties = {
+  width: "100%",
+  borderRadius: "16px",
+  padding: "20px",
+  background:
+    "linear-gradient(to bottom, #1E1B4B, #0F1535 30%, #080D1F) padding-box, linear-gradient(to bottom, #25d6a2, #3730A3) border-box",
+  border: "2px solid transparent",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
+};
+
+export default function RecentTests({ tests, loading = false }: RecentTestsProps) {
+  const isEmpty = !loading && (tests ?? []).length === 0;
+  const displayTests = loading ? defaultTests : (tests ?? []);
+
   return (
-    <div
-      style={{
-        width: "100%",
-        borderRadius: "16px",
-        padding: "20px",
-        background:
-          "linear-gradient(to bottom, #1E1B4B, #0F1535 30%, #080D1F) padding-box, linear-gradient(to bottom, #25d6a2, #3730A3) border-box",
-        border: "2px solid transparent",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
-      }}
-    >
+    <div style={CARD_STYLE}>
+
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "16px",
+        opacity: loading ? 0.5 : 1,
+        transition: "opacity 0.3s",
+      }}>
         <span style={{ fontSize: "16px", fontWeight: 700, color: "#D8E0E8" }}>Recent Tests</span>
-        <span style={{ fontSize: "13px", fontWeight: 500, color: "#3FB7FF", cursor: "pointer" }}>View All</span>
+        {!isEmpty && (
+          <span style={{ fontSize: "13px", fontWeight: 500, color: "#3FB7FF", cursor: "pointer" }}>
+            View All
+          </span>
+        )}
       </div>
 
-      {/* Rows */}
-      {tests.map((test, i) => {
-        const { icon, iconBg } = iconMap[i % iconMap.length];
-        return (
-          <div
-            key={test.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "12px 0",
-              borderBottom: i < tests.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
-            }}
-          >
-            {/* Icon */}
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "10px",
-                background: iconBg,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              {icon}
-            </div>
+      {/* Empty state */}
+      {isEmpty ? (
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px 0",
+          gap: "10px",
+        }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="13" y2="17" />
+          </svg>
+          <p style={{
+            fontSize: "13px",
+            color: "#7D8A9A",
+            textAlign: "center",
+            margin: 0,
+            lineHeight: 1.6,
+          }}>
+            No sessions yet. Start a practice session to see your test history here.
+          </p>
+        </div>
+      ) : (
+        /* Rows */
+        <div style={{ opacity: loading ? 0.4 : 1, transition: "opacity 0.3s" }}>
+          {displayTests.map((test, i) => {
+            const { icon, iconBg } = iconMap[i % iconMap.length];
+            return (
+              <div
+                key={test.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "12px 0",
+                  borderBottom: i < displayTests.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+                }}
+              >
+                {/* Icon */}
+                <div style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: iconBg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  {icon}
+                </div>
 
-            {/* Text */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#D8E0E8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {test.title}
-              </span>
-              <span style={{ fontSize: "11px", color: "#7D8A9A" }}>
-                {test.date} • {test.subjects}
-              </span>
-            </div>
+                {/* Text */}
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#D8E0E8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {test.title}
+                  </span>
+                  <span style={{ fontSize: "11px", color: "#7D8A9A" }}>
+                    {test.date} • {test.subjects}
+                  </span>
+                </div>
 
-            {/* Score */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", flexShrink: 0 }}>
-              <span style={{ fontSize: "16px", fontWeight: 700, color: scoreColor(test.score) }}>
-                {test.score}%
-              </span>
-              <span style={{ fontSize: "11px", color: "#7D8A9A" }}>Score</span>
-            </div>
-          </div>
-        );
-      })}
+                {/* Score */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", flexShrink: 0 }}>
+                  <span style={{ fontSize: "16px", fontWeight: 700, color: scoreColor(test.score) }}>
+                    {test.score}%
+                  </span>
+                  <span style={{ fontSize: "11px", color: "#7D8A9A" }}>Score</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
     </div>
   );
 }
