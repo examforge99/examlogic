@@ -1,5 +1,3 @@
-// app/api/dashboard/score-distribution/route.ts
-
 import { createClient } from '@supabase/supabase-js'
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
@@ -14,27 +12,17 @@ const subjectColors: Record<string, string> = {
 }
 
 export async function GET() {
-  const { userId, getToken } = await auth()
+  const { userId } = await auth()
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const token = await getToken({ template: 'supabase' })
-
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // service role
     {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+      auth: { autoRefreshToken: false, persistSession: false },
     }
   )
 
@@ -47,6 +35,7 @@ export async function GET() {
         name
       )
     `)
+    .eq('user_id', userId)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
