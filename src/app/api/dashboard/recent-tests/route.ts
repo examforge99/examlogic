@@ -11,22 +11,18 @@ export async function GET() {
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // service role — bypasses RLS
-    {
-      auth: { autoRefreshToken: false, persistSession: false },
-    }
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
   const { data, error } = await supabase
-    .from('sessions')
+    .from('exam_sessions')
     .select(`
       id,
       mode,
       overall_accuracy_percent,
       completed_at,
-      subjects (
-        name
-      )
+      subjects ( name )
     `)
     .eq('user_id', userId)
     .eq('is_completed', true)
@@ -34,13 +30,13 @@ export async function GET() {
     .limit(4)
 
   if (error) {
+    console.error('[recent-tests]', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   const tests = (data ?? []).map((session) => {
-    const subjectName = Array.isArray(session.subjects)
-      ? session.subjects[0]?.name ?? null
-      : (session.subjects as { name: string } | null)?.name ?? null
+    const subjectName =
+      (session.subjects as { name: string } | null)?.name ?? null
 
     return {
       id: session.id,
