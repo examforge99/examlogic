@@ -35,18 +35,19 @@ export async function GET() {
   }
 
   const tests = (data ?? []).map((session) => {
-    const subjectName =
-      (session.subjects as { name: string } | null)?.name ?? null
+  const raw = session.subjects
+  const subjectName = Array.isArray(raw)
+    ? (raw[0] as { name: string } | undefined)?.name ?? null
+    : (raw as { name: string } | null)?.name ?? null
 
-    return {
-      id: session.id,
-      title: formatTitle(session.mode, subjectName),
-      date: formatDate(session.completed_at ?? ''),
-      subjects: subjectName ?? 'Mixed',
-      score: Math.round(session.overall_accuracy_percent ?? 0),
-    }
-  })
-
+  return {
+    id: session.id,
+    title: formatTitle(session.mode, subjectName),
+    date: formatDate(session.completed_at ?? ''),
+    subjects: subjectName ?? 'Mixed',
+    score: Math.round(session.overall_accuracy_percent ?? 0),
+  }
+})
   return NextResponse.json({ tests })
 }
 
