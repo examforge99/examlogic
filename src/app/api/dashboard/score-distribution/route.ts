@@ -20,10 +20,8 @@ export async function GET() {
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // service role
-    {
-      auth: { autoRefreshToken: false, persistSession: false },
-    }
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
   const { data, error } = await supabase
@@ -31,20 +29,18 @@ export async function GET() {
     .select(`
       total_questions,
       subject_id,
-      subjects (
-        name
-      )
+      subjects ( name )
     `)
     .eq('user_id', userId)
 
   if (error) {
+    console.error('[score-distribution]', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   const subjects = (data ?? []).map((row) => {
-    const subjectName = Array.isArray(row.subjects)
-      ? row.subjects[0]?.name ?? null
-      : (row.subjects as { name: string } | null)?.name ?? null
+    const subjectName =
+      (row.subjects as { name: string } | null)?.name ?? null
 
     return {
       name: subjectName ?? 'Unknown',
