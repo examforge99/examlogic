@@ -39,15 +39,17 @@ export async function GET() {
   }
 
   const subjects = (data ?? []).map((row) => {
-    const subjectName =
-      (row.subjects as { name: string } | null)?.name ?? null
+  const raw = row.subjects
+  const subjectName = Array.isArray(raw)
+    ? (raw[0] as { name: string } | undefined)?.name ?? null
+    : (raw as { name: string } | null)?.name ?? null
 
-    return {
-      name: subjectName ?? 'Unknown',
-      count: row.total_questions,
-      color: subjectColors[subjectName ?? ''] ?? '#A8B2C1',
-    }
-  })
+  return {
+    name: subjectName ?? 'Unknown',
+    count: row.total_questions,
+    color: subjectColors[subjectName ?? ''] ?? '#A8B2C1',
+  }
+})
 
   return NextResponse.json({ subjects })
 }
