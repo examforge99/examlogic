@@ -40,23 +40,34 @@ export async function selectTopicTemplates(
   return selected;
 }
 
+// in topicTemplateEngine.ts
+
 export async function markTopicTemplatesUsed(
   supabase: SupabaseClient,
   userId: string,
   templateIds: number[],
   sessionId: string
 ) {
+  // 1. Insert into history
   const rows = templateIds.map((templateId) => ({
     user_id: userId,
     template_id: templateId,
     session_id: sessionId,
   }));
 
-  const { error } = await supabase
+  const { error: historyError } = await supabase
     .from("user_topic_template_history")
     .insert(rows);
 
-  if (error) throw new Error(`markTopicTemplatesUsed failed: ${error.message}`);
+  if (historyError) throw new Error(`markTopicTemplatesUsed history failed: ${historyError.message}`);
+
+  // 2. Deprecate globally
+  const { error: deprecateError } = await supabase
+    .from("subject_topic_templates")
+    .update({ status: "deprecated" })
+    .in("id", templateIds);
+
+  if (deprecateError) throw new Error(`markTopicTemplatesUsed deprecate failed: ${deprecateError.message}`);
 }
 
 export async function checkTopicRefillThreshold(
