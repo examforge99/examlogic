@@ -41,21 +41,34 @@ export async function selectDifficultyTemplates(
   return templates;
 }
 
+// in templateEngine.ts
+
 export async function markTemplatesUsed(
   supabase: SupabaseClient,
   userId: string,
   templateIds: number[],
   sessionId: string
 ) {
+  // 1. Insert into history
   const rows = templateIds.map((templateId) => ({
     user_id: userId,
     template_id: templateId,
     session_id: sessionId,
   }));
 
-  const { error } = await supabase.from("user_template_history").insert(rows);
+  const { error: historyError } = await supabase
+    .from("user_template_history")
+    .insert(rows);
 
-  if (error) throw new Error(`markTemplatesUsed failed: ${error.message}`);
+  if (historyError) throw new Error(`markTemplatesUsed history failed: ${historyError.message}`);
+
+  // 2. Deprecate globally
+  const { error: deprecateError } = await supabase
+    .from("simulation_templates")
+    .update({ status: "deprecated" })
+    .in("id", templateIds);
+
+  if (deprecateError) throw new Error(`markTemplatesUsed deprecate failed: ${deprecateError.message}`);
 }
 
 export async function checkDifficultyRefillThreshold(supabase: SupabaseClient) {
