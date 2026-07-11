@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 interface PracticeModesProps {
   loading?: boolean;
 }
@@ -33,6 +35,7 @@ interface Mode {
   description: string;
   accentColor: string;
   iconBg: string;
+  route: string;
   icon: React.ReactNode;
 }
 
@@ -42,6 +45,7 @@ const modes: Mode[] = [
     description: "Rapid questions, sharp mind",
     accentColor: "#3FB7FF",
     iconBg: "rgba(63,183,255,0.12)",
+    route: "/quick-fire",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -53,6 +57,7 @@ const modes: Mode[] = [
     description: "Progress through topics",
     accentColor: "#25d6a2",
     iconBg: "rgba(37,214,162,0.12)",
+    route: "/campaign",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d6a2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
@@ -66,6 +71,7 @@ const modes: Mode[] = [
     description: "Full exam experience",
     accentColor: "#8B5CF6",
     iconBg: "rgba(139,92,246,0.12)",
+    route: "/simulation",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
@@ -78,6 +84,7 @@ const modes: Mode[] = [
     description: "One wrong — game over",
     accentColor: "#F97316",
     iconBg: "rgba(249,115,22,0.12)",
+    route: "/sudden-death",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="8" r="5" />
@@ -90,31 +97,30 @@ const modes: Mode[] = [
 ];
 
 export default function PracticeModes({ loading = false }: PracticeModesProps) {
+  const router = useRouter();
+
   return (
     <div style={CARD_STYLE}>
 
-      {/* Header */}
       <div style={{ fontSize: "clamp(14px, 4vw, 16px)", fontWeight: 700, color: "#D8E0E8", marginBottom: "16px" }}>
         Practice Modes
       </div>
 
-      {/* Mode cards */}
       <div style={{
         display: "flex",
         flexDirection: "column",
         gap: "12px",
         opacity: loading ? 0.4 : 1,
         transition: "opacity 0.3s",
+        pointerEvents: loading ? "none" : "auto",
       }}>
         {modes.map((mode, i) => (
           <div key={i} style={MODE_CARD_STYLE}>
 
-            {/* Icon */}
             <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: mode.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               {mode.icon}
             </div>
 
-            {/* Text */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: "clamp(12px, 3.5vw, 14px)", fontWeight: 700, color: "#D8E0E8" }}>
                 {mode.title}
@@ -124,8 +130,21 @@ export default function PracticeModes({ loading = false }: PracticeModesProps) {
               </div>
             </div>
 
-            {/* Button */}
-            <div style={{ padding: "6px 12px", borderRadius: "8px", border: `1.5px solid ${mode.accentColor}`, background: "transparent", fontSize: "clamp(11px, 3vw, 13px)", fontWeight: 600, color: mode.accentColor, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}>
+            <div
+              onClick={() => router.push(mode.route)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "8px",
+                border: `1.5px solid ${mode.accentColor}`,
+                background: "transparent",
+                fontSize: "clamp(11px, 3vw, 13px)",
+                fontWeight: 600,
+                color: mode.accentColor,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                cursor: "pointer",
+              }}
+            >
               Start →
             </div>
 
