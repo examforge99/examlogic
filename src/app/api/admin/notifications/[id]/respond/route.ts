@@ -2,35 +2,20 @@
 
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createClient } from "@supabase/supabase-js";
+import { getServiceRoleClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/auth/isAdmin";
 import { sendCompensationMessage } from "@/lib/simulation/notifications/adminNotifier";
-
-function getServiceRoleClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-}
-
-async function isAdmin(supabase: any, userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", userId)
-    .single();
-  return data?.role === "admin";
-}
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await context.params;
   const supabase = getServiceRoleClient();
 
   if (!(await isAdmin(supabase, userId))) {
@@ -49,6 +34,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
 
-  await sendCompensationMessage(supabase, params.id, message);
+  await sendCompensationMessage(supabase, id, message);
   return NextResponse.json({ success: true });
 }
