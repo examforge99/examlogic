@@ -56,8 +56,8 @@ const DISABLED_BTN_STYLE: React.CSSProperties = {
 const rules = [
   {
     icon: "⏱",
-    title: "90 Minutes",
-    description: "You have exactly 90 minutes. The timer starts the moment you tap Begin.",
+    title: "120 Minutes",
+    description: "You have exactly 120 minutes. The timer starts the moment you tap Begin.",
   },
   {
     icon: "📝",
