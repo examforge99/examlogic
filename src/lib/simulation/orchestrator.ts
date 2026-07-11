@@ -113,27 +113,27 @@ export async function runSimulationPipeline(userId: string) {
   const topicTemplateIds = topicTemplates.map((t: any) => t.id);
 
   const session = await createCBTSession(
-    supabase,
-    userId,
-    resolvedPool,
-    validationReport,
-    difficultyTemplateIds,
-    topicTemplateIds
-  );
+  supabase,
+  userId,
+  resolvedPool,
+  validationReport,
+  difficultyTemplateIds,
+  topicTemplateIds
+);
 
-  if (!session) {
-    return { error: "Failed to create session", status: 500 };
-  }
+if (!session) {
+  return { error: "Failed to create session", status: 500 };
+}
 
-  // ── 10. Mark templates used + store fingerprints (atomic post-creation) ──
-  await markTemplatesUsed(supabase, userId, difficultyTemplateIds, session.id);
-  await markTopicTemplatesUsed(supabase, userId, topicTemplateIds, session.id);
-  await storeSessionFingerprints(
-    supabase,
-    userId,
-    session.id,
-    topicTemplates.map((t: any) => ({ subject_id: t.subject_id, topic_ids: t.topic_ids }))
-  );
+// ── 10. Mark templates used + store fingerprints ──
+await markTemplatesUsed(supabase, userId, difficultyTemplateIds, session.session_id);
+await markTopicTemplatesUsed(supabase, userId, topicTemplateIds, session.session_id);
+await storeSessionFingerprints(
+  supabase,
+  userId,
+  session.session_id,
+  topicTemplates.map((t: any) => ({ subject_id: t.subject_id, topic_ids: t.topic_ids }))
+);
 
   // ── 11. Check refill thresholds (non-blocking) ───────────────────────────
   checkDifficultyRefillThreshold(supabase).then((flags) => {
