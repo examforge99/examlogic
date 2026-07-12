@@ -60,48 +60,86 @@ const subjects = [
 ];
 
 const difficulties = [1, 2, 3, 4, 5];
-const options = ["option_a", "option_b", "option_c", "option_d"];
+
+interface Option {
+  text: string;
+  isCorrect: boolean;
+}
+
+interface FormState {
+  subject_id: string;
+  topic_id: string;
+  difficulty_level: number;
+  question_text: string;
+  explanation: string;
+}
 
 export default function AdminQuestions() {
-  const [topics, setTopics] = useState<any[]>([]);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     subject_id: "",
     topic_id: "",
     difficulty_level: 3,
     question_text: "",
-    option_a: "",
-    option_b: "",
-    option_c: "",
-    option_d: "",
-    correct_option_id: "",
     explanation: "",
   });
+
+  const [options, setOptions] = useState<Option[]>([
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false },
+  ]);
+
+  const [topics, setTopics] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null);
 
-  // Fetch topics when subject changes
   useEffect(() => {
-    if (!form.subject_id) return;
+    if (!form.subject_id) {
+      setTopics([]);
+      return;
+    }
     fetch(`/api/admin/topics?subject_id=${form.subject_id}`)
       .then((r) => r.json())
       .then((d) => setTopics(d.topics ?? []))
       .catch(() => setTopics([]));
   }, [form.subject_id]);
 
-  const update = (key: string, value: any) => {
+  const updateForm = (key: keyof FormState, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setResult(null);
+  };
+
+  const updateOptionText = (index: number, text: string) => {
+    setOptions((prev) => prev.map((o, i) => i === index ? { ...o, text } : o));
+    setResult(null);
+  };
+
+  const selectCorrect = (index: number) => {
+    setOptions((prev) => prev.map((o, i) => ({ ...o, isCorrect: i === index })));
+    setResult(null);
+  };
+
+  const resetForm = () => {
+    setForm((prev) => ({
+      ...prev,
+      question_text: "",
+      explanation: "",
+    }));
+    setOptions([
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
+    ]);
   };
 
   const isValid =
     form.subject_id &&
     form.topic_id &&
     form.question_text.trim() &&
-    form.option_a.trim() &&
-    form.option_b.trim() &&
-    form.option_c.trim() &&
-    form.option_d.trim() &&
-    form.correct_option_id;
+    options.every((o) => o.text.trim()) &&
+    options.some((o) => o.isCorrect);
 
   const handleSubmit = async () => {
     if (!isValid || submitting) return;
@@ -112,28 +150,26 @@ export default function AdminQuestions() {
       const res = await fetch("/api/admin/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          subject_id: form.subject_id,
+          topic_id: form.topic_id,
+          difficulty_level: form.difficulty_level,
+          question_text: form.question_text,
+          options,
+          explanation: form.explanation,
+        }),
       });
+
       const data = await res.json();
 
       if (!res.ok) {
         setResult({ error: data.error ?? "Failed to add question" });
       } else {
         setResult({ success: true });
-        // Reset form but keep subject/topic
-        setForm((prev) => ({
-          ...prev,
-          question_text: "",
-          option_a: "",
-          option_b: "",
-          option_c: "",
-          option_d: "",
-          correct_option_id: "",
-          explanation: "",
-        }));
+        resetForm();
       }
     } catch {
-      setResult({ error: "Network error" });
+      setResult({ error: "Network error. Check your connection." });
     } finally {
       setSubmitting(false);
     }
@@ -141,15 +177,22 @@ export default function AdminQuestions() {
 
   return (
     <div>
-      <div style={{ fontSize: "18px", fontWeight: 700, color: "#D8E0E8", marginBottom: "4px" }}>Add Question</div>
-      <div style={{ fontSize: "12px", color: "#7D8A9A", marginBottom: "20px" }}>Insert questions into the bank</div>
+      <div style={{ fontSize: "18px", fontWeight: 700, color: "#D8E0E8", marginBottom: "4px" }}>
+        Add Question
+      </div>
+      <div style={{ fontSize: "12px", color: "#7D8A9A", marginBottom: "20px" }}>
+        Insert questions into the bank
+      </div>
 
       {/* Subject */}
       <div style={SECTION_STYLE}>
         <label style={LABEL_STYLE}>Subject</label>
         <select
           value={form.subject_id}
-          onChange={(e) => { update("subject_id", e.target.value); update("topic_id", ""); }}
+          onChange={(e) => {
+            updateForm("subject_id", e.target.value);
+            updateForm("topic_id", "");
+          }}
           style={INPUT_STYLE}
         >
           <option value="">Select subject</option>
@@ -164,11 +207,20 @@ export default function AdminQuestions() {
         <label style={LABEL_STYLE}>Topic</label>
         <select
           value={form.topic_id}
-          onChange={(e) => update("topic_id", e.target.value)}
-          style={INPUT_STYLE}
+          onChange={(e) => updateForm("topic_id", e.target.value)}
+          style={{
+            ...INPUT_STYLE,
+            opacity: !form.subject_id || topics.length === 0 ? 0.4 : 1,
+          }}
           disabled={!form.subject_id || topics.length === 0}
         >
-          <option value="">Select topic</option>
+          <option value="">
+            {!form.subject_id
+              ? "Select a subject first"
+              : topics.length === 0
+              ? "No topics found"
+              : "Select topic"}
+          </option>
           {topics.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
@@ -182,7 +234,7 @@ export default function AdminQuestions() {
           {difficulties.map((d) => (
             <div
               key={d}
-              onClick={() => update("difficulty_level", d)}
+              onClick={() => updateForm("difficulty_level", d)}
               style={{
                 flex: 1,
                 padding: "10px",
@@ -194,6 +246,7 @@ export default function AdminQuestions() {
                 fontWeight: 700,
                 textAlign: "center" as const,
                 cursor: "pointer",
+                transition: "all 0.15s",
               }}
             >
               {d}
@@ -207,51 +260,66 @@ export default function AdminQuestions() {
         <label style={LABEL_STYLE}>Question</label>
         <textarea
           value={form.question_text}
-          onChange={(e) => update("question_text", e.target.value)}
+          onChange={(e) => updateForm("question_text", e.target.value)}
           placeholder="Enter question text..."
           rows={4}
-          style={{ ...INPUT_STYLE, resize: "vertical" as const, lineHeight: "1.5" }}
+          style={{ ...INPUT_STYLE, resize: "vertical" as const, lineHeight: "1.6" }}
         />
       </div>
 
       {/* Options */}
-      {["option_a", "option_b", "option_c", "option_d"].map((opt, i) => (
-        <div key={opt} style={SECTION_STYLE}>
-          <label style={LABEL_STYLE}>Option {String.fromCharCode(65 + i)}</label>
-          <input
-            value={form[opt as keyof typeof form] as string}
-            onChange={(e) => update(opt, e.target.value)}
-            placeholder={`Option ${String.fromCharCode(65 + i)}`}
-            style={INPUT_STYLE}
-          />
-        </div>
-      ))}
-
-      {/* Correct option */}
       <div style={SECTION_STYLE}>
-        <label style={LABEL_STYLE}>Correct Answer</label>
-        <div style={{ display: "flex", gap: "8px" }}>
+        <label style={LABEL_STYLE}>Options — tap the circle to mark correct answer</label>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {options.map((opt, i) => (
             <div
-              key={opt}
-              onClick={() => update("correct_option_id", opt)}
-              style={{
-                flex: 1,
-                padding: "10px",
-                borderRadius: "8px",
-                border: `1.5px solid ${form.correct_option_id === opt ? "#25d6a2" : "rgba(255,255,255,0.08)"}`,
-                background: form.correct_option_id === opt ? "rgba(37,214,162,0.1)" : "rgba(255,255,255,0.02)",
-                color: form.correct_option_id === opt ? "#25d6a2" : "#7D8A9A",
-                fontSize: "13px",
-                fontWeight: 700,
-                textAlign: "center" as const,
-                cursor: "pointer",
-              }}
+              key={i}
+              style={{ display: "flex", alignItems: "center", gap: "12px" }}
             >
-              {String.fromCharCode(65 + i)}
+              {/* Correct selector */}
+              <div
+                onClick={() => selectCorrect(i)}
+                style={{
+                  width: "22px",
+                  height: "22px",
+                  borderRadius: "50%",
+                  border: `2px solid ${opt.isCorrect ? "#25d6a2" : "rgba(255,255,255,0.15)"}`,
+                  background: opt.isCorrect ? "rgba(37,214,162,0.15)" : "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  transition: "all 0.15s",
+                }}
+              >
+                {opt.isCorrect && (
+                  <div style={{
+                    width: "9px",
+                    height: "9px",
+                    borderRadius: "50%",
+                    background: "#25d6a2",
+                  }} />
+                )}
+              </div>
+
+              {/* Option input */}
+              <input
+                value={opt.text}
+                onChange={(e) => updateOptionText(i, e.target.value)}
+                placeholder={`Option ${i + 1}`}
+                style={{ ...INPUT_STYLE, marginBottom: 0 }}
+              />
             </div>
           ))}
         </div>
+
+        {/* Correct answer hint */}
+        {options.some((o) => o.isCorrect) && (
+          <div style={{ fontSize: "11px", color: "#25d6a2", marginTop: "8px" }}>
+            ✓ Option {options.findIndex((o) => o.isCorrect) + 1} marked as correct
+          </div>
+        )}
       </div>
 
       {/* Explanation */}
@@ -259,21 +327,39 @@ export default function AdminQuestions() {
         <label style={LABEL_STYLE}>Explanation (optional)</label>
         <textarea
           value={form.explanation}
-          onChange={(e) => update("explanation", e.target.value)}
+          onChange={(e) => updateForm("explanation", e.target.value)}
           placeholder="Why is this the correct answer?"
           rows={3}
-          style={{ ...INPUT_STYLE, resize: "vertical" as const, lineHeight: "1.5" }}
+          style={{ ...INPUT_STYLE, resize: "vertical" as const, lineHeight: "1.6" }}
         />
       </div>
 
       {/* Result */}
       {result?.success && (
-        <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(37,214,162,0.08)", border: "1px solid rgba(37,214,162,0.3)", marginBottom: "12px" }}>
-          <div style={{ fontSize: "13px", color: "#25d6a2", fontWeight: 600 }}>✓ Question added successfully</div>
+        <div style={{
+          padding: "12px 14px",
+          borderRadius: "10px",
+          background: "rgba(37,214,162,0.08)",
+          border: "1px solid rgba(37,214,162,0.3)",
+          marginBottom: "12px",
+        }}>
+          <div style={{ fontSize: "13px", color: "#25d6a2", fontWeight: 600 }}>
+            ✓ Question added successfully
+          </div>
+          <div style={{ fontSize: "11px", color: "#7D8A9A", marginTop: "3px" }}>
+            Subject and topic kept — ready for next question
+          </div>
         </div>
       )}
+
       {result?.error && (
-        <div style={{ padding: "12px", borderRadius: "10px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", marginBottom: "12px" }}>
+        <div style={{
+          padding: "12px 14px",
+          borderRadius: "10px",
+          background: "rgba(239,68,68,0.08)",
+          border: "1px solid rgba(239,68,68,0.3)",
+          marginBottom: "12px",
+        }}>
           <div style={{ fontSize: "13px", color: "#F87171" }}>{result.error}</div>
         </div>
       )}
@@ -283,8 +369,8 @@ export default function AdminQuestions() {
         disabled={!isValid || submitting}
         style={!isValid || submitting ? DISABLED_BTN : BTN_STYLE}
       >
-        {submitting ? "Adding..." : "Add Question"}
+        {submitting ? "Adding..." : "Add Question →"}
       </button>
     </div>
   );
-    }
+}
