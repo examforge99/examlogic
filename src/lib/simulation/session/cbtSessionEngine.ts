@@ -47,15 +47,21 @@ export async function createSessionRecord(
       user_id: userId,
       mode: "simulation",
       status: "pending",
-      started_at: null,
-      expires_at: null,
+      is_completed: false,
       total_questions: 180,
       correct_count: 0,
       total_time_seconds: 0,
+      base_points: 0,
+      bonus_points: 0,
+      total_points: 0,
+      gems_earned: 0,
+      is_flagged: false,
+      missed_heartbeats: 0,
+      total_absence_events: 0,
+      auto_submitted: false,
+      resolution_count: metadata.resolutionCount,
       difficulty_template_ids: metadata.difficultyTemplateIds,
       topic_template_ids: metadata.topicTemplateIds,
-      resolution_count: metadata.resolutionCount,
-      is_flagged: false,
     })
     .select()
     .single();
@@ -80,12 +86,17 @@ export async function storeSessionQuestions(
     topic_id: q.topic_id,
     difficulty_level: q.difficulty_level,
     position: q.position,
+    correct_option_id: q.correct_option_id,
     selected_answer: null,
-    time_spent_seconds: null,
+    time_spent_seconds: 0,
+    answer_history: [],
+    change_count: 0,
     is_correct: null,
   }));
 
-  const { error } = await supabase.from("exam_session_questions").insert(rows);
+  const { error } = await supabase
+    .from("exam_session_questions")
+    .insert(rows);
 
   if (error) throw new Error(`storeSessionQuestions failed: ${error.message}`);
 }
@@ -93,15 +104,11 @@ export async function storeSessionQuestions(
 export function assignQuestionPositions(
   questions: ResolvedQuestion[]
 ): (ResolvedQuestion & { position: number })[] {
-  // English: positions 1–60
-  // Subject 2: positions 61–100
-  // Subject 3: positions 101–140
-  // Subject 4: positions 141–180
+  const englishId = getEnglishSubjectId(questions);
 
-  const english = questions.filter((q) => q.subject_id === getEnglishId(questions));
-  const others = questions.filter((q) => q.subject_id !== getEnglishId(questions));
+  const english = questions.filter((q) => q.subject_id === englishId);
+  const others = questions.filter((q) => q.subject_id !== englishId);
 
-  // Group others by subject
   const subjectMap = new Map<string, ResolvedQuestion[]>();
   for (const q of others) {
     if (!subjectMap.has(q.subject_id)) subjectMap.set(q.subject_id, []);
@@ -111,12 +118,10 @@ export function assignQuestionPositions(
   const positioned: (ResolvedQuestion & { position: number })[] = [];
   let pos = 1;
 
-  // English block
   for (const q of english) {
     positioned.push({ ...q, position: pos++ });
   }
 
-  // Other subject blocks
   for (const [, subjectQuestions] of subjectMap.entries()) {
     for (const q of subjectQuestions) {
       positioned.push({ ...q, position: pos++ });
@@ -130,23 +135,32 @@ export function buildSessionResponse(
   session: any,
   questions: (ResolvedQuestion & { position: number })[]
 ) {
-  // Strip correct_option_id — never expose to frontend
-  const safeQuestions = questions.map(({ correct_option_id, score, resolutionLevel, ...q }) => q);
+  const safeQuestions = questions.map(({
+    correct_option_id,
+    score,
+    resolutionLevel,
+    ...q
+  }) => q);
 
   return {
     session_id: session.id,
     mode: "simulation",
     status: session.status,
     total_questions: 180,
-    time_limit_seconds: 5400, // 90 minutes
+    time_limit_seconds: 7200, // 120 minutes
+    started_at: session.started_at,
+    expires_at: session.expires_at,
     questions: safeQuestions,
   };
 }
 
-export async function getActiveSession(supabase: SupabaseClient, userId: string) {
+export async function getActiveSession(
+  supabase: SupabaseClient,
+  userId: string
+) {
   const { data, error } = await supabase
     .from("exam_sessions")
-    .select("id, status, expires_at")
+    .select("id, status, expires_at, started_at")
     .eq("user_id", userId)
     .in("status", ["pending", "active"])
     .single();
@@ -172,7 +186,26 @@ export async function getSessionById(
 
   const { data: questions } = await supabase
     .from("exam_session_questions")
-    .select("question_id, subject_id, topic_id, difficulty_level, position, selected_answer, time_spent_seconds")
+    .select(`
+      question_id,
+      subject_id,
+      topic_id,
+      difficulty_level,
+      position,
+      selected_answer,
+      time_spent_seconds,
+      answer_history,
+      change_count,
+      questions (
+        id,
+        question_text
+      ),
+      question_options (
+        id,
+        option_text,
+        position
+      )
+    `)
     .eq("session_id", sessionId)
     .order("position", { ascending: true });
 
@@ -185,7 +218,7 @@ export async function startSession(
   userId: string
 ) {
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 90 * 60 * 1000); // 90 minutes
+  const expiresAt = new Date(now.getTime() + 120 * 60 * 1000); // 120 minutes
 
   const { data, error } = await supabase
     .from("exam_sessions")
@@ -220,19 +253,30 @@ export async function getSessionResult(
 
   if (error || !session) return null;
 
-  const { data: questions } = await supabase
-    .from("exam_session_questions")
-    .select("question_id, subject_id, topic_id, difficulty_level, position, selected_answer, is_correct, time_spent_seconds")
+  const { data: attempts } = await supabase
+    .from("attempts")
+    .select(`
+      question_id,
+      subject_id,
+      topic_id,
+      difficulty_level,
+      selected_option_id,
+      correct_option_id,
+      is_correct,
+      time_taken_seconds,
+      change_count,
+      answer_history
+    `)
     .eq("session_id", sessionId)
-    .order("position", { ascending: true });
+    .eq("user_id", userId)
+    .order("attempted_at", { ascending: true });
 
-  return { session, questions: questions ?? [] };
+  return { session, attempts: attempts ?? [] };
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-function getEnglishId(questions: ResolvedQuestion[]): string {
-  // English block is always the largest subject group (60 questions)
+function getEnglishSubjectId(questions: ResolvedQuestion[]): string {
   const counts = new Map<string, number>();
   for (const q of questions) {
     counts.set(q.subject_id, (counts.get(q.subject_id) ?? 0) + 1);
