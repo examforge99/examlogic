@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import ScoreDistribution from '@/components/ScoreDistribution'
 import PracticeModes from '@/components/PracticeModes'
 import RecentTests from '@/components/RecentTests'
+import LeaderboardPreview from '@/components/LeaderboardPreview'
 import { useDashboard } from '@/hooks/useDashboard'
 
 export default function DashboardPage() {
