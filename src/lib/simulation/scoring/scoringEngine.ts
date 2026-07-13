@@ -1,6 +1,11 @@
 // lib/simulation/scoring/scoringEngine.ts
 
 import { SupabaseClient } from "@supabase/supabase-js";
+import {
+  computeSessionPoints,
+  computeNewRankTier,
+  QuestionScore,
+} from "@/lib/simulation/scoring/pointsEngine";
 
 interface SessionQuestion {
   question_id: string;
@@ -148,23 +153,65 @@ export async function scoreSession(
     console.error("[scoringEngine] summary insert failed:", summaryError);
   }
 
-  // ── 8. Update user total points and stats ─────────────────────────────
-  const { data: user } = await supabase
-    .from("users")
-    .select("total_points, total_sessions_completed")
-    .eq("id", userId)
-    .single();
+  // ── 8. Compute points with full breakdown ─────────────────────────────
+const { data: user } = await supabase
+  .from("users")
+  .select("total_points, total_sessions_completed, current_rank_tier")
+  .eq("id", userId)
+  .single();
 
-  if (user) {
-    await supabase
-      .from("users")
-      .update({
-        total_points: (user.total_points ?? 0) + result.total_points,
-        total_sessions_completed: (user.total_sessions_completed ?? 0) + 1,
-        last_active_date: new Date().toISOString().split("T")[0],
-      })
-      .eq("id", userId);
-  }
+const currentRankTier = user?.current_rank_tier ?? "unranked";
+
+const questionScores: QuestionScore[] = scoredQuestions.map((q) => ({
+  question_id: q.question_id,
+  subject_id: q.subject_id,
+  topic_id: q.topic_id,
+  difficulty_level: q.difficulty_level,
+  is_correct: q.is_correct,
+  time_spent_seconds: q.time_spent_seconds,
+}));
+
+const pointsBreakdown = computeSessionPoints(
+  questionScores,
+  currentRankTier,
+  session.auto_submitted ?? false
+);
+
+const newTotalPoints = (user?.total_points ?? 0) + pointsBreakdown.total_points;
+const newRankTier = computeNewRankTier(newTotalPoints);
+const rankChanged = newRankTier !== currentRankTier;
+
+// ── Update exam_sessions with points breakdown ────────────────────────
+await supabase
+  .from("exam_sessions")
+  .update({
+    base_points: pointsBreakdown.base_points,
+    bonus_points: pointsBreakdown.speed_bonus + pointsBreakdown.accuracy_bonus + pointsBreakdown.streak_bonus + pointsBreakdown.completion_bonus,
+    total_points: pointsBreakdown.total_points,
+  })
+  .eq("id", sessionId);
+
+// ── Update user ───────────────────────────────────────────────────────
+await supabase
+  .from("users")
+  .update({
+    total_points: newTotalPoints,
+    current_rank_tier: newRankTier,
+    total_sessions_completed: (user?.total_sessions_completed ?? 0) + 1,
+    last_active_date: new Date().toISOString().split("T")[0],
+  })
+  .eq("id", userId);
+
+// ── Log rank change if happened ───────────────────────────────────────
+if (rankChanged) {
+  await supabase.from("rank_scores").insert({
+    user_id: userId,
+    previous_tier: currentRankTier,
+    new_tier: newRankTier,
+    total_points_at_change: newTotalPoints,
+    session_id: sessionId,
+  });
+}
 
   // ── 9. Clear exam_session_questions ───────────────────────────────────
   await supabase
