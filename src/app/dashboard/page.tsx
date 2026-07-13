@@ -32,6 +32,8 @@ export default function DashboardPage() {
           tests={loading ? undefined : (data?.tests ?? [])}
         />
 
+        <LeaderboardPreview />
+
       </main>
     </div>
   )
