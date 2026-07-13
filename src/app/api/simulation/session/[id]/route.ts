@@ -1,4 +1,3 @@
-
 // app/api/simulation/session/[id]/route.ts
 
 import { NextResponse } from "next/server";
