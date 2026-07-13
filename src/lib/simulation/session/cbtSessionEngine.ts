@@ -12,11 +12,9 @@ export async function createCBTSession(
   difficultyTemplateIds: number[],
   topicTemplateIds: number[]
 ) {
-  // ── One active session rule ──────────────────────────────────────────────
   const activeSession = await getActiveSession(supabase, userId);
   if (activeSession) return null;
 
-  // ── Create session record ────────────────────────────────────────────────
   const session = await createSessionRecord(supabase, userId, {
     difficultyTemplateIds,
     topicTemplateIds,
@@ -25,7 +23,6 @@ export async function createCBTSession(
 
   if (!session) return null;
 
-  // ── Assign positions and store questions ─────────────────────────────────
   const positioned = assignQuestionPositions(resolvedPool.questions);
   await storeSessionQuestions(supabase, session.id, positioned);
 
@@ -147,7 +144,7 @@ export function buildSessionResponse(
     mode: "simulation",
     status: session.status,
     total_questions: 180,
-    time_limit_seconds: 7200, // 120 minutes
+    time_limit_seconds: 7200,
     started_at: session.started_at,
     expires_at: session.expires_at,
     questions: safeQuestions,
@@ -209,7 +206,26 @@ export async function getSessionById(
     .eq("session_id", sessionId)
     .order("position", { ascending: true });
 
-  return { session, questions: questions ?? [] };
+  // Fetch subject names
+  const subjectIds = [
+    ...new Set((questions ?? []).map((q: any) => q.subject_id)),
+  ];
+
+  const { data: subjects } = await supabase
+    .from("subjects")
+    .select("id, name, slug")
+    .in("id", subjectIds);
+
+  const subjectMap: Record<string, { name: string; slug: string }> = {};
+  (subjects ?? []).forEach((s: any) => {
+    subjectMap[s.id] = { name: s.name, slug: s.slug };
+  });
+
+  return {
+    session,
+    questions: questions ?? [],
+    subjectMap,
+  };
 }
 
 export async function startSession(
@@ -218,7 +234,7 @@ export async function startSession(
   userId: string
 ) {
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 120 * 60 * 1000); // 120 minutes
+  const expiresAt = new Date(now.getTime() + 120 * 60 * 1000);
 
   const { data, error } = await supabase
     .from("exam_sessions")
@@ -271,7 +287,26 @@ export async function getSessionResult(
     .eq("user_id", userId)
     .order("attempted_at", { ascending: true });
 
-  return { session, attempts: attempts ?? [] };
+  // Fetch subject names for result breakdown
+  const subjectIds = [
+    ...new Set((attempts ?? []).map((a: any) => a.subject_id)),
+  ];
+
+  const { data: subjects } = await supabase
+    .from("subjects")
+    .select("id, name, slug")
+    .in("id", subjectIds);
+
+  const subjectMap: Record<string, { name: string; slug: string }> = {};
+  (subjects ?? []).forEach((s: any) => {
+    subjectMap[s.id] = { name: s.name, slug: s.slug };
+  });
+
+  return {
+    session,
+    attempts: attempts ?? [],
+    subjectMap,
+  };
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -287,4 +322,4 @@ function getEnglishSubjectId(questions: ResolvedQuestion[]): string {
     if (count > maxCount) { maxCount = count; maxId = id; }
   }
   return maxId;
-}
+      }
