@@ -1,6 +1,7 @@
 // lib/simulation/session/answerBuffer.ts
 
 import { SupabaseClient } from "@supabase/supabase-js";
+import { scoreSession } from "@/lib/simulation/scoring/scoringEngine";
 
 const MAX_TIME_PER_QUESTION = 7200;
 const ABSENCE_THRESHOLD = 4;
@@ -13,7 +14,6 @@ export async function bufferAnswer(
   selectedOptionId: string,
   timeSpentSeconds: number
 ): Promise<{ success: boolean; error?: string }> {
-  // Cap time
   if (timeSpentSeconds < 0 || timeSpentSeconds > MAX_TIME_PER_QUESTION) {
     return { success: false, error: "Invalid time_spent_seconds" };
   }
@@ -59,7 +59,7 @@ export async function writeAnswerToSession(
   sessionId: string,
   questionId: string,
   selectedOptionId: string,
-  timeSpentSeconds: number // full accumulated time from frontend — rewrite not add
+  timeSpentSeconds: number
 ): Promise<void> {
   const { data: current, error } = await supabase
     .from("exam_session_questions")
@@ -90,7 +90,7 @@ export async function writeAnswerToSession(
       selected_answer: selectedOptionId,
       answer_history: updatedHistory,
       change_count: changeCount,
-      time_spent_seconds: timeSpentSeconds, // full accumulated — overwrites
+      time_spent_seconds: timeSpentSeconds,
     })
     .eq("session_id", sessionId)
     .eq("question_id", questionId);
@@ -116,6 +116,7 @@ export async function submitSession(
     return { success: false, error: "Session not found or already submitted" };
   }
 
+  // Fetch all question rows for reconciliation
   const { data: rows, error: rowsError } = await supabase
     .from("exam_session_questions")
     .select("question_id, selected_answer, answer_history")
@@ -176,12 +177,22 @@ export async function submitSession(
     });
   }
 
+  // Fire scoring engine async — non-blocking
+  // User navigates to result page immediately
+  // Result page polls until status = "scored"
+  scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
+    if (!success) {
+      console.error("[submitSession] scoring failed:", error);
+    }
+  });
+
   return { success: true };
 }
 
 export async function autoSubmitSession(
   supabase: SupabaseClient,
-  sessionId: string
+  sessionId: string,
+  userId: string
 ): Promise<void> {
   await supabase
     .from("exam_sessions")
@@ -191,4 +202,11 @@ export async function autoSubmitSession(
       auto_submitted: true,
     })
     .eq("id", sessionId);
-      }
+
+  // Fire scoring engine async after auto-submit too
+  scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
+    if (!success) {
+      console.error("[autoSubmitSession] scoring failed:", error);
+    }
+  });
+}
