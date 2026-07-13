@@ -14,7 +14,7 @@ interface SessionQuestion {
   time_spent_seconds: number;
   change_count: number;
   answer_history: string[];
-  is_correct: boolean | null;
+  is_correct?: boolean;
 }
 
 interface SubjectSummary {
@@ -23,6 +23,7 @@ interface SubjectSummary {
   correct: number;
   accuracy: number;
   total_time_seconds: number;
+  max_streak: number;
 }
 
 interface ScoringResult {
@@ -39,6 +40,7 @@ export async function scoreSession(
   sessionId: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
+
   // ── 1. Fetch session ───────────────────────────────────────────────────
   const { data: session, error: sessionError } = await supabase
     .from("exam_sessions")
@@ -58,18 +60,20 @@ export async function scoreSession(
     .select("*")
     .eq("session_id", sessionId);
 
-  if (questionsError || !questions) {
+  if (questionsError || !questions || questions.length === 0) {
     return { success: false, error: "Failed to fetch session questions" };
   }
 
   // ── 3. Score each question ────────────────────────────────────────────
-  const scoredQuestions = questions.map((q: SessionQuestion) => ({
+  const scoredQuestions = (questions as SessionQuestion[]).map((q) => ({
     ...q,
-    is_correct: q.selected_answer !== null && q.selected_answer === q.correct_option_id,
+    is_correct:
+      q.selected_answer !== null &&
+      q.selected_answer === q.correct_option_id,
   }));
 
   // ── 4. Compute summary ────────────────────────────────────────────────
-  const result = computeSummary(scoredQuestions);
+  const result = computeSummary(scoredQuestions as (SessionQuestion & { is_correct: boolean })[]);
 
   // ── 5. Write to attempts ──────────────────────────────────────────────
   const attemptRows = scoredQuestions.map((q) => ({
@@ -108,7 +112,10 @@ export async function scoreSession(
       correct_count: result.correct_count,
       total_time_seconds: result.total_time_seconds,
       overall_accuracy_percent: result.accuracy,
-      overall_avg_time_per_question: result.total_time_seconds / result.total_questions,
+      overall_avg_time_per_question:
+        result.total_questions > 0
+          ? result.total_time_seconds / result.total_questions
+          : 0,
       total_points: result.total_points,
     })
     .eq("id", sessionId);
@@ -123,13 +130,23 @@ export async function scoreSession(
     session_id: sessionId,
     user_id: userId,
     subject_id: s.subject_id,
-    total_questions: s.total,
+    questions_answered: s.total,
     correct_count: s.correct,
     accuracy_percent: s.accuracy,
     total_time_seconds: s.total_time_seconds,
+    avg_time_per_question:
+      s.total > 0 ? Math.round(s.total_time_seconds / s.total) : 0,
+    max_streak_in_subject: s.max_streak,
+    gems_contribution: 0,
   }));
 
-  await supabase.from("session_subject_summaries").insert(summaryRows);
+  const { error: summaryError } = await supabase
+    .from("session_subject_summaries")
+    .insert(summaryRows);
+
+  if (summaryError) {
+    console.error("[scoringEngine] summary insert failed:", summaryError);
+  }
 
   // ── 8. Update user total points and stats ─────────────────────────────
   const { data: user } = await supabase
@@ -160,25 +177,50 @@ export async function scoreSession(
 
 // ─── Compute summary ──────────────────────────────────────────────────────────
 
-function computeSummary(questions: (SessionQuestion & { is_correct: boolean })[]) : ScoringResult {
+function computeSummary(
+  questions: (SessionQuestion & { is_correct: boolean })[]
+): ScoringResult {
   const correct_count = questions.filter((q) => q.is_correct).length;
   const total_questions = questions.length;
-  const accuracy = total_questions > 0
-    ? Math.round((correct_count / total_questions) * 100)
-    : 0;
+  const accuracy =
+    total_questions > 0
+      ? Math.round((correct_count / total_questions) * 100)
+      : 0;
   const total_time_seconds = questions.reduce(
     (sum, q) => sum + (q.time_spent_seconds ?? 0),
     0
   );
 
-  // Per-subject summaries
-  const subjectMap = new Map<string, { total: number; correct: number; time: number }>();
+  // Per-subject summaries with streak tracking
+  const subjectMap = new Map<
+    string,
+    {
+      total: number;
+      correct: number;
+      time: number;
+      currentStreak: number;
+      maxStreak: number;
+    }
+  >();
+
   for (const q of questions) {
-    const existing = subjectMap.get(q.subject_id) ?? { total: 0, correct: 0, time: 0 };
+    const existing = subjectMap.get(q.subject_id) ?? {
+      total: 0,
+      correct: 0,
+      time: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+    };
+
+    const currentStreak = q.is_correct ? existing.currentStreak + 1 : 0;
+    const maxStreak = Math.max(existing.maxStreak, currentStreak);
+
     subjectMap.set(q.subject_id, {
       total: existing.total + 1,
       correct: existing.correct + (q.is_correct ? 1 : 0),
       time: existing.time + (q.time_spent_seconds ?? 0),
+      currentStreak,
+      maxStreak,
     });
   }
 
@@ -188,12 +230,14 @@ function computeSummary(questions: (SessionQuestion & { is_correct: boolean })[]
       subject_id,
       total: data.total,
       correct: data.correct,
-      accuracy: data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0,
+      accuracy:
+        data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0,
       total_time_seconds: data.time,
+      max_streak: data.maxStreak,
     });
   }
 
-  // Points — 2 points per correct answer
+  // 2 points per correct answer
   const total_points = correct_count * 2;
 
   return {
@@ -204,4 +248,4 @@ function computeSummary(questions: (SessionQuestion & { is_correct: boolean })[]
     subject_summaries,
     total_points,
   };
-}
+    }
