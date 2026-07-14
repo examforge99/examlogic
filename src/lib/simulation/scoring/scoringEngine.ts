@@ -4,6 +4,8 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import {
   computeSessionPoints,
   computeNewRankTier,
+  getPointsToNextRank,
+  RANK_THRESHOLDS,
   QuestionScore,
 } from "@/lib/simulation/scoring/pointsEngine";
 
