@@ -40,6 +40,7 @@ interface ScoringResult {
   total_time_seconds: number;
   subject_summaries: SubjectSummary[];
   total_points: number;
+  simulation_score: number; // ← add this
 }
 
 export async function scoreSession(
@@ -323,11 +324,11 @@ function computeSummary(
   const total_points = correct_count * 2;
 
   return {
-    correct_count,
-    total_questions,
-    accuracy,
-    total_time_seconds,
-    subject_summaries,
-    total_points,
-  };
-    }
+  correct_count,
+  total_questions,
+  accuracy,
+  total_time_seconds,
+  subject_summaries,
+  total_points: correct_count * 2, // placeholder, overridden by pointsEngine
+  simulation_score, // ← must be here
+};
