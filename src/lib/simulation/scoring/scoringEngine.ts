@@ -153,10 +153,10 @@ export async function scoreSession(
     console.error("[scoringEngine] summary insert failed:", summaryError);
   }
 
-  // ── 8. Compute points with full breakdown ─────────────────────────────
+// ── 8. Compute points ─────────────────────────────────────────────────
 const { data: user } = await supabase
   .from("users")
-  .select("total_points, total_sessions_completed, current_rank_tier")
+  .select("total_points, total_sessions_completed, current_rank_tier, consecutive_poor_sessions")
   .eq("id", userId)
   .single();
 
@@ -177,21 +177,51 @@ const pointsBreakdown = computeSessionPoints(
   session.auto_submitted ?? false
 );
 
-const newTotalPoints = (user?.total_points ?? 0) + pointsBreakdown.total_points;
-const newRankTier = computeNewRankTier(newTotalPoints);
-const rankChanged = newRankTier !== currentRankTier;
+// Track consecutive poor sessions
+const consecutivePoorSessions = pointsBreakdown.is_poor_performance
+  ? (user?.consecutive_poor_sessions ?? 0) + 1
+  : 0; // reset on good session
 
-// ── Update exam_sessions with points breakdown ────────────────────────
+const newTotalPoints = Math.max(
+  0,
+  (user?.total_points ?? 0) + pointsBreakdown.total_points
+);
+
+const newRankTier = computeNewRankTier(
+  newTotalPoints,
+  currentRankTier,
+  consecutivePoorSessions
+);
+
+const rankChanged = newRankTier !== currentRankTier;
+const demoted = rankChanged && RANK_THRESHOLDS[newRankTier] < RANK_THRESHOLDS[currentRankTier];
+
+// Update exam_sessions
 await supabase
   .from("exam_sessions")
   .update({
     base_points: pointsBreakdown.base_points,
-    bonus_points: pointsBreakdown.speed_bonus + pointsBreakdown.accuracy_bonus + pointsBreakdown.streak_bonus + pointsBreakdown.completion_bonus,
+    bonus_points:
+      pointsBreakdown.speed_bonus +
+      pointsBreakdown.accuracy_bonus +
+      pointsBreakdown.streak_bonus +
+      pointsBreakdown.completion_bonus,
     total_points: pointsBreakdown.total_points,
+    simulation_score: result.simulation_score,
+    status: "scored",
+    is_completed: true,
+    completed_at: new Date().toISOString(),
+    correct_count: result.correct_count,
+    total_time_seconds: result.total_time_seconds,
+    overall_accuracy_percent: result.accuracy,
+    overall_avg_time_per_question:
+      result.total_questions > 0
+        ? result.total_time_seconds / result.total_questions
+        : 0,
   })
   .eq("id", sessionId);
 
-// ── Update user ───────────────────────────────────────────────────────
+// Update user
 await supabase
   .from("users")
   .update({
@@ -199,10 +229,11 @@ await supabase
     current_rank_tier: newRankTier,
     total_sessions_completed: (user?.total_sessions_completed ?? 0) + 1,
     last_active_date: new Date().toISOString().split("T")[0],
+    consecutive_poor_sessions: consecutivePoorSessions,
   })
   .eq("id", userId);
 
-// ── Log rank change if happened ───────────────────────────────────────
+// Log rank change
 if (rankChanged) {
   await supabase.from("rank_scores").insert({
     user_id: userId,
@@ -210,8 +241,10 @@ if (rankChanged) {
     new_tier: newRankTier,
     total_points_at_change: newTotalPoints,
     session_id: sessionId,
+    demoted,
   });
 }
+
 
   // ── 9. Clear exam_session_questions ───────────────────────────────────
   await supabase
