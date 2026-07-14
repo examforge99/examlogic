@@ -332,3 +332,4 @@ function computeSummary(
   total_points: correct_count * 2, // placeholder, overridden by pointsEngine
   simulation_score, // ← must be here
 };
+}
