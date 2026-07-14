@@ -36,6 +36,12 @@ const ACCURACY_BONUS: { threshold: number; bonus: number }[] = [
   { threshold: 60, bonus: 5 },
 ];
 
+const ACCURACY_PENALTY: { threshold: number; penalty: number }[] = [
+  { threshold: 10, penalty: 40 },
+  { threshold: 20, penalty: 20 },
+  { threshold: 30, penalty: 10 },
+];
+
 const STREAK_BONUS: { threshold: number; bonus: number }[] = [
   { threshold: 20, bonus: 30 },
   { threshold: 15, bonus: 20 },
@@ -44,6 +50,8 @@ const STREAK_BONUS: { threshold: number; bonus: number }[] = [
 ];
 
 const COMPLETION_BONUS = 20;
+const POOR_PERFORMANCE_THRESHOLD = 30; // % accuracy
+const CONSECUTIVE_POOR_SESSIONS_FOR_DEMOTION = 3;
 
 export interface QuestionScore {
   question_id: string;
@@ -60,9 +68,11 @@ export interface PointsBreakdown {
   accuracy_bonus: number;
   streak_bonus: number;
   completion_bonus: number;
-  raw_total: number;        // before rank multiplier
+  accuracy_penalty: number;
+  raw_total: number;
   rank_multiplier: number;
-  total_points: number;     // after rank multiplier, floored to integer
+  total_points: number;        // can be negative
+  is_poor_performance: boolean;
 }
 
 export function computeSessionPoints(
@@ -71,16 +81,21 @@ export function computeSessionPoints(
   autoSubmitted: boolean
 ): PointsBreakdown {
   const multiplier = RANK_MULTIPLIERS[currentRankTier] ?? 1.0;
+  const totalQuestions = questions.length;
+  const correctCount = questions.filter((q) => q.is_correct).length;
+  const accuracyPercent = totalQuestions > 0
+    ? (correctCount / totalQuestions) * 100
+    : 0;
 
-  // ── Base points — difficulty × correct ──────────────────────────────
+  const isPoorPerformance = accuracyPercent < POOR_PERFORMANCE_THRESHOLD;
+
+  // ── Base points ────────────────────────────────────────────────────────
   let base_points = 0;
   for (const q of questions) {
-    if (q.is_correct) {
-      base_points += q.difficulty_level;
-    }
+    if (q.is_correct) base_points += q.difficulty_level;
   }
 
-  // ── Speed bonus — per correct question ───────────────────────────────
+  // ── Speed bonus ────────────────────────────────────────────────────────
   let speed_bonus = 0;
   for (const q of questions) {
     if (!q.is_correct) continue;
@@ -90,7 +105,7 @@ export function computeSessionPoints(
     }
   }
 
-  // ── Accuracy bonus — per subject ─────────────────────────────────────
+  // ── Accuracy bonus per subject ─────────────────────────────────────────
   const subjectMap = new Map<string, { correct: number; total: number }>();
   for (const q of questions) {
     const s = subjectMap.get(q.subject_id) ?? { correct: 0, total: 0 };
@@ -107,7 +122,16 @@ export function computeSessionPoints(
     if (rule) accuracy_bonus += rule.bonus;
   }
 
-  // ── Streak bonus — highest consecutive correct streak ────────────────
+  // ── Accuracy penalty — overall session ────────────────────────────────
+  let accuracy_penalty = 0;
+  if (isPoorPerformance) {
+    const penaltyRule = ACCURACY_PENALTY.find(
+      (r) => accuracyPercent < r.threshold
+    );
+    if (penaltyRule) accuracy_penalty = penaltyRule.penalty;
+  }
+
+  // ── Streak bonus ───────────────────────────────────────────────────────
   let streak_bonus = 0;
   let currentStreak = 0;
   let maxStreak = 0;
@@ -124,11 +148,19 @@ export function computeSessionPoints(
   const streakRule = STREAK_BONUS.find((r) => maxStreak >= r.threshold);
   if (streakRule) streak_bonus = streakRule.bonus;
 
-  // ── Completion bonus ─────────────────────────────────────────────────
+  // ── Completion bonus ───────────────────────────────────────────────────
   const completion_bonus = autoSubmitted ? 0 : COMPLETION_BONUS;
 
-  // ── Apply rank multiplier ─────────────────────────────────────────────
-  const raw_total = base_points + speed_bonus + accuracy_bonus + streak_bonus + completion_bonus;
+  // ── Apply rank multiplier ──────────────────────────────────────────────
+  // Penalty is also multiplied — higher rank loses more for poor performance
+  const raw_total =
+    base_points +
+    speed_bonus +
+    accuracy_bonus +
+    streak_bonus +
+    completion_bonus -
+    accuracy_penalty;
+
   const total_points = Math.floor(raw_total * multiplier);
 
   return {
@@ -137,39 +169,68 @@ export function computeSessionPoints(
     accuracy_bonus,
     streak_bonus,
     completion_bonus,
+    accuracy_penalty,
     raw_total,
     rank_multiplier: multiplier,
     total_points,
+    is_poor_performance: isPoorPerformance,
   };
 }
 
-export function computeNewRankTier(currentTotalPoints: number): string {
-  const tiers = Object.entries(RANK_THRESHOLDS)
-    .sort((a, b) => b[1] - a[1]); // descending
+export function computeNewRankTier(
+  currentTotalPoints: number,
+  currentTier: string,
+  consecutivePoorSessions: number
+): string {
+  // Sustained poor performance breaks floor protection — demote one tier
+  if (consecutivePoorSessions >= CONSECUTIVE_POOR_SESSIONS_FOR_DEMOTION) {
+    return demoteTier(currentTier);
+  }
+
+  // Normal rank computation — floor protected
+  const tierFloor = RANK_THRESHOLDS[currentTier] ?? 0;
+  const effectivePoints = Math.max(currentTotalPoints, tierFloor);
+
+  const tiers = Object.entries(RANK_THRESHOLDS).sort((a, b) => b[1] - a[1]);
 
   for (const [tier, threshold] of tiers) {
-    if (currentTotalPoints >= threshold) return tier;
+    if (effectivePoints >= threshold) return tier;
   }
 
   return "unranked";
+}
+
+export function demoteTier(currentTier: string): string {
+  const tierOrder = [
+    "unranked",
+    "bronze",
+    "silver",
+    "gold",
+    "platinum",
+    "diamond",
+    "master",
+    "legend",
+  ];
+
+  const index = tierOrder.indexOf(currentTier);
+  if (index <= 0) return "unranked";
+  return tierOrder[index - 1];
 }
 
 export function getPointsToNextRank(
   currentTotalPoints: number,
   currentTier: string
 ): { nextTier: string | null; pointsNeeded: number } {
-  const tiers = Object.entries(RANK_THRESHOLDS)
-    .sort((a, b) => a[1] - b[1]); // ascending
-
+  const tiers = Object.entries(RANK_THRESHOLDS).sort((a, b) => a[1] - b[1]);
   const currentIndex = tiers.findIndex(([tier]) => tier === currentTier);
 
   if (currentIndex === -1 || currentIndex === tiers.length - 1) {
-    return { nextTier: null, pointsNeeded: 0 }; // already at legend
+    return { nextTier: null, pointsNeeded: 0 };
   }
 
   const [nextTier, nextThreshold] = tiers[currentIndex + 1];
   return {
     nextTier,
-    pointsNeeded: nextThreshold - currentTotalPoints,
+    pointsNeeded: Math.max(0, nextThreshold - currentTotalPoints),
   };
-        }
+}
