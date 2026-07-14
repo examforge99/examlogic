@@ -4,10 +4,11 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import {
   computeSessionPoints,
   computeNewRankTier,
-  getPointsToNextRank,
   RANK_THRESHOLDS,
   QuestionScore,
 } from "@/lib/simulation/scoring/pointsEngine";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SessionQuestion {
   question_id: string;
@@ -31,6 +32,7 @@ interface SubjectSummary {
   accuracy: number;
   total_time_seconds: number;
   max_streak: number;
+  simulation_score: number; // out of 100
 }
 
 interface ScoringResult {
@@ -39,9 +41,10 @@ interface ScoringResult {
   accuracy: number;
   total_time_seconds: number;
   subject_summaries: SubjectSummary[];
-  total_points: number;
-  simulation_score: number; // ← add this
+  simulation_score: number; // out of 400
 }
+
+// ─── Entry Point ──────────────────────────────────────────────────────────────
 
 export async function scoreSession(
   supabase: SupabaseClient,
@@ -62,7 +65,7 @@ export async function scoreSession(
     return { success: false, error: "Session not found or not submitted" };
   }
 
-  // ── 2. Fetch all session questions ────────────────────────────────────
+  // ── 2. Fetch all session questions ─────────────────────────────────────
   const { data: questions, error: questionsError } = await supabase
     .from("exam_session_questions")
     .select("*")
@@ -72,7 +75,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to fetch session questions" };
   }
 
-  // ── 3. Score each question ────────────────────────────────────────────
+  // ── 3. Score each question ─────────────────────────────────────────────
   const scoredQuestions = (questions as SessionQuestion[]).map((q) => ({
     ...q,
     is_correct:
@@ -80,10 +83,12 @@ export async function scoreSession(
       q.selected_answer === q.correct_option_id,
   }));
 
-  // ── 4. Compute summary ────────────────────────────────────────────────
-  const result = computeSummary(scoredQuestions as (SessionQuestion & { is_correct: boolean })[]);
+  // ── 4. Compute scoring summary ─────────────────────────────────────────
+  const result = computeSummary(
+    scoredQuestions as (SessionQuestion & { is_correct: boolean })[]
+  );
 
-  // ── 5. Write to attempts ──────────────────────────────────────────────
+  // ── 5. Write to attempts ───────────────────────────────────────────────
   const attemptRows = scoredQuestions.map((q) => ({
     session_id: sessionId,
     user_id: userId,
@@ -110,7 +115,51 @@ export async function scoreSession(
     return { success: false, error: "Failed to write attempts" };
   }
 
-  // ── 6. Update exam_sessions with final scores ─────────────────────────
+  // ── 6. Compute leaderboard points ─────────────────────────────────────
+  const { data: user } = await supabase
+    .from("users")
+    .select("total_points, total_sessions_completed, current_rank_tier, consecutive_poor_sessions")
+    .eq("id", userId)
+    .single();
+
+  const currentRankTier = user?.current_rank_tier ?? "unranked";
+
+  const questionScores: QuestionScore[] = scoredQuestions.map((q) => ({
+    question_id: q.question_id,
+    subject_id: q.subject_id,
+    topic_id: q.topic_id,
+    difficulty_level: q.difficulty_level,
+    is_correct: q.is_correct,
+    time_spent_seconds: q.time_spent_seconds,
+  }));
+
+  const pointsBreakdown = computeSessionPoints(
+    questionScores,
+    currentRankTier,
+    session.auto_submitted ?? false
+  );
+
+  const consecutivePoorSessions = pointsBreakdown.is_poor_performance
+    ? (user?.consecutive_poor_sessions ?? 0) + 1
+    : 0;
+
+  const newTotalPoints = Math.max(
+    0,
+    (user?.total_points ?? 0) + pointsBreakdown.total_points
+  );
+
+  const newRankTier = computeNewRankTier(
+    newTotalPoints,
+    currentRankTier,
+    consecutivePoorSessions
+  );
+
+  const rankChanged = newRankTier !== currentRankTier;
+  const demoted =
+    rankChanged &&
+    RANK_THRESHOLDS[newRankTier] < RANK_THRESHOLDS[currentRankTier];
+
+  // ── 7. Update exam_sessions ────────────────────────────────────────────
   const { error: updateError } = await supabase
     .from("exam_sessions")
     .update({
@@ -124,7 +173,14 @@ export async function scoreSession(
         result.total_questions > 0
           ? result.total_time_seconds / result.total_questions
           : 0,
-      total_points: result.total_points,
+      simulation_score: result.simulation_score,
+      base_points: pointsBreakdown.base_points,
+      bonus_points:
+        pointsBreakdown.speed_bonus +
+        pointsBreakdown.accuracy_bonus +
+        pointsBreakdown.streak_bonus +
+        pointsBreakdown.completion_bonus,
+      total_points: pointsBreakdown.total_points,
     })
     .eq("id", sessionId);
 
@@ -133,7 +189,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to update session" };
   }
 
-  // ── 7. Write per-subject summaries ────────────────────────────────────
+  // ── 8. Write per-subject summaries ────────────────────────────────────
   const summaryRows = result.subject_summaries.map((s) => ({
     session_id: sessionId,
     user_id: userId,
@@ -145,6 +201,7 @@ export async function scoreSession(
     avg_time_per_question:
       s.total > 0 ? Math.round(s.total_time_seconds / s.total) : 0,
     max_streak_in_subject: s.max_streak,
+    simulation_score: s.simulation_score,
     gems_contribution: 0,
   }));
 
@@ -156,100 +213,31 @@ export async function scoreSession(
     console.error("[scoringEngine] summary insert failed:", summaryError);
   }
 
-// ── 8. Compute points ─────────────────────────────────────────────────
-const { data: user } = await supabase
-  .from("users")
-  .select("total_points, total_sessions_completed, current_rank_tier, consecutive_poor_sessions")
-  .eq("id", userId)
-  .single();
+  // ── 9. Update user ─────────────────────────────────────────────────────
+  await supabase
+    .from("users")
+    .update({
+      total_points: newTotalPoints,
+      current_rank_tier: newRankTier,
+      total_sessions_completed: (user?.total_sessions_completed ?? 0) + 1,
+      last_active_date: new Date().toISOString().split("T")[0],
+      consecutive_poor_sessions: consecutivePoorSessions,
+    })
+    .eq("id", userId);
 
-const currentRankTier = user?.current_rank_tier ?? "unranked";
+  // ── 10. Log rank change ────────────────────────────────────────────────
+  if (rankChanged) {
+    await supabase.from("rank_scores").insert({
+      user_id: userId,
+      previous_tier: currentRankTier,
+      new_tier: newRankTier,
+      total_points_at_change: newTotalPoints,
+      session_id: sessionId,
+      demoted,
+    });
+  }
 
-const questionScores: QuestionScore[] = scoredQuestions.map((q) => ({
-  question_id: q.question_id,
-  subject_id: q.subject_id,
-  topic_id: q.topic_id,
-  difficulty_level: q.difficulty_level,
-  is_correct: q.is_correct,
-  time_spent_seconds: q.time_spent_seconds,
-}));
-
-const pointsBreakdown = computeSessionPoints(
-  questionScores,
-  currentRankTier,
-  session.auto_submitted ?? false
-);
-
-// Track consecutive poor sessions
-const consecutivePoorSessions = pointsBreakdown.is_poor_performance
-  ? (user?.consecutive_poor_sessions ?? 0) + 1
-  : 0; // reset on good session
-
-const newTotalPoints = Math.max(
-  0,
-  (user?.total_points ?? 0) + pointsBreakdown.total_points
-);
-
-const newRankTier = computeNewRankTier(
-  newTotalPoints,
-  currentRankTier,
-  consecutivePoorSessions
-);
-
-const rankChanged = newRankTier !== currentRankTier;
-const demoted = rankChanged && RANK_THRESHOLDS[newRankTier] < RANK_THRESHOLDS[currentRankTier];
-
-// Update exam_sessions
-await supabase
-  .from("exam_sessions")
-  .update({
-    base_points: pointsBreakdown.base_points,
-    bonus_points:
-      pointsBreakdown.speed_bonus +
-      pointsBreakdown.accuracy_bonus +
-      pointsBreakdown.streak_bonus +
-      pointsBreakdown.completion_bonus,
-    total_points: pointsBreakdown.total_points,
-    simulation_score: result.simulation_score,
-    status: "scored",
-    is_completed: true,
-    completed_at: new Date().toISOString(),
-    correct_count: result.correct_count,
-    total_time_seconds: result.total_time_seconds,
-    overall_accuracy_percent: result.accuracy,
-    overall_avg_time_per_question:
-      result.total_questions > 0
-        ? result.total_time_seconds / result.total_questions
-        : 0,
-  })
-  .eq("id", sessionId);
-
-// Update user
-await supabase
-  .from("users")
-  .update({
-    total_points: newTotalPoints,
-    current_rank_tier: newRankTier,
-    total_sessions_completed: (user?.total_sessions_completed ?? 0) + 1,
-    last_active_date: new Date().toISOString().split("T")[0],
-    consecutive_poor_sessions: consecutivePoorSessions,
-  })
-  .eq("id", userId);
-
-// Log rank change
-if (rankChanged) {
-  await supabase.from("rank_scores").insert({
-    user_id: userId,
-    previous_tier: currentRankTier,
-    new_tier: newRankTier,
-    total_points_at_change: newTotalPoints,
-    session_id: sessionId,
-    demoted,
-  });
-}
-
-
-  // ── 9. Clear exam_session_questions ───────────────────────────────────
+  // ── 11. Clear exam_session_questions ──────────────────────────────────
   await supabase
     .from("exam_session_questions")
     .delete()
@@ -258,7 +246,7 @@ if (rankChanged) {
   return { success: true };
 }
 
-// ─── Compute summary ──────────────────────────────────────────────────────────
+// ─── Compute Summary ──────────────────────────────────────────────────────────
 
 function computeSummary(
   questions: (SessionQuestion & { is_correct: boolean })[]
@@ -274,7 +262,7 @@ function computeSummary(
     0
   );
 
-  // Per-subject summaries with streak tracking
+  // Group by subject with streak tracking
   const subjectMap = new Map<
     string,
     {
@@ -307,8 +295,17 @@ function computeSummary(
     });
   }
 
+  // Build subject summaries with simulation score
+  // Each subject is worth 100 marks regardless of question count
+  // English: 60q → 100/60 = 1.667 per correct
+  // Others:  40q → 100/40 = 2.5 per correct
   const subject_summaries: SubjectSummary[] = [];
+
   for (const [subject_id, data] of subjectMap.entries()) {
+    const markPerQuestion = 100 / data.total;
+    const simulation_score =
+      Math.round(data.correct * markPerQuestion * 10) / 10;
+
     subject_summaries.push({
       subject_id,
       total: data.total,
@@ -317,19 +314,22 @@ function computeSummary(
         data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0,
       total_time_seconds: data.time,
       max_streak: data.maxStreak,
+      simulation_score,
     });
   }
 
-  // 2 points per correct answer
-  const total_points = correct_count * 2;
+  // Total simulation score out of 400
+  const simulation_score =
+    Math.round(
+      subject_summaries.reduce((sum, s) => sum + s.simulation_score, 0) * 10
+    ) / 10;
 
   return {
-  correct_count,
-  total_questions,
-  accuracy,
-  total_time_seconds,
-  subject_summaries,
-  total_points: correct_count * 2, // placeholder, overridden by pointsEngine
-  simulation_score, // ← must be here
-};
+    correct_count,
+    total_questions,
+    accuracy,
+    total_time_seconds,
+    subject_summaries,
+    simulation_score,
+  };
 }
