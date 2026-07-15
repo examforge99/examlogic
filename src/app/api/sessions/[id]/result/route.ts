@@ -128,13 +128,13 @@ export async function GET(
     },
     attempts: attempts ?? [],
     subject_summaries: subjectSummaries,
-    rank: {
-      current_tier: user?.current_tier ?? "unranked",
-      total_points: user?.total_points ?? 0,
-      rank_changed: !!rankLog,
-      previous_tier: rankLog?.previous_tier ?? null,
-      new_tier: rankLog?.new_tier ?? null,
-      demoted: rankLog?.demoted ?? false,
-    },
+rank: {
+  current_tier: user?.current_rank_tier ?? "unranked",
+  total_points: user?.total_points ?? 0,
+  rank_changed: false,
+  previous_tier: null,
+  new_tier: null,
+  demoted: false,
+},
   });
 }
