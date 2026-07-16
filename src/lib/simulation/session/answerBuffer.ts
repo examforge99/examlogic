@@ -205,13 +205,10 @@ export async function submitSession(
   // User navigates to result page immediately
   // Result page polls until status = "scored"
   scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
-    if (!success) {
-      console.error("[submitSession] scoring failed:", error);
-      return;
-    }
-    // Difficulty update runs only after scoring confirms is_correct per question
-    fireDifficultyUpdate(supabase, sessionId);
-  });
+  if (!success) {
+    console.error("[autoSubmitSession] scoring failed:", error);
+  }
+});
 
   return { success: true };
 }
@@ -234,10 +231,8 @@ export async function autoSubmitSession(
 
   // Fire scoring then difficulty update — both non-blocking
   scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
-    if (!success) {
-      console.error("[autoSubmitSession] scoring failed:", error);
-      return;
-    }
-    fireDifficultyUpdate(supabase, sessionId);
-  });
+  if (!success) {
+    console.error("[autoSubmitSession] scoring failed:", error);
+  }
+});
     }
