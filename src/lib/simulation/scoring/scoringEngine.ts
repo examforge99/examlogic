@@ -32,7 +32,7 @@ interface SubjectSummary {
   accuracy: number;
   total_time_seconds: number;
   max_streak: number;
-  simulation_score: number; // out of 100
+  simulation_score: number;
 }
 
 interface ScoringResult {
@@ -41,7 +41,7 @@ interface ScoringResult {
   accuracy: number;
   total_time_seconds: number;
   subject_summaries: SubjectSummary[];
-  simulation_score: number; // out of 400
+  simulation_score: number;
 }
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
@@ -83,12 +83,32 @@ export async function scoreSession(
       q.selected_answer === q.correct_option_id,
   }));
 
-  // ── 4. Compute scoring summary ─────────────────────────────────────────
+  // ── 4. Write is_correct back to exam_session_questions ─────────────────
+  // Must happen before difficulty update reads is_correct
+  for (const q of scoredQuestions) {
+    await supabase
+      .from("exam_session_questions")
+      .update({ is_correct: q.is_correct })
+      .eq("session_id", sessionId)
+      .eq("question_id", q.question_id);
+  }
+
+  // ── 5. Fire difficulty update ──────────────────────────────────────────
+  // Must run before exam_session_questions is deleted in step 12
+  const { error: diffError } = await supabase.rpc(
+    "update_question_difficulty",
+    { p_session_id: sessionId }
+  );
+  if (diffError) {
+    console.error("[scoringEngine] difficulty update failed:", diffError.message);
+  }
+
+  // ── 6. Compute scoring summary ─────────────────────────────────────────
   const result = computeSummary(
     scoredQuestions as (SessionQuestion & { is_correct: boolean })[]
   );
 
-  // ── 5. Write to attempts ───────────────────────────────────────────────
+  // ── 7. Write to attempts ───────────────────────────────────────────────
   const attemptRows = scoredQuestions.map((q) => ({
     session_id: sessionId,
     user_id: userId,
@@ -115,7 +135,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to write attempts" };
   }
 
-  // ── 6. Compute leaderboard points ─────────────────────────────────────
+  // ── 8. Compute leaderboard points ─────────────────────────────────────
   const { data: user } = await supabase
     .from("users")
     .select("total_points, total_sessions_completed, current_rank_tier, consecutive_poor_sessions")
@@ -159,7 +179,7 @@ export async function scoreSession(
     rankChanged &&
     RANK_THRESHOLDS[newRankTier] < RANK_THRESHOLDS[currentRankTier];
 
-  // ── 7. Update exam_sessions ────────────────────────────────────────────
+  // ── 9. Update exam_sessions ────────────────────────────────────────────
   const { error: updateError } = await supabase
     .from("exam_sessions")
     .update({
@@ -189,7 +209,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to update session" };
   }
 
-  // ── 8. Write per-subject summaries ────────────────────────────────────
+  // ── 10. Write per-subject summaries ───────────────────────────────────
   const summaryRows = result.subject_summaries.map((s) => ({
     session_id: sessionId,
     user_id: userId,
@@ -213,7 +233,7 @@ export async function scoreSession(
     console.error("[scoringEngine] summary insert failed:", summaryError);
   }
 
-  // ── 9. Update user ─────────────────────────────────────────────────────
+  // ── 11. Update user ────────────────────────────────────────────────────
   await supabase
     .from("users")
     .update({
@@ -225,7 +245,7 @@ export async function scoreSession(
     })
     .eq("id", userId);
 
-  // ── 10. Log rank change ────────────────────────────────────────────────
+  // ── 12. Log rank change ────────────────────────────────────────────────
   if (rankChanged) {
     await supabase.from("rank_scores").insert({
       user_id: userId,
@@ -237,7 +257,8 @@ export async function scoreSession(
     });
   }
 
-  // ── 11. Clear exam_session_questions ──────────────────────────────────
+  // ── 13. Clear exam_session_questions ───────────────────────────────────
+  // Runs last — difficulty update and attempts already consumed this data
   await supabase
     .from("exam_session_questions")
     .delete()
@@ -262,7 +283,6 @@ function computeSummary(
     0
   );
 
-  // Group by subject with streak tracking
   const subjectMap = new Map<
     string,
     {
@@ -295,10 +315,6 @@ function computeSummary(
     });
   }
 
-  // Build subject summaries with simulation score
-  // Each subject is worth 100 marks regardless of question count
-  // English: 60q → 100/60 = 1.667 per correct
-  // Others:  40q → 100/40 = 2.5 per correct
   const subject_summaries: SubjectSummary[] = [];
 
   for (const [subject_id, data] of subjectMap.entries()) {
@@ -318,7 +334,6 @@ function computeSummary(
     });
   }
 
-  // Total simulation score out of 400
   const simulation_score =
     Math.round(
       subject_summaries.reduce((sum, s) => sum + s.simulation_score, 0) * 10
@@ -332,4 +347,4 @@ function computeSummary(
     subject_summaries,
     simulation_score,
   };
-}
+                             }
