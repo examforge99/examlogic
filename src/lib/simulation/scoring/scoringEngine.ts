@@ -96,9 +96,9 @@ export async function scoreSession(
   // ── 5. Fire difficulty update ──────────────────────────────────────────
   // Must run before exam_session_questions is deleted in step 12
   const { error: diffError } = await supabase.rpc(
-    "update_question_difficulty",
-    { p_session_id: sessionId }
-  );
+  "update_question_difficulty",
+  { p_session_id: sessionId, p_user_id: userId }
+);
   if (diffError) {
     console.error("[scoringEngine] difficulty update failed:", diffError.message);
   }
