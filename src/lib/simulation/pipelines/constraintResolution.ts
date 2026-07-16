@@ -16,7 +16,7 @@ import {
 
 export interface ResolvedQuestion extends ScoredCandidate {
   position?: number;
-  resolutionLevel?: number; // which level of cascade resolved this slot
+  resolutionLevel?: number;
 }
 
 export interface ResolvedCandidatePool {
@@ -46,7 +46,6 @@ export async function resolveConstraints(
     hardStop: false,
   };
 
-  // Build budget per subject
   const budgets = new Map<string, PointBudget>();
   for (const blueprint of blueprints) {
     budgets.set(blueprint.subjectId, initializePointBudget(blueprint));
@@ -199,7 +198,6 @@ async function redistributeTopicShortfall(
   scoredPool: ScoredCandidatePool,
   budget: PointBudget
 ): Promise<ResolvedQuestion[]> {
-  // Pull extra from same topic, adjacent difficulty levels
   const adjacentLevels = getAdjacentLevels(slot.level);
   const filled: ResolvedQuestion[] = [];
 
@@ -263,7 +261,6 @@ async function replaceTopic(
   usedTopicIds: string[],
   budget: PointBudget
 ): Promise<ResolvedQuestion[]> {
-  // Find another slot in the same subject not already used
   const replacement = scoredPool.slots.find(
     (s) =>
       s.slot.subjectId === slot.subjectId &&
@@ -287,7 +284,6 @@ async function compensateCrossSubject(
 ): Promise<ResolvedQuestion[]> {
   if (!slot) return [];
 
-  // Find a surplus slot in a different subject
   const otherSubjectSlot = scoredPool.slots.find(
     (s) =>
       s.slot.subjectId !== slot.subjectId &&
@@ -314,7 +310,6 @@ async function regenerateSubjectBlueprint(
   scoredPool: ScoredCandidatePool,
   budget: PointBudget
 ): Promise<ResolvedQuestion[]> {
-  // Find any available candidates in this subject across all slots
   const subjectSlots = scoredPool.slots.filter(
     (s) => s.slot.subjectId === subjectId && s.candidates.length > 0
   );
@@ -336,7 +331,6 @@ async function retryFullSession(
   userId: string,
   scoredPool: ScoredCandidatePool
 ): Promise<ResolvedQuestion[]> {
-  // Last resort — pull whatever scored candidates exist across all slots
   const all: ResolvedQuestion[] = [];
 
   for (const { candidates } of scoredPool.slots) {
@@ -351,7 +345,6 @@ async function detectFailureCause(
   userId: string,
   subjectId: string
 ): Promise<"bank_exhaustion" | "structural_gap"> {
-  // Check if questions exist at all for this subject regardless of user history
   const { count } = await supabase
     .from("questions")
     .select("id", { count: "exact", head: true })
@@ -372,8 +365,8 @@ async function handleHardStop(
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getAdjacentLevels(level: number): number[] {
-  const all = [1, 2, 3, 4, 5];
+  const all = [1, 2, 3, 4, 5, 6, 7]; // ← updated from 1-5 to 1-7
   return all
     .filter((l) => l !== level)
     .sort((a, b) => Math.abs(a - level) - Math.abs(b - level));
-}
+                                      }
