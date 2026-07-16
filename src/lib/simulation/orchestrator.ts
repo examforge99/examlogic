@@ -24,10 +24,10 @@ function getServiceRoleClient() {
 export async function runSimulationPipeline(userId: string) {
   const supabase = getServiceRoleClient();
 
-  // ── 1. Fetch user subject combo ──────────────────────────────────────────
+  // ── 1. Fetch user profile ────────────────────────────────────────────────
   const { data: user, error: userError } = await supabase
     .from("users")
-    .select("jamb_subjects")
+    .select("jamb_subjects, current_difficulty_band")
     .eq("id", userId)
     .single();
 
@@ -35,6 +35,22 @@ export async function runSimulationPipeline(userId: string) {
     return { error: "User subjects not found", status: 400 };
   }
 
+  // ── 2. Rate limit check ──────────────────────────────────────────────────
+  const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+  const { count: todaySessionCount } = await supabase
+    .from("exam_sessions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("started_at", `${today}T00:00:00Z`)
+    .lt("started_at", `${tomorrow}T00:00:00Z`);
+
+  if ((todaySessionCount ?? 0) >= 20) {
+    return { error: "Daily session limit reached.", status: 429 };
+  }
+
+  // ── 3. Fetch English subject ID ──────────────────────────────────────────
   const { data: englishSubject } = await supabase
     .from("subjects")
     .select("id")
@@ -49,8 +65,7 @@ export async function runSimulationPipeline(userId: string) {
   );
   const allSubjectIds = [englishSubjectId, ...otherSubjectIds];
 
-  // ── 2. Select difficulty templates ───────────────────────────────────────
-  // English = 60q, others = 40q each
+  // ── 4. Select difficulty templates ───────────────────────────────────────
   const questionCounts: (40 | 60)[] = [60, ...otherSubjectIds.map(() => 40 as 40)];
 
   const difficultyTemplates = await selectDifficultyTemplates(supabase, userId, questionCounts);
@@ -58,13 +73,13 @@ export async function runSimulationPipeline(userId: string) {
     return { error: "No difficulty templates available", status: 503 };
   }
 
-  // ── 3. Select topic templates ────────────────────────────────────────────
+  // ── 5. Select topic templates ────────────────────────────────────────────
   const topicTemplates = await selectTopicTemplates(supabase, userId, allSubjectIds);
   if (!topicTemplates) {
     return { error: "No topic templates available", status: 503 };
   }
 
-  // ── 4. Allocate topic difficulty ─────────────────────────────────────────
+  // ── 6. Allocate topic difficulty ─────────────────────────────────────────
   const blueprints = [];
 
   for (let i = 0; i < allSubjectIds.length; i++) {
@@ -80,21 +95,20 @@ export async function runSimulationPipeline(userId: string) {
     }
   }
 
-  // ── 5. Retrieve question candidates ──────────────────────────────────────
+  // ── 7. Retrieve question candidates ──────────────────────────────────────
   const rawPool = await retrieveCandidates(supabase, blueprints);
 
-  // ── 6. Score candidates ──────────────────────────────────────────────────
+  // ── 8. Score candidates ──────────────────────────────────────────────────
   const scoredPool = await scoreCandidates(supabase, rawPool, userId);
 
-  // ── 7. Resolve constraints ───────────────────────────────────────────────
+  // ── 9. Resolve constraints ───────────────────────────────────────────────
   const resolvedPool = await resolveConstraints(supabase, userId, scoredPool, blueprints);
 
   if (resolvedPool.diagnostics.hardStop) {
     return { error: "Session generation failed. Our team has been notified.", status: 503 };
   }
 
-  // ── 8. Validate session ──────────────────────────────────────────────────
-  // Temp session id for notification — real id assigned in step 9
+  // ── 10. Validate session ─────────────────────────────────────────────────
   const tempSessionId = crypto.randomUUID();
   const validationReport = await validateSession(
     supabase,
@@ -108,34 +122,34 @@ export async function runSimulationPipeline(userId: string) {
     return { error: "Session failed validation", status: 500 };
   }
 
-  // ── 9. Create CBT session ────────────────────────────────────────────────
+  // ── 11. Create CBT session ───────────────────────────────────────────────
   const difficultyTemplateIds = difficultyTemplates.map((t: any) => t.id);
   const topicTemplateIds = topicTemplates.map((t: any) => t.id);
 
   const session = await createCBTSession(
-  supabase,
-  userId,
-  resolvedPool,
-  validationReport,
-  difficultyTemplateIds,
-  topicTemplateIds
-);
+    supabase,
+    userId,
+    resolvedPool,
+    validationReport,
+    difficultyTemplateIds,
+    topicTemplateIds
+  );
 
-if (!session) {
-  return { error: "Failed to create session", status: 500 };
-}
+  if (!session) {
+    return { error: "Failed to create session", status: 500 };
+  }
 
-// ── 10. Mark templates used + store fingerprints ──
-await markTemplatesUsed(supabase, userId, difficultyTemplateIds, session.session_id);
-await markTopicTemplatesUsed(supabase, userId, topicTemplateIds, session.session_id);
-await storeSessionFingerprints(
-  supabase,
-  userId,
-  session.session_id,
-  topicTemplates.map((t: any) => ({ subject_id: t.subject_id, topic_ids: t.topic_ids }))
-);
+  // ── 12. Mark templates used + store fingerprints ─────────────────────────
+  await markTemplatesUsed(supabase, userId, difficultyTemplateIds, session.session_id);
+  await markTopicTemplatesUsed(supabase, userId, topicTemplateIds, session.session_id);
+  await storeSessionFingerprints(
+    supabase,
+    userId,
+    session.session_id,
+    topicTemplates.map((t: any) => ({ subject_id: t.subject_id, topic_ids: t.topic_ids }))
+  );
 
-  // ── 11. Check refill thresholds (non-blocking) ───────────────────────────
+  // ── 13. Check refill thresholds (non-blocking) ───────────────────────────
   checkDifficultyRefillThreshold(supabase).then((flags) => {
     if (flags?.needs40Refill) console.log("[Orchestrator] 40q pool needs refill");
     if (flags?.needs60Refill) console.log("[Orchestrator] 60q pool needs refill");
@@ -149,4 +163,4 @@ await storeSessionFingerprints(
   });
 
   return { data: session, status: 200 };
-}
+                                                          }
