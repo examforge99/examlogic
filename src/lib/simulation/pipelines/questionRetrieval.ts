@@ -3,12 +3,10 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { SubjectBlueprint, TopicDemand } from "@/lib/simulation/engines/topicDifficultyAllocator";
 
-export interface FetchSlot {
-  subjectId: string;
-  topicId: string;
-  level: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  demand: number;
-  fetchCount: number;
+export interface QuestionOption {
+  id: string;
+  option_text: string;
+  position: number;
 }
 
 export interface CandidateQuestion {
@@ -17,11 +15,17 @@ export interface CandidateQuestion {
   topic_id: string;
   difficulty_level: number;
   resolved_question_type: string;
-  option_a: string;
-  option_b: string;
-  option_c: string;
-  option_d: string;
+  question_text: string;
   correct_option_id: string;
+  question_options: QuestionOption[];
+}
+
+export interface FetchSlot {
+  subjectId: string;
+  topicId: string;
+  level: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  demand: number;
+  fetchCount: number;
 }
 
 export interface RawCandidatePool {
@@ -93,11 +97,13 @@ export async function fetchCandidatesForSlot(
       topic_id,
       difficulty_level,
       resolved_question_type,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      correct_option_id
+      question_text,
+      correct_option_id,
+      question_options (
+        id,
+        option_text,
+        position
+      )
     `)
     .eq("subject_id", subjectId)
     .eq("topic_id", topicId)
@@ -113,7 +119,13 @@ export async function fetchCandidatesForSlot(
     return [];
   }
 
-  return data ?? [];
+  // Sort options by position for each question
+  return (data ?? []).map((q) => ({
+    ...q,
+    question_options: (q.question_options ?? []).sort(
+      (a: QuestionOption, b: QuestionOption) => a.position - b.position
+    ),
+  }));
 }
 
 export function applyCandidateMultiplier(demand: number): number {
