@@ -82,6 +82,7 @@ export async function storeSessionQuestions(
     subject_id: q.subject_id,
     topic_id: q.topic_id,
     difficulty_level: q.difficulty_level,
+    resolved_question_type: q.resolved_question_type, // ← added
     position: q.position,
     correct_option_id: q.correct_option_id,
     selected_answer: null,
@@ -188,6 +189,7 @@ export async function getSessionById(
       subject_id,
       topic_id,
       difficulty_level,
+      resolved_question_type,
       position,
       selected_answer,
       time_spent_seconds,
@@ -206,7 +208,6 @@ export async function getSessionById(
     .eq("session_id", sessionId)
     .order("position", { ascending: true });
 
-  // Fetch subject names
   const subjectIds = [
     ...new Set((questions ?? []).map((q: any) => q.subject_id)),
   ];
@@ -287,7 +288,6 @@ export async function getSessionResult(
     .eq("user_id", userId)
     .order("attempted_at", { ascending: true });
 
-  // Fetch subject names for result breakdown
   const subjectIds = [
     ...new Set((attempts ?? []).map((a: any) => a.subject_id)),
   ];
@@ -322,4 +322,4 @@ function getEnglishSubjectId(questions: ResolvedQuestion[]): string {
     if (count > maxCount) { maxCount = count; maxId = id; }
   }
   return maxId;
-      }
+}
