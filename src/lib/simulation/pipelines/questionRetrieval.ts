@@ -6,9 +6,9 @@ import { SubjectBlueprint, TopicDemand } from "@/lib/simulation/engines/topicDif
 export interface FetchSlot {
   subjectId: string;
   topicId: string;
-  level: 1 | 2 | 3 | 4 | 5;
+  level: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   demand: number;
-  fetchCount: number; // demand × 3
+  fetchCount: number;
 }
 
 export interface CandidateQuestion {
@@ -16,6 +16,7 @@ export interface CandidateQuestion {
   subject_id: string;
   topic_id: string;
   difficulty_level: number;
+  resolved_question_type: string;
   option_a: string;
   option_b: string;
   option_c: string;
@@ -57,11 +58,11 @@ export function buildFetchManifest(blueprints: SubjectBlueprint[]): FetchSlot[] 
 
   for (const blueprint of blueprints) {
     for (const topic of blueprint.topics) {
-      const levels = [1, 2, 3, 4, 5] as const;
+      const levels = [1, 2, 3, 4, 5, 6, 7] as const;
 
       for (const level of levels) {
         const demand = topic[`level${level}` as keyof TopicDemand] as number;
-        if (demand === 0) continue;
+        if (!demand || demand === 0) continue;
 
         manifest.push({
           subjectId: blueprint.subjectId,
@@ -86,7 +87,18 @@ export async function fetchCandidatesForSlot(
 ): Promise<CandidateQuestion[]> {
   const { data, error } = await supabase
     .from("questions")
-    .select("id, subject_id, topic_id, difficulty_level, option_a, option_b, option_c, option_d, correct_option_id")
+    .select(`
+      id,
+      subject_id,
+      topic_id,
+      difficulty_level,
+      resolved_question_type,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_option_id
+    `)
     .eq("subject_id", subjectId)
     .eq("topic_id", topicId)
     .eq("difficulty_level", level)
@@ -94,7 +106,10 @@ export async function fetchCandidatesForSlot(
     .limit(fetchCount);
 
   if (error) {
-    console.error(`[questionRetrieval] fetchCandidatesForSlot failed — subject:${subjectId} topic:${topicId} level:${level}`, error);
+    console.error(
+      `[questionRetrieval] fetchCandidatesForSlot failed — subject:${subjectId} topic:${topicId} level:${level}`,
+      error
+    );
     return [];
   }
 
