@@ -6,6 +6,8 @@ import { scoreSession } from "@/lib/simulation/scoring/scoringEngine";
 const MAX_TIME_PER_QUESTION = 7200;
 const ABSENCE_THRESHOLD = 4;
 
+// ─── Buffer Answer ────────────────────────────────────────────────────────────
+
 export async function bufferAnswer(
   supabase: SupabaseClient,
   sessionId: string,
@@ -25,6 +27,8 @@ export async function bufferAnswer(
 
   return { success: true };
 }
+
+// ─── Validate Answer Ownership ────────────────────────────────────────────────
 
 export async function validateAnswerOwnership(
   supabase: SupabaseClient,
@@ -53,6 +57,8 @@ export async function validateAnswerOwnership(
 
   return true;
 }
+
+// ─── Write Answer To Session ──────────────────────────────────────────────────
 
 export async function writeAnswerToSession(
   supabase: SupabaseClient,
@@ -97,6 +103,24 @@ export async function writeAnswerToSession(
 
   if (updateError) throw new Error(`writeAnswerToSession failed: ${updateError.message}`);
 }
+
+// ─── Fire Difficulty Update ───────────────────────────────────────────────────
+// Non-blocking — runs after scoring completes
+// Correct answers must be written to exam_session_questions before this runs
+
+async function fireDifficultyUpdate(
+  supabase: SupabaseClient,
+  sessionId: string
+): Promise<void> {
+  const { error } = await supabase.rpc("update_question_difficulty", {
+    p_session_id: sessionId,
+  });
+  if (error) {
+    console.error("[difficulty] update_question_difficulty failed:", error.message);
+  }
+}
+
+// ─── Submit Session ───────────────────────────────────────────────────────────
 
 export async function submitSession(
   supabase: SupabaseClient,
@@ -177,17 +201,22 @@ export async function submitSession(
     });
   }
 
-  // Fire scoring engine async — non-blocking
+  // Fire scoring then difficulty update — both non-blocking
   // User navigates to result page immediately
   // Result page polls until status = "scored"
   scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
     if (!success) {
       console.error("[submitSession] scoring failed:", error);
+      return;
     }
+    // Difficulty update runs only after scoring confirms is_correct per question
+    fireDifficultyUpdate(supabase, sessionId);
   });
 
   return { success: true };
 }
+
+// ─── Auto Submit Session ──────────────────────────────────────────────────────
 
 export async function autoSubmitSession(
   supabase: SupabaseClient,
@@ -203,10 +232,12 @@ export async function autoSubmitSession(
     })
     .eq("id", sessionId);
 
-  // Fire scoring engine async after auto-submit too
+  // Fire scoring then difficulty update — both non-blocking
   scoreSession(supabase, sessionId, userId).then(({ success, error }) => {
     if (!success) {
       console.error("[autoSubmitSession] scoring failed:", error);
+      return;
     }
+    fireDifficultyUpdate(supabase, sessionId);
   });
-}
+    }
