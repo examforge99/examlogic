@@ -1,4 +1,4 @@
-// app/api/session/sudden-death/start/route.ts
+// app/api/sessions/sudden-death/start/route.ts
 
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
@@ -31,7 +31,6 @@ export async function POST() {
 
   const supabase = getServiceRoleClient();
 
-  // ── 1. Fetch user profile ────────────────────────────────────────────────
   const { data: user, error: userError } = await supabase
     .from("users")
     .select("jamb_subjects, current_difficulty_band")
@@ -49,7 +48,6 @@ export async function POST() {
     );
   }
 
-  // ── 2. Rate limit check ──────────────────────────────────────────────────
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
@@ -67,7 +65,6 @@ export async function POST() {
     );
   }
 
-  // ── 3. Active session check ──────────────────────────────────────────────
   const { data: activeSession } = await supabase
     .from("exam_sessions")
     .select("id")
@@ -82,7 +79,6 @@ export async function POST() {
     );
   }
 
-  // ── 4. Fetch English subject ID ──────────────────────────────────────────
   const { data: englishSubject } = await supabase
     .from("subjects")
     .select("id")
@@ -103,7 +99,6 @@ export async function POST() {
 
   const baselineDifficulty = user.current_difficulty_band ?? 2;
 
-  // ── 5. Fetch first question at baseline difficulty ────────────────────────
   const { data: questions, error: fetchError } = await supabase
     .from("questions")
     .select(`
@@ -137,7 +132,6 @@ export async function POST() {
     (a: any, b: any) => a.position - b.position
   );
 
-  // ── 6. Create exam_sessions row ────────────────────────────────────────────
   const now = new Date();
 
   const { data: session, error: sessionError } = await supabase
@@ -147,7 +141,7 @@ export async function POST() {
       mode: "sudden_death",
       status: "active",
       is_completed: false,
-      total_questions: 0, // unknown upfront — grows as user climbs
+      total_questions: 0,
       correct_count: 0,
       total_time_seconds: 0,
       base_points: 0,
@@ -159,20 +153,16 @@ export async function POST() {
       total_absence_events: 0,
       auto_submitted: false,
       started_at: now.toISOString(),
-      expires_at: null, // no fixed session expiry — ends on wrong/timeout
+      expires_at: null,
     })
     .select()
     .single();
 
   if (sessionError || !session) {
-    console.error("[sudden-death] session insert failed:", sessionError);
-    return NextResponse.json(
-      { error: "Failed to create session" },
-      { status: 500 }
-    );
+    console.error("[sudden-death/start] session insert failed:", sessionError);
+    return NextResponse.json({ error: "Failed to create session" }, { status: 500 });
   }
 
-  // ── 7. Insert exam_session_questions for first question ───────────────────
   const { error: questionInsertError } = await supabase
     .from("exam_session_questions")
     .insert({
@@ -192,7 +182,7 @@ export async function POST() {
     });
 
   if (questionInsertError) {
-    console.error("[sudden-death] question insert failed:", questionInsertError);
+    console.error("[sudden-death/start] question insert failed:", questionInsertError);
     await supabase.from("exam_sessions").delete().eq("id", session.id);
     return NextResponse.json(
       { error: "Failed to initialize session question" },
@@ -200,7 +190,6 @@ export async function POST() {
     );
   }
 
-  // ── 8. Create sd_active_sessions state row ─────────────────────────────────
   const nonce = crypto.randomUUID();
 
   const { error: sdError } = await supabase
@@ -217,7 +206,7 @@ export async function POST() {
     });
 
   if (sdError) {
-    console.error("[sudden-death] sd_active_sessions insert failed:", sdError);
+    console.error("[sudden-death/start] sd_active_sessions insert failed:", sdError);
     await supabase.from("exam_sessions").delete().eq("id", session.id);
     return NextResponse.json(
       { error: "Failed to initialize sudden death state" },
@@ -225,7 +214,6 @@ export async function POST() {
     );
   }
 
-  // ── 9. Strip correct answer, return safe question ──────────────────────────
   const { correct_option_id, ...safeQuestion } = firstQuestion;
   const timeLimit = (TIME_MAP[firstQuestion.resolved_question_type] ?? 15) + NETWORK_GRACE_SECONDS;
 
