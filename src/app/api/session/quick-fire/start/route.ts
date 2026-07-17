@@ -103,7 +103,21 @@ export async function POST() {
     ...user.jamb_subjects.filter((id: string) => id !== englishSubjectId),
   ];
 
-  // ── 5. Fetch questions per subject ───────────────────────────────────────
+  // ── 5. Fetch eligible question IDs (progressive spacing filter) ──────────
+  const nowIso = new Date().toISOString();
+
+  const { data: seenRows } = await supabase
+    .from("user_question_seen")
+    .select("question_id, next_eligible_at")
+    .eq("user_id", userId);
+
+  const ineligibleIds = new Set(
+    (seenRows ?? [])
+      .filter((row) => row.next_eligible_at && row.next_eligible_at > nowIso)
+      .map((row) => row.question_id)
+  );
+
+  // ── 6. Fetch questions per subject ───────────────────────────────────────
   const difficultyBand = user.current_difficulty_band ?? 2;
   const allQuestions: any[] = [];
 
@@ -127,7 +141,7 @@ export async function POST() {
       .eq("subject_id", subjectId)
       .eq("difficulty_level", difficultyBand)
       .eq("status", "active")
-      .limit(QUESTIONS_PER_SUBJECT * 3);
+      .limit(QUESTIONS_PER_SUBJECT * 4); // wider fetch to allow filtering headroom
 
     if (fetchError) {
       console.error(`[quickfire] fetch failed for subject ${subjectId}:`, fetchError);
@@ -136,8 +150,11 @@ export async function POST() {
 
     if (!questions?.length) continue;
 
-    // Shuffle and take top QUESTIONS_PER_SUBJECT
-    const shuffled = questions
+    // Filter out ineligible (not yet due for repeat) questions
+    const eligible = questions.filter((q) => !ineligibleIds.has(q.id));
+
+    // Shuffle and take QUESTIONS_PER_SUBJECT
+    const shuffled = eligible
       .sort(() => Math.random() - 0.5)
       .slice(0, QUESTIONS_PER_SUBJECT);
 
@@ -146,17 +163,17 @@ export async function POST() {
 
   if (allQuestions.length < TOTAL_QUESTIONS) {
     return NextResponse.json(
-      { error: "Not enough questions available. Try again later." },
+      { error: "Not enough eligible questions available. Try again later." },
       { status: 503 }
     );
   }
 
-  // ── 6. Compute total session time from question types ────────────────────
+  // ── 7. Compute total session time from question types ────────────────────
   const totalTimeSeconds = allQuestions.reduce((sum, q) => {
     return sum + (TIME_MAP[q.resolved_question_type] ?? 15);
   }, 0);
 
-  // ── 7. Create exam_sessions row ──────────────────────────────────────────
+  // ── 8. Create exam_sessions row ──────────────────────────────────────────
   const now = new Date();
   const expiresAt = new Date(now.getTime() + totalTimeSeconds * 1000);
 
@@ -192,7 +209,7 @@ export async function POST() {
     );
   }
 
-  // ── 8. Insert exam_session_questions ─────────────────────────────────────
+  // ── 9. Insert exam_session_questions ─────────────────────────────────────
   const questionRows = allQuestions.map((q, index) => ({
     session_id: session.id,
     question_id: q.id,
@@ -222,11 +239,8 @@ export async function POST() {
     );
   }
 
-  // ── 9. Strip correct answers before response ─────────────────────────────
-  const safeQuestions = allQuestions.map(({
-    correct_option_id,
-    ...q
-  }) => ({
+  // ── 10. Strip correct answers before response ─────────────────────────────
+  const safeQuestions = allQuestions.map(({ correct_option_id, ...q }) => ({
     ...q,
     question_options: q.question_options.sort(
       (a: any, b: any) => a.position - b.position
@@ -243,4 +257,4 @@ export async function POST() {
     expires_at: session.expires_at,
     questions: safeQuestions,
   });
-}
+    }
