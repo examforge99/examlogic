@@ -44,6 +44,49 @@ interface ScoringResult {
   simulation_score: number;
 }
 
+// ─── Spaced Repetition Helper (quickfire only) ────────────────────────────────
+
+const SPACING_INTERVALS_DAYS = [3, 7, 14, 28];
+
+function computeNextEligibility(appearanceCount: number, wasCorrect: boolean): Date {
+  const index = Math.min(appearanceCount - 1, SPACING_INTERVALS_DAYS.length - 1);
+  let days = SPACING_INTERVALS_DAYS[index];
+
+  if (!wasCorrect) {
+    days = days / 2;
+  }
+
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+}
+
+async function updateQuestionSeenTracking(
+  supabase: SupabaseClient,
+  userId: string,
+  scoredQuestions: (SessionQuestion & { is_correct: boolean })[]
+): Promise<void> {
+  for (const q of scoredQuestions) {
+    const { data: existing } = await supabase
+      .from("user_question_seen")
+      .select("appearance_count")
+      .eq("user_id", userId)
+      .eq("question_id", q.question_id)
+      .single();
+
+    const newCount = (existing?.appearance_count ?? 0) + 1;
+    const nextEligible = computeNextEligibility(newCount, q.is_correct);
+
+    await supabase
+      .from("user_question_seen")
+      .upsert({
+        user_id: userId,
+        question_id: q.question_id,
+        appearance_count: newCount,
+        last_result: q.is_correct,
+        next_eligible_at: nextEligible.toISOString(),
+      });
+  }
+}
+
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
 export async function scoreSession(
@@ -84,7 +127,6 @@ export async function scoreSession(
   }));
 
   // ── 4. Write is_correct back to exam_session_questions ─────────────────
-  // Must happen before difficulty update reads is_correct
   for (const q of scoredQuestions) {
     await supabase
       .from("exam_session_questions")
@@ -94,21 +136,25 @@ export async function scoreSession(
   }
 
   // ── 5. Fire difficulty update ──────────────────────────────────────────
-  // Must run before exam_session_questions is deleted in step 12
   const { error: diffError } = await supabase.rpc(
-  "update_question_difficulty",
-  { p_session_id: sessionId, p_user_id: userId }
-);
+    "update_question_difficulty",
+    { p_session_id: sessionId, p_user_id: userId }
+  );
   if (diffError) {
     console.error("[scoringEngine] difficulty update failed:", diffError.message);
   }
 
-  // ── 6. Compute scoring summary ─────────────────────────────────────────
+  // ── 6. Update seen tracking (quickfire only — spaced repetition) ───────
+  if (session.mode === "quick_fire") {
+    await updateQuestionSeenTracking(supabase, userId, scoredQuestions);
+  }
+
+  // ── 7. Compute scoring summary ─────────────────────────────────────────
   const result = computeSummary(
     scoredQuestions as (SessionQuestion & { is_correct: boolean })[]
   );
 
-  // ── 7. Write to attempts ───────────────────────────────────────────────
+  // ── 8. Write to attempts ───────────────────────────────────────────────
   const attemptRows = scoredQuestions.map((q) => ({
     session_id: sessionId,
     user_id: userId,
@@ -135,7 +181,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to write attempts" };
   }
 
-  // ── 8. Compute leaderboard points ─────────────────────────────────────
+  // ── 9. Compute leaderboard points ───────────────────────────────────────
   const { data: user } = await supabase
     .from("users")
     .select("total_points, total_sessions_completed, current_rank_tier, consecutive_poor_sessions")
@@ -179,7 +225,7 @@ export async function scoreSession(
     rankChanged &&
     RANK_THRESHOLDS[newRankTier] < RANK_THRESHOLDS[currentRankTier];
 
-  // ── 9. Update exam_sessions ────────────────────────────────────────────
+  // ── 10. Update exam_sessions ─────────────────────────────────────────────
   const { error: updateError } = await supabase
     .from("exam_sessions")
     .update({
@@ -209,7 +255,7 @@ export async function scoreSession(
     return { success: false, error: "Failed to update session" };
   }
 
-  // ── 10. Write per-subject summaries ───────────────────────────────────
+  // ── 11. Write per-subject summaries ──────────────────────────────────────
   const summaryRows = result.subject_summaries.map((s) => ({
     session_id: sessionId,
     user_id: userId,
@@ -233,7 +279,7 @@ export async function scoreSession(
     console.error("[scoringEngine] summary insert failed:", summaryError);
   }
 
-  // ── 11. Update user ────────────────────────────────────────────────────
+  // ── 12. Update user ────────────────────────────────────────────────────
   await supabase
     .from("users")
     .update({
@@ -245,7 +291,7 @@ export async function scoreSession(
     })
     .eq("id", userId);
 
-  // ── 12. Log rank change ────────────────────────────────────────────────
+  // ── 13. Log rank change ────────────────────────────────────────────────
   if (rankChanged) {
     await supabase.from("rank_scores").insert({
       user_id: userId,
@@ -257,8 +303,7 @@ export async function scoreSession(
     });
   }
 
-  // ── 13. Clear exam_session_questions ───────────────────────────────────
-  // Runs last — difficulty update and attempts already consumed this data
+  // ── 14. Clear exam_session_questions ─────────────────────────────────────
   await supabase
     .from("exam_session_questions")
     .delete()
@@ -347,4 +392,4 @@ function computeSummary(
     subject_summaries,
     simulation_score,
   };
-                             }
+    }
