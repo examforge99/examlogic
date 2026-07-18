@@ -35,53 +35,66 @@ export default function QuickFirePreflight() {
   }
 
   return (
-    <div className="min-h-screen bg-[#071426] text-white flex flex-col">
-      <header className="flex items-center gap-3 px-5 pt-6 pb-4">
+    <div style={{ minHeight: "100vh", backgroundColor: "#071426", color: "#fff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 20px 16px" }}>
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "9999px",
+            background: "rgba(255,255,255,0.05)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            color: "#fff",
+          }}
         >
           ←
         </button>
         <div>
-          <h1 className="text-lg font-semibold">Quick Fire</h1>
-          <p className="text-sm text-white/50">20 Questions · 15 Minutes</p>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Quick Fire</h1>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+            20 Questions · 15 Minutes
+          </p>
         </div>
-      </header>
+      </div>
 
-      <main className="flex-1 px-5">
+      <div style={{ padding: "0 20px" }}>
         <div
-          className="rounded-2xl p-6 border"
           style={{
+            borderRadius: 16,
+            padding: 24,
+            border: "1px solid rgba(63,183,255,0.2)",
             background: "linear-gradient(180deg, #1E1B4B 0%, #080D1F 100%)",
-            borderColor: "#3FB7FF33",
           }}
         >
-          <p className="text-sm font-semibold tracking-wide text-[#3FB7FF] mb-1">
+          <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#3FB7FF", margin: "0 0 8px" }}>
             THIS IS A SPRINT
           </p>
-          <p className="text-white/70 text-sm mb-6">
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 24px", lineHeight: 1.5 }}>
             Answer fast, answer smart. Time keeps moving — it doesn't stop for anyone.
           </p>
 
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <Rule
-              icon={<Zap size={20} className="text-[#3FB7FF]" />}
+              icon={<Zap size={20} color="#3FB7FF" />}
               title="20 Questions"
               description="Drawn from your registered subjects, matched to your current level."
             />
             <Rule
-              icon={<Timer size={20} className="text-[#3FB7FF]" />}
+              icon={<Timer size={20} color="#3FB7FF" />}
               title="The Clock Runs"
               description="Total time depends on the questions you get. It never pauses."
             />
             <Rule
-              icon={<Target size={20} className="text-[#3FB7FF]" />}
+              icon={<Target size={20} color="#3FB7FF" />}
               title="Every Answer Counts"
               description="Your accuracy shapes your next challenge."
             />
             <Rule
-              icon={<Calculator size={20} className="text-[#3FB7FF]" />}
+              icon={<Calculator size={20} color="#3FB7FF" />}
               title="Calculator & Navigator"
               description="Both available throughout the session."
             />
@@ -89,22 +102,31 @@ export default function QuickFirePreflight() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-400 mt-4 text-center">{error}</p>
+          <p style={{ fontSize: 14, color: "#f87171", marginTop: 16, textAlign: "center" }}>
+            {error}
+          </p>
         )}
-      </main>
+      </div>
 
-      <footer className="px-5 pb-8 pt-4">
+      <div style={{ padding: "32px 20px" }}>
         <button
           onClick={handleStart}
           disabled={loading}
-          className="w-full py-4 rounded-full font-semibold text-white disabled:opacity-60"
           style={{
+            width: "100%",
+            padding: "16px 0",
+            borderRadius: "9999px",
+            fontWeight: 600,
+            fontSize: 16,
+            color: "#fff",
+            border: "none",
             background: "linear-gradient(90deg, #3FB7FF 0%, #6366F1 100%)",
+            opacity: loading ? 0.6 : 1,
           }}
         >
           {loading ? "Starting..." : "Let's Go — Start Quick Fire"}
         </button>
-      </footer>
+      </div>
     </div>
   );
 }
@@ -119,11 +141,13 @@ function Rule({
   description: string;
 }) {
   return (
-    <div className="flex gap-3">
-      <span className="mt-0.5">{icon}</span>
+    <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+      <span style={{ marginTop: 2 }}>{icon}</span>
       <div>
-        <p className="font-semibold text-sm text-white">{title}</p>
-        <p className="text-sm text-white/60">{description}</p>
+        <p style={{ fontWeight: 600, fontSize: 14, margin: "0 0 4px", color: "#fff" }}>{title}</p>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
+          {description}
+        </p>
       </div>
     </div>
   );
