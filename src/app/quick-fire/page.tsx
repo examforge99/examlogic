@@ -34,6 +34,29 @@ export default function QuickFirePreflight() {
     }
   }
 
+  const rules = [
+    {
+      icon: <Zap size={28} color="#3FB7FF" />,
+      title: "20 Questions",
+      description: "Drawn from your registered subjects, matched to your current level.",
+    },
+    {
+      icon: <Timer size={28} color="#3FB7FF" />,
+      title: "The Clock Runs",
+      description: "Total time depends on the questions you get. It never pauses.",
+    },
+    {
+      icon: <Target size={28} color="#3FB7FF" />,
+      title: "Every Answer Counts",
+      description: "Your accuracy shapes your next challenge.",
+    },
+    {
+      icon: <Calculator size={28} color="#3FB7FF" />,
+      title: "Calculator & Navigator",
+      description: "Both available throughout the session.",
+    },
+  ];
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#071426", color: "#fff" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 20px 16px" }}>
@@ -66,38 +89,32 @@ export default function QuickFirePreflight() {
           style={{
             borderRadius: 16,
             padding: 24,
-            border: "1px solid rgba(63,183,255,0.2)",
-            background: "linear-gradient(180deg, #1E1B4B 0%, #080D1F 100%)",
+            border: "1px solid rgba(63,183,255,0.25)",
+            background: "linear-gradient(180deg, #14224A 0%, #080D1F 100%)",
           }}
         >
           <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#3FB7FF", margin: "0 0 8px" }}>
             THIS IS A SPRINT
           </p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 24px", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 20px", lineHeight: 1.5 }}>
             Answer fast, answer smart. Time keeps moving — it doesn't stop for anyone.
           </p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Rule
-              icon={<Zap size={20} color="#3FB7FF" />}
-              title="20 Questions"
-              description="Drawn from your registered subjects, matched to your current level."
-            />
-            <Rule
-              icon={<Timer size={20} color="#3FB7FF" />}
-              title="The Clock Runs"
-              description="Total time depends on the questions you get. It never pauses."
-            />
-            <Rule
-              icon={<Target size={20} color="#3FB7FF" />}
-              title="Every Answer Counts"
-              description="Your accuracy shapes your next challenge."
-            />
-            <Rule
-              icon={<Calculator size={20} color="#3FB7FF" />}
-              title="Calculator & Navigator"
-              description="Both available throughout the session."
-            />
+          <div>
+            {rules.map((rule, index) => (
+              <div key={rule.title}>
+                <Rule icon={rule.icon} title={rule.title} description={rule.description} />
+                {index < rules.length - 1 && (
+                  <div
+                    style={{
+                      height: 1,
+                      background: "rgba(255,255,255,0.08)",
+                      margin: "18px 0",
+                    }}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -120,7 +137,7 @@ export default function QuickFirePreflight() {
             fontSize: 16,
             color: "#fff",
             border: "none",
-            background: "linear-gradient(90deg, #3FB7FF 0%, #6366F1 100%)",
+            background: "linear-gradient(90deg, #3FB7FF 0%, #2E8FD9 100%)",
             opacity: loading ? 0.6 : 1,
           }}
         >
@@ -141,10 +158,10 @@ function Rule({
   description: string;
 }) {
   return (
-    <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-      <span style={{ marginTop: 2 }}>{icon}</span>
+    <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+      <span style={{ flexShrink: 0 }}>{icon}</span>
       <div>
-        <p style={{ fontWeight: 600, fontSize: 14, margin: "0 0 4px", color: "#fff" }}>{title}</p>
+        <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 4px", color: "#fff" }}>{title}</p>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
           {description}
         </p>
