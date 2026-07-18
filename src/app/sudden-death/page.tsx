@@ -34,87 +34,126 @@ export default function SuddenDeathPreflight() {
     }
   }
 
+  const rules = [
+    {
+      icon: <Zap size={28} color="#F97316" />,
+      title: "Start At Your Level",
+      description: "You begin exactly where your ability currently stands.",
+    },
+    {
+      icon: <TrendingUp size={28} color="#F97316" />,
+      title: "Climb As You Answer",
+      description: "Correct answers push you toward harder, more rewarding questions.",
+    },
+    {
+      icon: <Flame size={28} color="#F97316" />,
+      title: "Build Your Streak",
+      description: "Each level asks for a longer streak before you climb again.",
+    },
+    {
+      icon: <Timer size={28} color="#F97316" />,
+      title: "Stay Sharp",
+      description: "Every question runs on the clock — harder ones give you more time.",
+    },
+    {
+      icon: <Trophy size={28} color="#F97316" />,
+      title: "Your Best Run Is Saved",
+      description: "Track your peak level and streak on the leaderboard.",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#071426] text-white flex flex-col">
-      <header className="flex items-center gap-3 px-5 pt-6 pb-4">
+    <div style={{ minHeight: "100vh", backgroundColor: "#071426", color: "#fff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 20px 16px" }}>
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "9999px",
+            background: "rgba(255,255,255,0.05)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            color: "#fff",
+          }}
         >
           ←
         </button>
         <div>
-          <h1 className="text-lg font-semibold">Sudden Death</h1>
-          <p className="text-sm text-white/50">No limit · One chance</p>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Sudden Death</h1>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+            No limit · One chance
+          </p>
         </div>
-      </header>
+      </div>
 
-      <main className="flex-1 px-5">
+      <div style={{ padding: "0 20px" }}>
         <div
-          className="rounded-2xl p-6 border"
           style={{
-            background: "linear-gradient(180deg, #1E1B4B 0%, #080D1F 100%)",
-            borderColor: "#25d6a233",
+            borderRadius: 16,
+            padding: 24,
+            border: "1px solid rgba(249,115,22,0.25)",
+            background: "linear-gradient(180deg, #3A1F0F 0%, #080D1F 100%)",
           }}
         >
-          <p className="text-sm font-semibold tracking-wide text-[#25d6a2] mb-1">
+          <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#F97316", margin: "0 0 8px" }}>
             HOW FAR CAN YOU GO?
           </p>
-          <p className="text-white/70 text-sm mb-6">
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 20px", lineHeight: 1.5 }}>
             Every correct answer takes you higher. Every level unlocks a harder
             challenge. This is your moment to find your ceiling.
           </p>
 
-          <div className="space-y-4">
-            <Rule
-              icon={<Zap size={20} className="text-[#25d6a2]" />}
-              title="Start At Your Level"
-              description="You begin exactly where your ability currently stands."
-            />
-            <Rule
-              icon={<TrendingUp size={20} className="text-[#25d6a2]" />}
-              title="Climb As You Answer"
-              description="Correct answers push you toward harder, more rewarding questions."
-            />
-            <Rule
-              icon={<Flame size={20} className="text-[#25d6a2]" />}
-              title="Build Your Streak"
-              description="Each level asks for a longer streak before you climb again."
-            />
-            <Rule
-              icon={<Timer size={20} className="text-[#25d6a2]" />}
-              title="Stay Sharp"
-              description="Every question runs on the clock — harder ones give you more time."
-            />
-            <Rule
-              icon={<Trophy size={20} className="text-[#25d6a2]" />}
-              title="Your Best Run Is Saved"
-              description="Track your peak level and streak on the leaderboard."
-            />
+          <div>
+            {rules.map((rule, index) => (
+              <div key={rule.title}>
+                <Rule icon={rule.icon} title={rule.title} description={rule.description} />
+                {index < rules.length - 1 && (
+                  <div
+                    style={{
+                      height: 1,
+                      background: "rgba(255,255,255,0.08)",
+                      margin: "18px 0",
+                    }}
+                  />
+                )}
+              </div>
+            ))}
           </div>
 
-          <p className="text-white/50 text-sm mt-6">
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "20px 0 0" }}>
             Prove to yourself how far your preparation has taken you.
           </p>
         </div>
 
         {error && (
-          <p className="text-sm text-red-400 mt-4 text-center">{error}</p>
+          <p style={{ fontSize: 14, color: "#f87171", marginTop: 16, textAlign: "center" }}>
+            {error}
+          </p>
         )}
-      </main>
+      </div>
 
-      <footer className="px-5 pb-8 pt-4">
+      <div style={{ padding: "32px 20px" }}>
         <button
           onClick={handleStart}
           disabled={loading}
-          className="w-full py-4 rounded-full font-semibold text-white disabled:opacity-60"
           style={{
-            background: "linear-gradient(90deg, #25d6a2 0%, #3FB7FF 100%)",
+            width: "100%",
+            padding: "16px 0",
+            borderRadius: "9999px",
+            fontWeight: 600,
+            fontSize: 16,
+            color: "#fff",
+            border: "none",
+            background: "linear-gradient(90deg, #F97316 0%, #DC2626 100%)",
+            opacity: loading ? 0.6 : 1,
           }}
         >
           {loading ? "Starting..." : "Start Climbing"}
         </button>
-      </footer>
+      </div>
     </div>
   );
 }
@@ -129,12 +168,14 @@ function Rule({
   description: string;
 }) {
   return (
-    <div className="flex gap-3">
-      <span className="mt-0.5">{icon}</span>
+    <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+      <span style={{ flexShrink: 0 }}>{icon}</span>
       <div>
-        <p className="font-semibold text-sm text-white">{title}</p>
-        <p className="text-sm text-white/60">{description}</p>
+        <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 4px", color: "#fff" }}>{title}</p>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
+          {description}
+        </p>
       </div>
     </div>
   );
-}
+            }
