@@ -74,7 +74,7 @@ export default function QuickFirePreflight() {
             color: "#fff",
           }}
         >
-          ←
+          <
         </button>
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Quick Fire</h1>
