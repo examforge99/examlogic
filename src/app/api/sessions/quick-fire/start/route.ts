@@ -1,4 +1,4 @@
-// app/api/session/quick-fire/start/route.ts
+// app/api/sessions/quick-fire/start/route.ts
 
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
@@ -32,12 +32,33 @@ export async function POST() {
 
   const supabase = getServiceRoleClient();
 
-  // ── 1. Fetch user profile ────────────────────────────────────────────────
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("jamb_subjects, current_difficulty_band")
-    .eq("id", userId)
-    .single();
+  // ── 1. Parallel: user profile, English subject, rate limit, active session ─
+  const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+  const [userResult, englishResult, rateLimitResult, activeSessionResult] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("jamb_subjects, current_difficulty_band")
+        .eq("id", userId)
+        .single(),
+      supabase.from("subjects").select("id").eq("slug", "english").single(),
+      supabase
+        .from("exam_sessions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("started_at", `${today}T00:00:00Z`)
+        .lt("started_at", `${tomorrow}T00:00:00Z`),
+      supabase
+        .from("exam_sessions")
+        .select("id")
+        .eq("user_id", userId)
+        .in("status", ["pending", "active"])
+        .single(),
+    ]);
+
+  const { data: user, error: userError } = userResult;
 
   if (userError || !user) {
     return NextResponse.json({ error: "User not found" }, { status: 401 });
@@ -50,17 +71,7 @@ export async function POST() {
     );
   }
 
-  // ── 2. Rate limit check ──────────────────────────────────────────────────
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-
-  const { count: todayCount } = await supabase
-    .from("exam_sessions")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("started_at", `${today}T00:00:00Z`)
-    .lt("started_at", `${tomorrow}T00:00:00Z`);
-
+  const { count: todayCount } = rateLimitResult;
   if ((todayCount ?? 0) >= 20) {
     return NextResponse.json(
       { error: "Daily session limit reached." },
@@ -68,14 +79,7 @@ export async function POST() {
     );
   }
 
-  // ── 3. Active session check ──────────────────────────────────────────────
-  const { data: activeSession } = await supabase
-    .from("exam_sessions")
-    .select("id")
-    .eq("user_id", userId)
-    .in("status", ["pending", "active"])
-    .single();
-
+  const { data: activeSession } = activeSessionResult;
   if (activeSession) {
     return NextResponse.json(
       { error: "You have an active session. Complete it before starting a new one." },
@@ -83,13 +87,7 @@ export async function POST() {
     );
   }
 
-  // ── 4. Fetch English subject ID ──────────────────────────────────────────
-  const { data: englishSubject } = await supabase
-    .from("subjects")
-    .select("id")
-    .eq("slug", "english")
-    .single();
-
+  const { data: englishSubject } = englishResult;
   if (!englishSubject) {
     return NextResponse.json(
       { error: "English subject not found" },
@@ -103,26 +101,11 @@ export async function POST() {
     ...user.jamb_subjects.filter((id: string) => id !== englishSubjectId),
   ];
 
-  // ── 5. Fetch eligible question IDs (progressive spacing filter) ──────────
-  const nowIso = new Date().toISOString();
-
-  const { data: seenRows } = await supabase
-    .from("user_question_seen")
-    .select("question_id, next_eligible_at")
-    .eq("user_id", userId);
-
-  const ineligibleIds = new Set(
-    (seenRows ?? [])
-      .filter((row) => row.next_eligible_at && row.next_eligible_at > nowIso)
-      .map((row) => row.question_id)
-  );
-
-  // ── 6. Fetch questions per subject ───────────────────────────────────────
   const difficultyBand = user.current_difficulty_band ?? 2;
-  const allQuestions: any[] = [];
 
-  for (const subjectId of allSubjectIds) {
-    const { data: questions, error: fetchError } = await supabase
+  // ── 2. Parallel: fetch questions for all subjects simultaneously ───────────
+  const subjectQuestionPromises = allSubjectIds.map((subjectId) =>
+    supabase
       .from("questions")
       .select(`
         id,
@@ -141,20 +124,21 @@ export async function POST() {
       .eq("subject_id", subjectId)
       .eq("difficulty_level", difficultyBand)
       .eq("status", "active")
-      .limit(QUESTIONS_PER_SUBJECT * 4); // wider fetch to allow filtering headroom
+      .limit(QUESTIONS_PER_SUBJECT * 4)
+  );
 
+  const subjectResults = await Promise.all(subjectQuestionPromises);
+
+  const allQuestions: any[] = [];
+
+  for (const { data: questions, error: fetchError } of subjectResults) {
     if (fetchError) {
-      console.error(`[quickfire] fetch failed for subject ${subjectId}:`, fetchError);
+      console.error("[quickfire] subject fetch failed:", fetchError);
       continue;
     }
-
     if (!questions?.length) continue;
 
-    // Filter out ineligible (not yet due for repeat) questions
-    const eligible = questions.filter((q) => !ineligibleIds.has(q.id));
-
-    // Shuffle and take QUESTIONS_PER_SUBJECT
-    const shuffled = eligible
+    const shuffled = questions
       .sort(() => Math.random() - 0.5)
       .slice(0, QUESTIONS_PER_SUBJECT);
 
@@ -163,17 +147,17 @@ export async function POST() {
 
   if (allQuestions.length < TOTAL_QUESTIONS) {
     return NextResponse.json(
-      { error: "Not enough eligible questions available. Try again later." },
+      { error: "Not enough questions available. Try again later." },
       { status: 503 }
     );
   }
 
-  // ── 7. Compute total session time from question types ────────────────────
+  // ── 3. Compute total session time from question types ────────────────────
   const totalTimeSeconds = allQuestions.reduce((sum, q) => {
     return sum + (TIME_MAP[q.resolved_question_type] ?? 15);
   }, 0);
 
-  // ── 8. Create exam_sessions row ──────────────────────────────────────────
+  // ── 4. Create exam_sessions row ────────────────────────────────────────────
   const now = new Date();
   const expiresAt = new Date(now.getTime() + totalTimeSeconds * 1000);
 
@@ -209,7 +193,7 @@ export async function POST() {
     );
   }
 
-  // ── 9. Insert exam_session_questions ─────────────────────────────────────
+  // ── 5. Insert exam_session_questions ─────────────────────────────────────
   const questionRows = allQuestions.map((q, index) => ({
     session_id: session.id,
     question_id: q.id,
@@ -239,7 +223,7 @@ export async function POST() {
     );
   }
 
-  // ── 10. Strip correct answers before response ─────────────────────────────
+  // ── 6. Strip correct answers before response ─────────────────────────────
   const safeQuestions = allQuestions.map(({ correct_option_id, ...q }) => ({
     ...q,
     question_options: q.question_options.sort(
@@ -257,4 +241,4 @@ export async function POST() {
     expires_at: session.expires_at,
     questions: safeQuestions,
   });
-    }
+}
