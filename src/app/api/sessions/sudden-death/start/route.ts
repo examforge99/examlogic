@@ -31,11 +31,33 @@ export async function POST() {
 
   const supabase = getServiceRoleClient();
 
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("jamb_subjects, current_difficulty_band")
-    .eq("id", userId)
-    .single();
+  const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+  // ── 1. Parallel: user profile, English subject, rate limit, active session ─
+  const [userResult, englishResult, rateLimitResult, activeSessionResult] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("jamb_subjects, current_difficulty_band")
+        .eq("id", userId)
+        .single(),
+      supabase.from("subjects").select("id").eq("slug", "english").single(),
+      supabase
+        .from("exam_sessions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("started_at", `${today}T00:00:00Z`)
+        .lt("started_at", `${tomorrow}T00:00:00Z`),
+      supabase
+        .from("exam_sessions")
+        .select("id")
+        .eq("user_id", userId)
+        .in("status", ["pending", "active"])
+        .single(),
+    ]);
+
+  const { data: user, error: userError } = userResult;
 
   if (userError || !user) {
     return NextResponse.json({ error: "User not found" }, { status: 401 });
@@ -48,16 +70,7 @@ export async function POST() {
     );
   }
 
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-
-  const { count: todayCount } = await supabase
-    .from("exam_sessions")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("started_at", `${today}T00:00:00Z`)
-    .lt("started_at", `${tomorrow}T00:00:00Z`);
-
+  const { count: todayCount } = rateLimitResult;
   if ((todayCount ?? 0) >= 20) {
     return NextResponse.json(
       { error: "Daily session limit reached." },
@@ -65,13 +78,7 @@ export async function POST() {
     );
   }
 
-  const { data: activeSession } = await supabase
-    .from("exam_sessions")
-    .select("id")
-    .eq("user_id", userId)
-    .in("status", ["pending", "active"])
-    .single();
-
+  const { data: activeSession } = activeSessionResult;
   if (activeSession) {
     return NextResponse.json(
       { error: "You have an active session. Complete it before starting a new one." },
@@ -79,12 +86,7 @@ export async function POST() {
     );
   }
 
-  const { data: englishSubject } = await supabase
-    .from("subjects")
-    .select("id")
-    .eq("slug", "english")
-    .single();
-
+  const { data: englishSubject } = englishResult;
   if (!englishSubject) {
     return NextResponse.json(
       { error: "English subject not found" },
@@ -99,6 +101,7 @@ export async function POST() {
 
   const baselineDifficulty = user.current_difficulty_band ?? 2;
 
+  // ── 2. Fetch first question at baseline difficulty ────────────────────────
   const { data: questions, error: fetchError } = await supabase
     .from("questions")
     .select(`
@@ -134,6 +137,7 @@ export async function POST() {
 
   const now = new Date();
 
+  // ── 3. Create exam_sessions row ────────────────────────────────────────────
   const { data: session, error: sessionError } = await supabase
     .from("exam_sessions")
     .insert({
@@ -163,9 +167,11 @@ export async function POST() {
     return NextResponse.json({ error: "Failed to create session" }, { status: 500 });
   }
 
-  const { error: questionInsertError } = await supabase
-    .from("exam_session_questions")
-    .insert({
+  // ── 4. Parallel: insert question row + insert sd_active_sessions state ─────
+  const nonce = crypto.randomUUID();
+
+  const [questionInsertResult, sdInsertResult] = await Promise.all([
+    supabase.from("exam_session_questions").insert({
       session_id: session.id,
       question_id: firstQuestion.id,
       subject_id: firstQuestion.subject_id,
@@ -179,22 +185,8 @@ export async function POST() {
       time_spent_seconds: null,
       change_count: 0,
       answer_history: [],
-    });
-
-  if (questionInsertError) {
-    console.error("[sudden-death/start] question insert failed:", questionInsertError);
-    await supabase.from("exam_sessions").delete().eq("id", session.id);
-    return NextResponse.json(
-      { error: "Failed to initialize session question" },
-      { status: 500 }
-    );
-  }
-
-  const nonce = crypto.randomUUID();
-
-  const { error: sdError } = await supabase
-    .from("sd_active_sessions")
-    .insert({
+    }),
+    supabase.from("sd_active_sessions").insert({
       session_id: session.id,
       user_id: userId,
       current_question_id: firstQuestion.id,
@@ -203,13 +195,18 @@ export async function POST() {
       current_difficulty_band: baselineDifficulty,
       baseline_difficulty_band: baselineDifficulty,
       current_streak: 0,
-    });
+    }),
+  ]);
 
-  if (sdError) {
-    console.error("[sudden-death/start] sd_active_sessions insert failed:", sdError);
+  if (questionInsertResult.error || sdInsertResult.error) {
+    console.error(
+      "[sudden-death/start] insert failed:",
+      questionInsertResult.error,
+      sdInsertResult.error
+    );
     await supabase.from("exam_sessions").delete().eq("id", session.id);
     return NextResponse.json(
-      { error: "Failed to initialize sudden death state" },
+      { error: "Failed to initialize sudden death session" },
       { status: 500 }
     );
   }
