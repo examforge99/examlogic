@@ -142,7 +142,7 @@ export default function SuddenDeathPreflight() {
           style={{
             width: "100%",
             padding: "16px 0",
-            borderRadius: "9999px",
+            borderRadius: "14px",
             fontWeight: 600,
             fontSize: 16,
             color: "#fff",
