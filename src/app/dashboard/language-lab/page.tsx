@@ -720,7 +720,7 @@ export default function LanguageLab() {
                     fontSize:   '13px',
                     color:      '#64748b',
                     marginBottom: '6px',
-                    fontSize:   '10px',
+                    
                     fontWeight: 600,
                     letterSpacing: '0.06em',
                     textTransform: 'uppercase',
