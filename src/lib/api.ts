@@ -20,7 +20,7 @@ import {
   UserProgress,
   ApiResult,
   DIFFICULTY_LABELS,
-} from './types'
+} from '@lib/types'
 
 // ── Base fetch ────────────────────────────────────────────────────────────
 
