@@ -1,62 +1,54 @@
- // lib/supabase.ts
+// lib/supabase.ts
 
 import { createClient } from '@supabase/supabase-js'
 import { createBrowserClient, createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import type { Database } from './database.types'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const SUPABASE_URL     = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SUPABASE_ANON    = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+// ── Legacy client ──
+// Existing routes use this — do not remove
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
 
 // ── Browser client ──
 // Use in client components
 export function createBrowserSupabaseClient() {
-  return createBrowserClient<Database>(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  )
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON)
 }
 
 // ── Server client ──
-// Use in server components, route handlers, server actions
+// Use in server components and new route handlers
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()
 
-  return createServerClient<Database>(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
-            })
-          } catch {
-            // Server component — cookies can't be set
-          }
-        },
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
       },
-    }
-  )
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        } catch {
+          // Server component — cookies can't be set, safe to ignore
+        }
+      },
+    },
+  })
 }
 
 // ── Service role client ──
 // Use in API routes that need to bypass RLS
 // Never expose to client
 export function createServiceSupabaseClient() {
-  return createClient<Database>(
-    SUPABASE_URL,
-    SUPABASE_SERVICE_KEY,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  )
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession:   false,
+    },
+  })
 }
