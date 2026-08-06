@@ -219,16 +219,9 @@ export function useSessionHistory(mode?: SessionMode) {
 // ── User progress ─────────────────────────────────────────────────────────
 
 export function useProgress() {
-  const [data,    setData]    = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState<string | null>(null)
-
-  useEffect(() => {
-    progressApi.get()
-      .then(setData)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   return { data, loading, error }
 }
