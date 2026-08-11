@@ -1,371 +1,322 @@
-// app/api/session/campaign/start/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
+import { fetchCandidates } from '@/lib/engines/shared/candidate'
+import { fetchServedQuestions } from '@/lib/engines/shared/questions'
+import { recordCooldown } from '@/lib/engines/shared/cooldown'
+import { runCampaignLottery } from '@/lib/engines/campaign/lottery'
+import { LotteryResult } from '@/lib/engines/shared/types'
 
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { createClient } from "@supabase/supabase-js";
+const MAX_COUNT_PER_SUBJECT = 50
+const MIN_COUNT_PER_SUBJECT = 5
+const DAILY_SESSION_CAP = 20
 
-function getServiceRoleClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Missing Supabase service role configuration");
-  return createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
-
-interface TopicSelection {
-  topic_id: string;
-  question_count: number;
-}
-
-interface SubjectSelection {
-  subject_id: string;
-  topics: TopicSelection[];
-}
-
-export async function POST(request: Request) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  let body: any;
+export async function POST(req: NextRequest) {
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const { subjects, difficulty_level } = body;
-
-  // ── 1. Basic payload validation ──────────────────────────────────────────
-  if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
-    return NextResponse.json(
-      { error: "At least one subject is required" },
-      { status: 400 }
-    );
-  }
-
-  if (difficulty_level !== undefined) {
-    if (
-      typeof difficulty_level !== "number" ||
-      difficulty_level < 1 ||
-      difficulty_level > 7
-    ) {
+    // Step 1 — auth
+    const { userId } = await auth()
+    if (!userId) {
       return NextResponse.json(
-        { error: "difficulty_level must be between 1 and 7" },
-        { status: 400 }
-      );
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
-  }
 
-  const supabase = getServiceRoleClient();
+    const body = await req.json()
+    const {
+      requests,
+      time_limit_seconds
+    }: {
+      requests: { subject_id: string; topic_id?: string; count: number }[]
+      time_limit_seconds?: number | null
+    } = body
 
-  // ── 2. Fetch user profile ────────────────────────────────────────────────
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("jamb_subjects, current_difficulty_band")
-    .eq("id", userId)
-    .single();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "User not found" }, { status: 401 });
-  }
-
-  if (!user.jamb_subjects?.length) {
-    return NextResponse.json(
-      { error: "Please complete your subject selection." },
-      { status: 400 }
-    );
-  }
-
-  // ── 3. Fetch English subject ID ──────────────────────────────────────────
-  const { data: englishSubject } = await supabase
-    .from("subjects")
-    .select("id")
-    .eq("slug", "english")
-    .single();
-
-  if (!englishSubject) {
-    return NextResponse.json(
-      { error: "English subject not found" },
-      { status: 500 }
-    );
-  }
-
-  const allowedSubjectIds = [englishSubject.id, ...user.jamb_subjects];
-
-  // ── 4. Resolve difficulty ────────────────────────────────────────────────
-  const resolvedDifficulty = difficulty_level ?? user.current_difficulty_band ?? 2;
-
-  // ── 5. Validate subjects and topics ─────────────────────────────────────
-  let totalQuestions = 0;
-
-  for (const subject of subjects as SubjectSelection[]) {
-    // Subject must be in user's combo
-    if (!allowedSubjectIds.includes(subject.subject_id)) {
+    // Step 2 — validate shape
+    if (!requests || requests.length === 0) {
       return NextResponse.json(
-        { error: `You are not enrolled in subject: ${subject.subject_id}` },
+        { error: 'requests array is required' },
+        { status: 400 }
+      )
+    }
+
+    for (const r of requests) {
+      if (!r.subject_id) {
+        return NextResponse.json(
+          { error: 'subject_id is required on every request entry' },
+          { status: 400 }
+        )
+      }
+      if (!r.count || r.count < MIN_COUNT_PER_SUBJECT) {
+        return NextResponse.json(
+          { error: `Minimum ${MIN_COUNT_PER_SUBJECT} questions per subject` },
+          { status: 400 }
+        )
+      }
+      if (r.count > MAX_COUNT_PER_SUBJECT) {
+        return NextResponse.json(
+          { error: `Maximum ${MAX_COUNT_PER_SUBJECT} questions per subject` },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Step 3 — timed vs untimed rules
+    const isTimed = !!time_limit_seconds
+
+    if (!isTimed) {
+      // Untimed — single subject, topic required
+      if (requests.length > 1) {
+        return NextResponse.json(
+          { error: 'Multiple subjects only allowed in timed practice' },
+          { status: 400 }
+        )
+      }
+      if (!requests[0].topic_id) {
+        return NextResponse.json(
+          { error: 'Topic is required for untimed campaign practice' },
+          { status: 400 }
+        )
+      }
+    }
+
+    if (isTimed && time_limit_seconds! < 300) {
+      return NextResponse.json(
+        { error: 'Minimum timed session is 5 minutes' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = createClient()
+
+    // Step 4 — parallel preflight checks
+    const today = new Date().toISOString().split('T')[0]
+    const tomorrow = new Date(
+      Date.now() + 86400000
+    ).toISOString().split('T')[0]
+
+    const [userResult, activeSessionResult, rateLimitResult] =
+      await Promise.all([
+        supabase
+          .from('users')
+          .select('jamb_subjects')
+          .eq('id', userId)
+          .single(),
+
+        supabase
+          .from('exam_sessions')
+          .select('id')
+          .eq('user_id', userId)
+          .in('status', ['pending', 'active'])
+          .limit(1)
+          .single(),
+
+        supabase
+          .from('exam_sessions')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('mode', 'campaign')
+          .gte('started_at', `${today}T00:00:00Z`)
+          .lt('started_at', `${tomorrow}T00:00:00Z`)
+      ])
+
+    // Validate user
+    const { data: user, error: userError } = userResult
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    if (!user.jamb_subjects || user.jamb_subjects.length === 0) {
+      return NextResponse.json(
+        { error: 'Please complete your subject selection first' },
+        { status: 400 }
+      )
+    }
+
+    // Validate active session
+    const { data: activeSession } = activeSessionResult
+    if (activeSession) {
+      return NextResponse.json(
+        { error: 'You have an active session. Complete it before starting a new one' },
+        { status: 409 }
+      )
+    }
+
+    // Validate daily cap
+    const { count: todayCount } = rateLimitResult
+    if ((todayCount ?? 0) >= DAILY_SESSION_CAP) {
+      return NextResponse.json(
+        { error: 'Daily campaign session limit reached. Come back tomorrow' },
+        { status: 429 }
+      )
+    }
+
+    // Step 5 — validate all subject_ids belong to this user
+    const invalidSubject = requests.find(
+      r => !user.jamb_subjects.includes(r.subject_id)
+    )
+    if (invalidSubject) {
+      return NextResponse.json(
+        { error: 'Invalid subject for this user' },
         { status: 403 }
-      );
+      )
     }
 
-    // Must have at least one topic
-    if (!subject.topics?.length) {
-      return NextResponse.json(
-        { error: `Subject ${subject.subject_id} must have at least one topic` },
-        { status: 400 }
-      );
-    }
+    // Step 6 — if topic provided, validate it belongs to the subject
+    for (const r of requests) {
+      if (r.topic_id) {
+        const { data: topic, error: topicError } = await supabase
+          .from('topics')
+          .select('id, section_id, sections!inner(subject_id)')
+          .eq('id', r.topic_id)
+          .single()
 
-    let subjectTotal = 0;
-
-    for (const topic of subject.topics) {
-      // question_count validation
-      if (
-        typeof topic.question_count !== "number" ||
-        topic.question_count < 1 ||
-        topic.question_count > 30
-      ) {
-        return NextResponse.json(
-          {
-            error: `question_count for topic ${topic.topic_id} must be between 1 and 30`,
-          },
-          { status: 400 }
-        );
-      }
-
-      // Validate topic belongs to subject
-      const { data: topicRow } = await supabase
-        .from("topics")
-        .select("id")
-        .eq("id", topic.topic_id)
-        .eq("subject_id", subject.subject_id)
-        .single();
-
-      if (!topicRow) {
-        return NextResponse.json(
-          {
-            error: `Topic ${topic.topic_id} does not belong to subject ${subject.subject_id}`,
-          },
-          { status: 400 }
-        );
-      }
-
-      subjectTotal += topic.question_count;
-    }
-
-    // Per subject cap
-    if (subjectTotal > 50) {
-      return NextResponse.json(
-        {
-          error: `Subject ${subject.subject_id} exceeds maximum of 50 questions per session`,
-        },
-        { status: 400 }
-      );
-    }
-
-    totalQuestions += subjectTotal;
-  }
-
-  // Total session cap
-  if (totalQuestions > 200) {
-    return NextResponse.json(
-      { error: "Total questions cannot exceed 200 per session" },
-      { status: 400 }
-    );
-  }
-
-  // ── 6. Rate limit check ──────────────────────────────────────────────────
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-
-  const { count: todayCount } = await supabase
-    .from("exam_sessions")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("started_at", `${today}T00:00:00Z`)
-    .lt("started_at", `${tomorrow}T00:00:00Z`);
-
-  if ((todayCount ?? 0) >= 20) {
-    return NextResponse.json(
-      { error: "Daily session limit reached." },
-      { status: 429 }
-    );
-  }
-
-  // ── 7. Active session check ──────────────────────────────────────────────
-  const { data: activeSession } = await supabase
-    .from("exam_sessions")
-    .select("id")
-    .eq("user_id", userId)
-    .in("status", ["pending", "active"])
-    .single();
-
-  if (activeSession) {
-    return NextResponse.json(
-      {
-        error: "You have an active session. Complete it before starting a new one.",
-      },
-      { status: 409 }
-    );
-  }
-
-  // ── 8. Fetch questions per topic ─────────────────────────────────────────
-  const allQuestions: any[] = [];
-  const shortfallErrors: string[] = [];
-
-  for (const subject of subjects as SubjectSelection[]) {
-    for (const topic of subject.topics) {
-      const { data: questions, error: fetchError } = await supabase
-        .from("questions")
-        .select(`
-          id,
-          subject_id,
-          topic_id,
-          difficulty_level,
-          resolved_question_type,
-          question_text,
-          correct_option_id,
-          question_options (
-            id,
-            option_text,
-            position
+        if (topicError || !topic) {
+          return NextResponse.json(
+            { error: `Topic not found` },
+            { status: 404 }
           )
-        `)
-        .eq("subject_id", subject.subject_id)
-        .eq("topic_id", topic.topic_id)
-        .eq("difficulty_level", resolvedDifficulty)
-        .eq("status", "active")
-        .limit(topic.question_count * 2); // fetch 2x for shuffle headroom
+        }
 
-      if (fetchError) {
-        console.error(
-          `[campaign] fetch failed for topic ${topic.topic_id}:`,
-          fetchError
-        );
-        shortfallErrors.push(
-          `Topic ${topic.topic_id}: fetch error`
-        );
-        continue;
+        const topicSubjectId = (topic.sections as any)?.subject_id
+        if (topicSubjectId !== r.subject_id) {
+          return NextResponse.json(
+            { error: 'Topic does not belong to the selected subject' },
+            { status: 400 }
+          )
+        }
       }
-
-      if (!questions?.length) {
-        shortfallErrors.push(
-          `Topic ${topic.topic_id}: no questions available at Level ${resolvedDifficulty}`
-        );
-        continue;
-      }
-
-      if (questions.length < topic.question_count) {
-        shortfallErrors.push(
-          `Topic ${topic.topic_id}: requested ${topic.question_count} but only ${questions.length} available at Level ${resolvedDifficulty}`
-        );
-        continue;
-      }
-
-      // Shuffle and take requested count
-      const picked = questions
-        .sort(() => Math.random() - 0.5)
-        .slice(0, topic.question_count)
-        .map((q) => ({
-          ...q,
-          question_options: (q.question_options ?? []).sort(
-            (a: any, b: any) => a.position - b.position
-          ),
-        }));
-
-      allQuestions.push(...picked);
     }
-  }
 
-  // Return clear error if any topic had shortfall
-  if (shortfallErrors.length > 0) {
-    return NextResponse.json(
-      {
-        error: "Some topics do not have enough questions",
-        details: shortfallErrors,
-      },
-      { status: 422 }
-    );
-  }
+    // Step 7 — run lottery per request
+    const lotteryResults: LotteryResult[] = []
 
-  // ── 9. Create exam_sessions row ──────────────────────────────────────────
-  const { data: session, error: sessionError } = await supabase
-    .from("exam_sessions")
-    .insert({
-      user_id: userId,
-      mode: "campaign",
-      status: "active",
-      is_completed: false,
-      total_questions: allQuestions.length,
-      correct_count: 0,
-      total_time_seconds: 0, // self paced — no time limit
-      base_points: 0,
-      bonus_points: 0,
-      total_points: 0,
-      gems_earned: 0,
-      is_flagged: false,
-      missed_heartbeats: 0,
-      total_absence_events: 0,
-      auto_submitted: false,
-      started_at: new Date().toISOString(),
-      expires_at: null, // no expiry for campaign
+    for (const r of requests) {
+      const candidates = await fetchCandidates(
+        userId,
+        r.subject_id,
+        r.topic_id
+      )
+
+      const result = runCampaignLottery(
+        candidates,
+        r.subject_id,
+        r.count
+      )
+
+      lotteryResults.push(result)
+    }
+
+    // Step 8 — collect winning IDs
+    const allWinningIds = lotteryResults.flatMap(r => r.question_ids)
+
+    if (allWinningIds.length === 0) {
+      return NextResponse.json(
+        { error: 'No questions available. Try a different topic or check back later' },
+        { status: 503 }
+      )
+    }
+
+    // Step 9 — fetch full question data
+    const questions = await fetchServedQuestions(lotteryResults)
+
+    // Step 10 — create session
+    const now = new Date()
+    const expiresAt = isTimed
+      ? new Date(now.getTime() + time_limit_seconds! * 1000)
+      : null
+
+    const { data: session, error: sessionError } = await supabase
+      .from('exam_sessions')
+      .insert({
+        user_id: userId,
+        mode: 'campaign',
+        status: 'active',
+        is_completed: false,
+        total_questions: questions.length,
+        correct_count: 0,
+        total_time_seconds: time_limit_seconds ?? null,
+        base_points: 0,
+        bonus_points: 0,
+        total_points: 0,
+        gems_earned: 0,
+        is_flagged: false,
+        missed_heartbeats: 0,
+        total_absence_events: 0,
+        auto_submitted: false,
+        started_at: now.toISOString(),
+        expires_at: expiresAt?.toISOString() ?? null,
+        // Store topic for untimed single topic sessions
+        topic_id: !isTimed ? requests[0].topic_id : null,
+        subject_id: requests.length === 1 ? requests[0].subject_id : null
+      })
+      .select()
+      .single()
+
+    if (sessionError || !session) {
+      console.error('[campaign] session insert failed:', sessionError)
+      return NextResponse.json(
+        { error: 'Failed to create session' },
+        { status: 500 }
+      )
+    }
+
+    // Step 11 — insert exam_session_questions
+    const questionRows = questions.map((q, index) => ({
+      session_id: session.id,
+      question_id: q.id,
+      subject_id: q.subject_id,
+      topic_id: q.topic_id,
+      difficulty_level: q.setter_difficulty,
+      position: index + 1,
+      correct_option_id: null,
+      selected_answer: null,
+      is_correct: null,
+      time_spent_seconds: 0,
+      change_count: 0,
+      answer_history: []
+    }))
+
+    const { error: sqError } = await supabase
+      .from('exam_session_questions')
+      .insert(questionRows)
+
+    if (sqError) {
+      console.error('[campaign] session questions insert failed:', sqError)
+      await supabase
+        .from('exam_sessions')
+        .delete()
+        .eq('id', session.id)
+      return NextResponse.json(
+        { error: 'Failed to initialize session questions' },
+        { status: 500 }
+      )
+    }
+
+    // Step 12 — record cooldown in background
+    recordCooldown(userId, allWinningIds).catch(err =>
+      console.error('[campaign] cooldown record failed:', err)
+    )
+
+    // Step 13 — return
+    return NextResponse.json({
+      session_id: session.id,
+      mode: 'campaign',
+      is_timed: isTimed,
+      total_questions: questions.length,
+      time_limit_seconds: time_limit_seconds ?? null,
+      started_at: session.started_at,
+      expires_at: session.expires_at,
+      questions
     })
-    .select()
-    .single();
 
-  if (sessionError || !session) {
-    console.error("[campaign] session insert failed:", sessionError);
+  } catch (err: any) {
+    console.error('[campaign/start] error:', err)
     return NextResponse.json(
-      { error: "Failed to create session" },
+      { error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
-
-  // ── 10. Insert exam_session_questions ────────────────────────────────────
-  const questionRows = allQuestions.map((q, index) => ({
-    session_id: session.id,
-    question_id: q.id,
-    subject_id: q.subject_id,
-    topic_id: q.topic_id,
-    difficulty_level: q.difficulty_level,
-    resolved_question_type: q.resolved_question_type,
-    position: index + 1,
-    correct_option_id: q.correct_option_id,
-    selected_answer: null,
-    is_correct: null,
-    time_spent_seconds: null, // null for campaign — no time tracking
-    change_count: 0,
-    answer_history: [],
-  }));
-
-  const { error: questionsError } = await supabase
-    .from("exam_session_questions")
-    .insert(questionRows);
-
-  if (questionsError) {
-    console.error(
-      "[campaign] exam_session_questions insert failed:",
-      questionsError
-    );
-    await supabase.from("exam_sessions").delete().eq("id", session.id);
-    return NextResponse.json(
-      { error: "Failed to initialize session questions" },
-      { status: 500 }
-    );
-  }
-
-  // ── 11. Strip correct answers before response ────────────────────────────
-  const safeQuestions = allQuestions.map(({ correct_option_id, ...q }) => q);
-
-  return NextResponse.json({
-    session_id: session.id,
-    mode: "campaign",
-    total_questions: allQuestions.length,
-    difficulty_level: resolvedDifficulty,
-    started_at: session.started_at,
-    expires_at: null,
-    questions: safeQuestions,
-  });
 }
