@@ -16,7 +16,7 @@ export default function QuickFirePreflight() {
     setError(null);
 
     try {
-      const res = await fetch("/api/sessions/quick-fire/start", {
+      const res = await fetch("/api/quickfire/pick", {
         method: "POST",
       });
       const data = await res.json();
