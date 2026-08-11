@@ -11,7 +11,7 @@ interface AnswerSubmission {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -22,7 +22,7 @@ export async function POST(
       )
     }
 
-    const sessionId = params.id
+    const { id: sessionId } = await params
     const body = await req.json()
     const answers: AnswerSubmission[] = body.answers
 
@@ -134,8 +134,6 @@ export async function POST(
     })
 
     // Step 5 — bulk update exam_session_questions
-    // Supabase doesn't support bulk update with different values per row
-    // in one call, so we run them in parallel
     const updatePromises = updateRows.map(row =>
       supabase
         .from('exam_session_questions')
@@ -170,7 +168,6 @@ export async function POST(
 
     if (attemptError) {
       console.error('[quickfire/submit] attempts insert failed:', attemptError)
-      // Non-fatal
     }
 
     // Step 7 — compute final score and update session
@@ -224,4 +221,4 @@ export async function POST(
       { status: 500 }
     )
   }
-        }
+}
