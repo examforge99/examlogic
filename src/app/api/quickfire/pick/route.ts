@@ -7,6 +7,10 @@ import { recordCooldown } from '@/lib/engines/shared/cooldown'
 import { runQuickfireLottery } from '@/lib/engines/quickfire/lottery'
 import { LotteryResult } from '@/lib/engines/shared/types'
 
+const QUESTIONS_PER_SUBJECT = 5
+const TOTAL_QUESTIONS = 20
+const SESSION_TIME_SECONDS = 900 // 15 minutes
+
 export async function POST(req: NextRequest) {
   try {
     // Step 1 — auth
@@ -18,25 +22,42 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const body = await req.json()
-    const countPerSubject: number = body.count_per_subject ?? 5
-
-    if (countPerSubject < 1 || countPerSubject > 50) {
-      return NextResponse.json(
-        { error: 'count_per_subject must be between 1 and 50' },
-        { status: 400 }
-      )
-    }
-
     const supabase = createClient()
 
-    // Step 2 — fetch user's registered JAMB subjects
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('jamb_subjects')
-      .eq('id', userId)
-      .single()
+    // Step 2 — parallel preflight checks
+    const oneHourAgo = new Date(
+      Date.now() - 60 * 60 * 1000
+    ).toISOString()
 
+    const [userResult, activeSessionResult, rateLimitResult] =
+      await Promise.all([
+        // User profile
+        supabase
+          .from('users')
+          .select('jamb_subjects')
+          .eq('id', userId)
+          .single(),
+
+        // Active session check
+        supabase
+          .from('exam_sessions')
+          .select('id')
+          .eq('user_id', userId)
+          .in('status', ['pending', 'active'])
+          .limit(1)
+          .single(),
+
+        // Rate limit — max 5 Quickfire sessions per hour
+        supabase
+          .from('exam_sessions')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('mode', 'quick_fire')
+          .gte('started_at', oneHourAgo)
+      ])
+
+    // Validate user
+    const { data: user, error: userError } = userResult
     if (userError || !user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -46,13 +67,30 @@ export async function POST(req: NextRequest) {
 
     if (!user.jamb_subjects || user.jamb_subjects.length === 0) {
       return NextResponse.json(
-        { error: 'No subjects registered for this user' },
+        { error: 'Please complete your subject selection first' },
         { status: 400 }
       )
     }
 
+    // Validate active session
+    const { data: activeSession } = activeSessionResult
+    if (activeSession) {
+      return NextResponse.json(
+        { error: 'You have an active session. Complete it before starting a new one' },
+        { status: 409 }
+      )
+    }
+
+    // Validate rate limit
+    const { count: recentCount } = rateLimitResult
+    if ((recentCount ?? 0) >= 5) {
+      return NextResponse.json(
+        { error: 'You have reached the session limit. Try again in an hour' },
+        { status: 429 }
+      )
+    }
+
     // Step 3 — resolve subject slugs to IDs
-    // jamb_subjects stores slugs e.g ['physics', 'chemistry']
     const { data: subjects, error: subjectError } = await supabase
       .from('subjects')
       .select('id, slug, name')
@@ -69,58 +107,124 @@ export async function POST(req: NextRequest) {
     const lotteryResults: LotteryResult[] = []
 
     for (const subject of subjects) {
-      // Fetch lightweight candidates for this subject
       const candidates = await fetchCandidates(
         userId,
         subject.id
-        // No topic_id — Quickfire draws from full subject pool
+        // No topic_id — full subject pool
       )
 
-      // Run weighted lottery
       const result = runQuickfireLottery(
         candidates,
         subject.id,
-        countPerSubject
+        QUESTIONS_PER_SUBJECT
       )
 
       lotteryResults.push(result)
     }
 
-    // Step 5 — collect all winning IDs
+    // Step 5 — collect winning IDs
     const allWinningIds = lotteryResults.flatMap(r => r.question_ids)
 
-    if (allWinningIds.length === 0) {
-      return NextResponse.json({
-        questions: [],
-        exhausted: true
-      })
+    if (allWinningIds.length < TOTAL_QUESTIONS) {
+      return NextResponse.json(
+        { error: 'Not enough questions available. Try again later' },
+        { status: 503 }
+      )
     }
 
-    // Step 6 — fetch full question data for winners only
+    // Step 6 — fetch full question data for winners
     // correct_option_id never included
     const questions = await fetchServedQuestions(lotteryResults)
 
-    // Step 7 — record cooldown in background
-    // Don't await — keeps response fast
+    // Step 7 — create session
+    const now = new Date()
+    const expiresAt = new Date(
+      now.getTime() + SESSION_TIME_SECONDS * 1000
+    )
+
+    const { data: session, error: sessionError } = await supabase
+      .from('exam_sessions')
+      .insert({
+        user_id: userId,
+        mode: 'quick_fire',
+        status: 'active',
+        is_completed: false,
+        total_questions: questions.length,
+        correct_count: 0,
+        total_time_seconds: SESSION_TIME_SECONDS,
+        base_points: 0,
+        bonus_points: 0,
+        total_points: 0,
+        gems_earned: 0,
+        is_flagged: false,
+        missed_heartbeats: 0,
+        total_absence_events: 0,
+        auto_submitted: false,
+        started_at: now.toISOString(),
+        expires_at: expiresAt.toISOString()
+      })
+      .select()
+      .single()
+
+    if (sessionError || !session) {
+      console.error('[quickfire] session insert failed:', sessionError)
+      return NextResponse.json(
+        { error: 'Failed to create session' },
+        { status: 500 }
+      )
+    }
+
+    // Step 8 — insert exam_session_questions
+    const questionRows = questions.map((q, index) => ({
+      session_id: session.id,
+      question_id: q.id,
+      subject_id: q.subject_id,
+      topic_id: q.topic_id,
+      difficulty_level: q.setter_difficulty,
+      position: index + 1,
+      correct_option_id: null, // never stored client-side
+      selected_answer: null,
+      is_correct: null,
+      time_spent_seconds: 0,
+      change_count: 0,
+      answer_history: []
+    }))
+
+    const { error: sqError } = await supabase
+      .from('exam_session_questions')
+      .insert(questionRows)
+
+    if (sqError) {
+      console.error('[quickfire] session questions insert failed:', sqError)
+      // Rollback session
+      await supabase
+        .from('exam_sessions')
+        .delete()
+        .eq('id', session.id)
+      return NextResponse.json(
+        { error: 'Failed to initialize session questions' },
+        { status: 500 }
+      )
+    }
+
+    // Step 9 — record cooldown in background
     recordCooldown(userId, allWinningIds).catch(err =>
       console.error('[quickfire] cooldown record failed:', err)
     )
 
-    // Step 8 — return
+    // Step 10 — return response
     return NextResponse.json({
-      questions,
-      meta: {
-        total: questions.length,
-        by_subject: lotteryResults.map((r, i) => ({
-          subject_id: r.subject_id,
-          subject_name: subjects[i]?.name ?? '',
-          count: r.question_ids.length
-        }))
-      }
+      session_id: session.id,
+      mode: 'quick_fire',
+      total_questions: questions.length,
+      total_time_seconds: SESSION_TIME_SECONDS,
+      started_at: session.started_at,
+      expires_at: session.expires_at,
+      questions
     })
 
   } catch (err: any) {
-    console.error('[quickfire/pick] error:', err)
+    console.error('[quickfire/start] error:', err)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
