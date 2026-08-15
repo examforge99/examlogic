@@ -1,17 +1,19 @@
-// components/ui/TopBar.tsx
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Space_Grotesk, Inter } from 'next/font/google'
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'] })
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'] })
 
 interface TopBarProps {
-  title: string
+  title?: string
   subtitle?: string
   showBack?: boolean
   showNotif?: boolean
   showAvatar?: boolean
   avatarInitial?: string
   notifCount?: number
-  titleAlign?: 'left' | 'center'
   rightElement?: React.ReactNode
   onNotifClick?: () => void
   onAvatarClick?: () => void
@@ -25,7 +27,6 @@ export default function TopBar({
   showAvatar = true,
   avatarInitial = 'V',
   notifCount = 0,
-  titleAlign = 'left',
   rightElement,
   onNotifClick,
   onAvatarClick,
@@ -43,8 +44,8 @@ export default function TopBar({
       gap-3
     ">
 
-      {/* Left — back button or spacer */}
-      <div className="flex-shrink-0 w-[34px]">
+      {/* Left — logo or back button */}
+      <div className="flex-shrink-0">
         {showBack ? (
           <button
             onClick={() => router.back()}
@@ -55,29 +56,37 @@ export default function TopBar({
               active:opacity-70 transition-opacity
             "
           >
-            <svg
-              width={16} height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#a8c8e8"
-              strokeWidth={2}
-            >
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
         ) : (
-          <div className="w-[34px]" />
+          <div className="flex flex-col">
+            <p
+              className="text-[18px] font-bold tracking-tight leading-none"
+              style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+            >
+              <span className="text-[#e8f4ff]">Exam</span>
+              <span className="text-[#25d6a2]">Logic</span>
+            </p>
+            {subtitle && (
+              <p
+                className="text-[11px] text-[#4d6a87] mt-[2px]"
+                style={{ fontFamily: inter.style.fontFamily }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
         )}
-      </div>
 
-      {/* Center — title */}
-      <div className={`flex-1 ${titleAlign === 'center' ? 'text-center' : 'text-left'}`}>
-        <p className="font-['Space_Grotesk'] text-[17px] font-bold text-[#e8f4ff] leading-none">
-          {title}
-        </p>
-        {subtitle && (
-          <p className="font-['Inter'] text-[10px] font-normal text-[#4d6a87] mt-[2px]">
-            {subtitle}
+        {/* Inner page title when back button is shown */}
+        {showBack && title && (
+          <p
+            className="text-[17px] font-bold text-[#e8f4ff] leading-none ml-3"
+            style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+          >
+            {title}
           </p>
         )}
       </div>
@@ -96,13 +105,7 @@ export default function TopBar({
                   active:opacity-70 transition-opacity
                 "
               >
-                <svg
-                  width={16} height={16}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#a8c8e8"
-                  strokeWidth={2}
-                >
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                 </svg>
@@ -123,10 +126,11 @@ export default function TopBar({
                 className="
                   w-[34px] h-[34px] rounded-[9px]
                   flex items-center justify-center
-                  font-['Space_Grotesk'] text-[13px] font-bold text-[#071426]
+                  text-[13px] font-bold text-[#071426]
                   active:opacity-70 transition-opacity
                 "
                 style={{
+                  fontFamily: spaceGrotesk.style.fontFamily,
                   background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
                 }}
               >
