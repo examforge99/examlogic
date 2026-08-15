@@ -1,57 +1,103 @@
-// lib/simulation/refill/templateRefill.ts
+import { SupabaseClient } from "@supabase/supabase-js"
 
-import { SupabaseClient } from "@supabase/supabase-js";
+const POOL_TARGET = 500
+const BATCH_SIZE = 50
+const TOLERANCE_MIN = 3.3
+const TOLERANCE_MAX = 3.7
+const MAX_ATTEMPTS_PER_TEMPLATE = 50
+const MIN_ACCEPTABLE_BATCH_YIELD = 0.7
 
-const POOL_TARGET = 100;
-const TOLERANCE_MIN = 3.3;
-const TOLERANCE_MAX = 3.7;
-const MAX_ATTEMPTS_PER_TEMPLATE = 50;
+export interface RefillReport {
+  question_count: number
+  target: number
+  generated: number
+  batches_run: number
+  batches_failed: number
+  final_pool_size: number
+}
 
 export async function triggerDifficultyRefill(
   supabase: SupabaseClient,
   questionCount: 40 | 60
-): Promise<void> {
-  const status = await getDifficultyPoolStatus(supabase, questionCount);
-  const needed = POOL_TARGET - status.available;
-  if (needed <= 0) return;
+): Promise<RefillReport> {
+  const status = await getDifficultyPoolStatus(supabase, questionCount)
+  const needed = POOL_TARGET - status.available
 
-  const templates = [];
-
-  for (let i = 0; i < needed; i++) {
-    const template = generateDifficultyTemplate(questionCount);
-    if (!template) continue;
-    templates.push(template);
+  const report: RefillReport = {
+    question_count: questionCount,
+    target: POOL_TARGET,
+    generated: 0,
+    batches_run: 0,
+    batches_failed: 0,
+    final_pool_size: status.available
   }
 
-  await saveDifficultyTemplates(supabase, templates);
+  if (needed <= 0) {
+    return report
+  }
+
+  const totalBatches = Math.ceil(needed / BATCH_SIZE)
+
+  for (let batch = 0; batch < totalBatches; batch++) {
+    const remainingNeeded = needed - report.generated
+    const thisBatchSize = Math.min(BATCH_SIZE, remainingNeeded)
+
+    const templates = []
+    for (let i = 0; i < thisBatchSize; i++) {
+      const template = generateDifficultyTemplate(questionCount)
+      if (template) templates.push(template)
+    }
+
+    const yieldRate = templates.length / thisBatchSize
+    report.batches_run++
+
+    if (yieldRate < MIN_ACCEPTABLE_BATCH_YIELD) {
+      report.batches_failed++
+      console.error(
+        `[templateRefill] Batch ${batch + 1} yield too low: ` +
+        `${templates.length}/${thisBatchSize} (${(yieldRate * 100).toFixed(0)}%)`
+      )
+      if (templates.length > 0) {
+        await saveDifficultyTemplates(supabase, templates)
+        report.generated += templates.length
+      }
+      break
+    }
+
+    await saveDifficultyTemplates(supabase, templates)
+    report.generated += templates.length
+  }
+
+  report.final_pool_size = status.available + report.generated
+  return report
 }
 
 export function generateDifficultyTemplate(
   questionCount: 40 | 60
 ): {
-  question_count: number;
-  difficulty_distribution: any;
-  target_average: number;
-  tolerance_min: number;
-  tolerance_max: number;
-  status: string;
+  question_count: number
+  difficulty_distribution: any
+  target_average: number
+  tolerance_min: number
+  tolerance_max: number
+  status: string
 } | null {
   for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_TEMPLATE; attempt++) {
-    const level1 = randomInt(3, 8);
-    const level2 = randomInt(10, 20);
-    const level3 = randomInt(30, 45);
-    const level4 = randomInt(20, 35);
-    const level5 = 100 - level1 - level2 - level3 - level4;
+    const level1 = randomInt(3, 8)
+    const level2 = randomInt(10, 20)
+    const level3 = randomInt(30, 45)
+    const level4 = randomInt(20, 35)
+    const level5 = 100 - level1 - level2 - level3 - level4
 
-    if (level5 < 3 || level5 > 20) continue;
+    if (level5 < 3 || level5 > 20) continue
 
     const dist = {
       level1_percent: level1,
       level2_percent: level2,
       level3_percent: level3,
       level4_percent: level4,
-      level5_percent: level5,
-    };
+      level5_percent: level5
+    }
 
     const template = {
       question_count: questionCount,
@@ -59,43 +105,43 @@ export function generateDifficultyTemplate(
       target_average: 3.5,
       tolerance_min: TOLERANCE_MIN,
       tolerance_max: TOLERANCE_MAX,
-      status: "available",
-    };
+      status: "available"
+    }
 
-    if (!validateDifficultyTemplate(template, questionCount)) continue;
+    if (!validateDifficultyTemplate(template, questionCount)) continue
 
-    return template;
+    return template
   }
 
-  return null;
+  return null
 }
 
 export function validateDifficultyTemplate(template: any, questionCount: number): boolean {
-  const dist = template.difficulty_distribution;
+  const dist = template.difficulty_distribution
 
-  const l1 = Math.floor((dist.level1_percent / 100) * questionCount);
-  const l2 = Math.floor((dist.level2_percent / 100) * questionCount);
-  const l3 = Math.floor((dist.level3_percent / 100) * questionCount);
-  const l4 = Math.floor((dist.level4_percent / 100) * questionCount);
-  const l5 = Math.floor((dist.level5_percent / 100) * questionCount);
+  const l1 = Math.floor((dist.level1_percent / 100) * questionCount)
+  const l2 = Math.floor((dist.level2_percent / 100) * questionCount)
+  const l3 = Math.floor((dist.level3_percent / 100) * questionCount)
+  const l4 = Math.floor((dist.level4_percent / 100) * questionCount)
+  const l5 = Math.floor((dist.level5_percent / 100) * questionCount)
 
-  if ([l1, l2, l3, l4, l5].some((v) => v < 1)) return false;
+  if ([l1, l2, l3, l4, l5].some((v) => v < 1)) return false
 
-  const totalPoints = l1 * 1 + l2 * 2 + l3 * 3 + l4 * 4 + l5 * 5;
-  const average = totalPoints / questionCount;
+  const totalPoints = l1 * 1 + l2 * 2 + l3 * 3 + l4 * 4 + l5 * 5
+  const average = totalPoints / questionCount
 
-  return average >= TOLERANCE_MIN && average <= TOLERANCE_MAX;
+  return average >= TOLERANCE_MIN && average <= TOLERANCE_MAX
 }
 
 export async function saveDifficultyTemplates(
   supabase: SupabaseClient,
   templates: any[]
 ): Promise<void> {
-  if (templates.length === 0) return;
+  if (templates.length === 0) return
 
-  const { error } = await supabase.from("simulation_templates").insert(templates);
+  const { error } = await supabase.from("simulation_templates").insert(templates)
 
-  if (error) throw new Error(`saveDifficultyTemplates failed: ${error.message}`);
+  if (error) throw new Error(`saveDifficultyTemplates failed: ${error.message}`)
 }
 
 export async function getDifficultyPoolStatus(
@@ -105,16 +151,16 @@ export async function getDifficultyPoolStatus(
   const { data, error } = await supabase
     .from("simulation_templates")
     .select("status")
-    .eq("question_count", questionCount);
+    .eq("question_count", questionCount)
 
-  if (error || !data) return { total: 0, available: 0 };
+  if (error || !data) return { total: 0, available: 0 }
 
   return {
     total: data.length,
-    available: data.filter((r: any) => r.status === "available").length,
-  };
+    available: data.filter((r: any) => r.status === "available").length
+  }
 }
 
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }

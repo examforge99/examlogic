@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { triggerDifficultyRefill } from "@/lib/simulation/refill/templateRefill";
-import { triggerTopicRefill } from "@/lib/simulation/refill/topicTemplateRefill";
 
 function getServiceRoleClient() {
   return createClient(
@@ -42,26 +41,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { type, question_count, subject_id } = body;
+  const { question_count } = body;
 
-  if (type === "difficulty") {
-    if (!question_count || ![40, 60].includes(question_count)) {
-      return NextResponse.json(
-        { error: "question_count must be 40 or 60" },
-        { status: 400 }
-      );
-    }
-    await triggerDifficultyRefill(supabase, question_count);
-    return NextResponse.json({ success: true, type: "difficulty", question_count });
+  if (!question_count || ![40, 60].includes(question_count)) {
+    return NextResponse.json(
+      { error: "question_count must be 40 or 60" },
+      { status: 400 }
+    );
   }
 
-  if (type === "topic") {
-    if (!subject_id) {
-      return NextResponse.json({ error: "subject_id is required" }, { status: 400 });
-    }
-    await triggerTopicRefill(supabase, subject_id);
-    return NextResponse.json({ success: true, type: "topic", subject_id });
-  }
-
-  return NextResponse.json({ error: "type must be difficulty or topic" }, { status: 400 });
+  const report = await triggerDifficultyRefill(supabase, question_count);
+  return NextResponse.json({ success: true, report });
 }
