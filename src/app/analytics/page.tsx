@@ -10,6 +10,9 @@ import Card from '@/components/ui/Card'
 import CardSkeleton from '@/components/ui/CardSkeleton'
 import AccuracyTrendChart from '@/components/analytics/AccuracyTrendChart'
 import DifficultyPerformanceCard from '@/components/analytics/DifficultyPerformanceCard'
+import HeatMap from '@/components/analytics/HeatMap'
+import PracticeModeCard from '@/components/analytics/PracticeModeCard'
+
 
 export default function AnalyticsPage() {
   const router = useRouter()
@@ -85,15 +88,12 @@ export default function AnalyticsPage() {
           <SectionHeader title="Accuracy Trend" />
           <AccuracyTrendChart />
         </div>
-
-        {/* Consistency Heatmap */}
+        
+        {/* Consistency heatmap*/}
         <div>
-          <SectionHeader title="Consistency" />
-          <Card padding="md">
-            {/* TODO: HeatMap component */}
-            <CardSkeleton height="240px" rows={4} />
-          </Card>
-        </div>
+  <SectionHeader title="Consistency" />
+  <HeatMap />
+</div>
 
         {/* Difficulty Performance */}
         <div>
@@ -103,18 +103,9 @@ export default function AnalyticsPage() {
 
         {/* Practice Mode Performance */}
         <div>
-          <SectionHeader
-            title="Practice Modes"
-            action={{
-              label: 'View all',
-              onClick: () => router.push('/sessions'),
-            }}
-          />
-          <Card padding="md">
-            {/* TODO: PracticeModeCard component */}
-            <CardSkeleton height="240px" rows={4} />
-          </Card>
-        </div>
+  <SectionHeader title="Practice Modes" />
+  <PracticeModeCard />
+</div>
 
       </main>
 
