@@ -1,4 +1,3 @@
-// app/(dashboard)/dashboard/page.tsx
 'use client'
 
 import { useRouter } from 'next/navigation'
@@ -12,14 +11,10 @@ export default function DashboardPage() {
   return (
     <div style={{ backgroundColor: '#071426' }} className="min-h-screen">
       <TopBar
-        title="ExamLogic"
-        subtitle="Welcome back, Victor 👋"
         showBack={false}
         showNotif={true}
         showAvatar={true}
         avatarInitial="V"
-        notifCount={0}
-        titleAlign="left"
       />
 
       <main className="px-4 pt-6 pb-28 flex flex-col items-center justify-center min-h-[75vh]">
