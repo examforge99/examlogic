@@ -47,7 +47,7 @@ export default function TopBar({
       bg-[#071426ee]
       backdrop-blur-md
       border-b border-[#1a3a5c]
-      px-4 py-[10px]
+      px-6 py-[10px]
       flex items-center justify-between
       gap-3
     ">
