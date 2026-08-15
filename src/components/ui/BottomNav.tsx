@@ -67,7 +67,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[#1a3a5c] flex items-start justify-around pt-2 pb-5 md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[#1a3a5c] flex items-start justify-around pt-3 pb-3 md:hidden"
       style={{
         background: '#0d1f35ee',
         backdropFilter: 'blur(16px)',
@@ -85,10 +85,10 @@ export default function BottomNav() {
               className="flex flex-col items-center gap-1 flex-1 px-3 py-1 rounded-xl"
             >
               <div
-                className="w-[52px] h-[52px] rounded-[16px] flex items-center justify-center -mt-6"
+                className="w-[54px] h-[54px] rounded-[16px] flex items-center justify-center -mt-8"
                 style={{
                   background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
-                  boxShadow: '0 6px 24px #25d6a260',
+                  boxShadow: '0 8px 28px #25d6a265',
                 }}
               >
                 <svg
@@ -138,10 +138,9 @@ export default function BottomNav() {
               {item.label}
             </span>
 
-            {/* Active indicator — bottom */}
             {isActive && (
               <span
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-t-[4px] bg-[#25d6a2]"
+                className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-t-[4px] bg-[#25d6a2]"
                 style={{ boxShadow: '0 0 8px #25d6a2' }}
               />
             )}
@@ -150,4 +149,4 @@ export default function BottomNav() {
       })}
     </nav>
   )
-              }
+}
