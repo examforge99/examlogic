@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Space_Grotesk, Inter } from 'next/font/google'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'] })
@@ -13,7 +14,6 @@ interface TopBarProps {
   showNotif?: boolean
   showAvatar?: boolean
   avatarInitial?: string
-  notifCount?: number
   rightElement?: React.ReactNode
   onNotifClick?: () => void
   onAvatarClick?: () => void
@@ -26,12 +26,20 @@ export default function TopBar({
   showNotif = true,
   showAvatar = true,
   avatarInitial = 'V',
-  notifCount = 0,
   rightElement,
   onNotifClick,
   onAvatarClick,
 }: TopBarProps) {
   const router = useRouter()
+  const [hasNotification, setHasNotification] = useState(false)
+
+  useEffect(() => {
+    if (!showNotif) return
+    fetch('/api/notifications')
+      .then((r) => r.json())
+      .then((data) => setHasNotification(data.hasNotification))
+      .catch(() => setHasNotification(false))
+  }, [showNotif])
 
   return (
     <div className="
@@ -47,19 +55,29 @@ export default function TopBar({
       {/* Left — logo or back button */}
       <div className="flex-shrink-0">
         {showBack ? (
-          <button
-            onClick={() => router.back()}
-            className="
-              w-[34px] h-[34px] rounded-[9px]
-              bg-[#0d1f35] border border-[#1a3a5c]
-              flex items-center justify-center
-              active:opacity-70 transition-opacity
-            "
-          >
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="
+                w-[34px] h-[34px] rounded-[9px]
+                bg-[#0d1f35] border border-[#1a3a5c]
+                flex items-center justify-center
+                active:opacity-70 transition-opacity
+              "
+            >
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            {title && (
+              <p
+                className="text-[17px] font-bold text-[#e8f4ff] leading-none"
+                style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+              >
+                {title}
+              </p>
+            )}
+          </div>
         ) : (
           <div className="flex flex-col">
             <p
@@ -78,16 +96,6 @@ export default function TopBar({
               </p>
             )}
           </div>
-        )}
-
-        {/* Inner page title when back button is shown */}
-        {showBack && title && (
-          <p
-            className="text-[17px] font-bold text-[#e8f4ff] leading-none ml-3"
-            style={{ fontFamily: spaceGrotesk.style.fontFamily }}
-          >
-            {title}
-          </p>
         )}
       </div>
 
@@ -109,7 +117,7 @@ export default function TopBar({
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                 </svg>
-                {notifCount > 0 && (
+                {hasNotification && (
                   <span className="
                     absolute top-[5px] right-[5px]
                     w-[6px] h-[6px] rounded-full
