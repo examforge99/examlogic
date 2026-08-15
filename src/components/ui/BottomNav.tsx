@@ -2,6 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], weight: ['500', '600', '700'] })
 
 const navItems = [
   {
@@ -82,10 +85,10 @@ export default function BottomNav() {
               className="flex flex-col items-center gap-1 flex-1 px-3 py-1 rounded-xl"
             >
               <div
-                className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center -mt-4"
+                className="w-[52px] h-[52px] rounded-[16px] flex items-center justify-center -mt-6"
                 style={{
                   background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
-                  boxShadow: '0 4px 16px #25d6a240',
+                  boxShadow: '0 6px 24px #25d6a260',
                 }}
               >
                 <svg
@@ -93,12 +96,15 @@ export default function BottomNav() {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#071426"
-                  strokeWidth={1.8}
+                  strokeWidth={2}
                 >
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
               </div>
-              <span className="text-[10px] font-semibold text-[#25d6a2]">
+              <span
+                className="text-[10px] font-semibold text-[#25d6a2]"
+                style={{ fontFamily: inter.style.fontFamily }}
+              >
                 {item.label}
               </span>
             </Link>
@@ -111,14 +117,6 @@ export default function BottomNav() {
             href={item.href}
             className="flex flex-col items-center gap-1 flex-1 px-3 py-1 rounded-xl relative"
           >
-            {/* Active indicator bar */}
-            {isActive && (
-              <span
-                className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-b-[4px] bg-[#25d6a2]"
-                style={{ boxShadow: '0 0 8px #25d6a2' }}
-              />
-            )}
-
             <svg
               className="w-[22px] h-[22px]"
               viewBox={item.icon.props.viewBox}
@@ -132,15 +130,24 @@ export default function BottomNav() {
             <span
               className="text-[10px]"
               style={{
+                fontFamily: inter.style.fontFamily,
                 color: isActive ? '#25d6a2' : '#4d6a87',
                 fontWeight: isActive ? 700 : 500,
               }}
             >
               {item.label}
             </span>
+
+            {/* Active indicator — bottom */}
+            {isActive && (
+              <span
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-t-[4px] bg-[#25d6a2]"
+                style={{ boxShadow: '0 0 8px #25d6a2' }}
+              />
+            )}
           </Link>
         )
       })}
     </nav>
   )
-}
+              }
