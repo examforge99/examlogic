@@ -42,15 +42,15 @@ export default function TopBar({
   }, [showNotif])
 
   return (
-    <div className="
-      sticky top-0 z-[100]
-      bg-[#071426ee]
-      backdrop-blur-md
-      border-b border-[#1a3a5c]
-      px-10 py-[10px]
-      flex items-center justify-between
-      gap-3
-    ">
+<div className="
+  sticky top-0 z-[100]
+  bg-[#071426ee]
+  backdrop-blur-md
+  border-b border-[#1a3a5c]
+  px-6 py-[10px]
+  flex items-center justify-between
+  gap-3
+">
 
       {/* Left — logo or back button */}
       <div className="flex-shrink-0">
