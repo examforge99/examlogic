@@ -1,0 +1,124 @@
+// app/analytics/page.tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+import TopBar from '@/components/ui/TopBar'
+import BottomNav from '@/components/ui/BottomNav'
+import StatCard from '@/components/ui/StatCard'
+import SectionHeader from '@/components/ui/SectionHeader'
+import Card from '@/components/ui/Card'
+import CardSkeleton from '@/components/ui/CardSkeleton'
+import AccuracyTrendChart from '@/components/analytics/AccuracyTrendChart'
+import DifficultyPerformanceCard from '@/components/analytics/DifficultyPerformanceCard'
+
+export default function AnalyticsPage() {
+  const router = useRouter()
+
+  return (
+    <div style={{ backgroundColor: '#071426' }} className="min-h-screen">
+      <TopBar
+        title="Analytics"
+        subtitle="Track your progress"
+        showBack={false}
+        showNotif={true}
+        showAvatar={true}
+        avatarInitial="V"
+      />
+
+      <main className="px-4 pt-4 pb-28 max-w-[480px] mx-auto flex flex-col gap-3">
+
+        {/* Stat row */}
+        <div className="grid grid-cols-4 gap-2">
+          <StatCard
+            value="1,248"
+            label="Total Qs"
+            valueColor="#3FB7FF"
+            iconBg="#3FB7FF15"
+            icon={
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            }
+          />
+          <StatCard
+            value="75"
+            suffix="%"
+            label="Avg Accuracy"
+            valueColor="#25d6a2"
+            iconBg="#25d6a215"
+            icon={
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#25d6a2" strokeWidth={2}>
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            }
+          />
+          <StatCard
+            value="12"
+            suffix="d"
+            label="Streak"
+            valueColor="#ff8c55"
+            iconBg="#ff8c5515"
+            icon={
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#ff8c55" strokeWidth={2}>
+                <path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-6-8-6-14z"/>
+              </svg>
+            }
+          />
+          <StatCard
+            value="43"
+            suffix="h"
+            label="Study Time"
+            valueColor="#a78bfa"
+            iconBg="#a78bfa15"
+            icon={
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            }
+          />
+        </div>
+
+        {/* Accuracy Trend */}
+        <div>
+          <SectionHeader title="Accuracy Trend" />
+          <AccuracyTrendChart />
+        </div>
+
+        {/* Consistency Heatmap */}
+        <div>
+          <SectionHeader title="Consistency" />
+          <Card padding="md">
+            {/* TODO: HeatMap component */}
+            <CardSkeleton height="240px" rows={4} />
+          </Card>
+        </div>
+
+        {/* Difficulty Performance */}
+        <div>
+          <SectionHeader title="Difficulty Performance" />
+          <DifficultyPerformanceCard />
+        </div>
+
+        {/* Practice Mode Performance */}
+        <div>
+          <SectionHeader
+            title="Practice Modes"
+            action={{
+              label: 'View all',
+              onClick: () => router.push('/sessions'),
+            }}
+          />
+          <Card padding="md">
+            {/* TODO: PracticeModeCard component */}
+            <CardSkeleton height="240px" rows={4} />
+          </Card>
+        </div>
+
+      </main>
+
+      <BottomNav />
+    </div>
+  )
+}
