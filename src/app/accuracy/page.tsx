@@ -146,7 +146,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
 
   return (
     <div
-      className="mx-12 bg-[#0d1f35] border border-[#1a3a5c] rounded-md p-[14px]"
+      className="mx-20 bg-[#0d1f35] border border-[#1a3a5c] rounded-md p-[14px]"
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-[10px]">
