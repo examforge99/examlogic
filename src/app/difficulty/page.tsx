@@ -86,13 +86,8 @@ export default function DifficultyPerformanceCard({
   const currentLevelLabel = LEVELS[d.currentLevel - 1].label
 
   return (
-    <div
-      className={`
-        bg-[#0d1f35] border border-[#1a3a5c]
-        rounded-2xl p-4
-        ${className}
-      `}
-    >
+<div className={className} style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c',   borderRadius: '16px',   padding: '14px', }}
+>
       {/* Header */}
       <div className="flex items-center justify-between mb-[14px]">
         <span
