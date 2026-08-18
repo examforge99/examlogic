@@ -193,63 +193,96 @@ export default function HeatMap({
 
   return (
     <>
-      <div className="bg-[#0d1f35] border border-[#1a3a5c] rounded-2xl p-[14px]">
-
+      <div style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c', borderRadius: '16px', padding: '14px', margin: '0 14px' }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-[10px]">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
-            style={{ fontFamily: inter.style.fontFamily }}
-          >
-            Consistency
+<div className="flex items-center justify-between mb-[10px]">
+  <span
+    className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
+    style={{ fontFamily: inter.style.fontFamily }}
+  >
+         Consistency
           </span>
           <select
-            value={monthKey}
-            onChange={(e) => setMonthKey(e.target.value as MonthKey)}
-            className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] px-2 py-1 pr-6 text-[10px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
-            style={{
-              fontFamily: inter.style.fontFamily,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 6px center',
-            }}
-          >
-            <option value="2025-3">Apr 2025</option>
-            <option value="2025-4">May 2025</option>
-            <option value="2025-5">Jun 2025</option>
-            <option value="2025-6">Jul 2025</option>
-          </select>
+  value={monthKey}
+  onChange={(e) => setMonthKey(e.target.value as MonthKey)}
+  className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] text-[11px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
+  style={{
+    fontFamily: inter.style.fontFamily,
+    padding: '4px 28px 4px 10px',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 6px center',
+  }}
+>
+  <option value="2025-3">Apr 2025</option>
+  <option value="2025-4">May 2025</option>
+  <option value="2025-5">Jun 2025</option>
+  <option value="2025-6">Jul 2025</option>
+</select>
         </div>
 
         {/* Streak row */}
-        <div className="flex gap-[5px] mb-[10px]">
-          {[
-            { icon: '🔥', value: String(currentStreak), label: 'Current',  color: '#ff8c55' },
-            { icon: '⚡', value: bestStreak > 0 ? String(bestStreak) : '—', label: 'Best Streak', color: '#25d6a2' },
-            { icon: '📅', value: String(daysPracticed), sub: `/${m.today}`, label: 'Practiced', color: '#3FB7FF' },
-          ].map((s) => (
-            <div key={s.label} className="flex-1 bg-[#112236] rounded-[8px] px-2 py-[6px] flex items-center gap-[5px]">
-              <span className="text-[13px] flex-shrink-0">{s.icon}</span>
-              <div>
-                <p
-                  className="text-[14px] font-bold leading-none"
-                  style={{ fontFamily: spaceGrotesk.style.fontFamily, color: s.color }}
-                >
-                  {s.value}
-                  {s.sub && (
-                    <span className="text-[9px] text-[#4d6a87]">{s.sub}</span>
-                  )}
-                </p>
-                <p
-                  className="text-[7px] font-medium text-[#4d6a87] uppercase tracking-[0.04em] mt-[1px]"
-                  style={{ fontFamily: inter.style.fontFamily }}
-                >
-                  {s.label}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        
+        <div
+  style={{display: 'flex', gap: '5px', marginTop: '14px',  marginBottom: '10px',
+  }}
+>
+  {[
+    {
+      icon: '🔥', value: String(currentStreak), label: 'Current', color: '#ff8c55',
+    },
+    {
+      icon: '⚡', value: bestStreak > 0 ? String(bestStreak) : '—', label: 'Best Streak', color: '#25d6a2',
+    },
+    {
+      icon: '📅',  value: String(daysPracticed), sub: `/${m.today}`,  label: 'Practiced', color: '#3FB7FF',
+    },
+  ].map((s) => (
+    <div
+  key={s.label}
+  style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#112236', border: '1px solid #1a3a5c',  borderRadius: '8px', padding: '6px 9px', minWidth: 0,  }}
+>
+      <span
+        style={{  fontSize: '13px', lineHeight: 1,  flexShrink: 0,
+        }}
+      >
+        {s.icon}
+      </span>
+
+      <div
+        style={{
+          minWidth: 0,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: spaceGrotesk.style.fontFamily,  fontSize: '14px',   fontWeight: 700, lineHeight: 1, margin: 0, color: s.color,
+          }}
+        >
+          {s.value}
+
+          {s.sub && (
+            <span
+              style={{
+                fontFamily: inter.style.fontFamily,  fontSize: '9px',  color: '#4d6a87',  marginLeft: '1px',
+              }}
+            >
+              {s.sub}
+            </span>
+          )}
+        </p>
+
+        <p
+          style={{
+            fontFamily: inter.style.fontFamily,   fontSize: '7px',   fontWeight: 500,   lineHeight: 1,    color: '#4d6a87',   textTransform: 'uppercase',     letterSpacing: '0.04em', margin: '2px 0 0', whiteSpace: 'nowrap',
+          }}
+        >
+          {s.label}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
 
         {/* Calendar grid */}
         <div
@@ -352,9 +385,9 @@ export default function HeatMap({
           onClick={(e) => e.target === e.currentTarget && setPopup(null)}
         >
           <div
-            className="bg-[#0d1f35] border border-[#1a3a5c] rounded-t-[20px] p-[16px_18px_36px] w-full max-w-[480px]"
-            style={{ animation: 'slideUp 0.2s ease' }}
-          >
+               style={{ width: '100%',  maxWidth: '480px', backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '20px 20px 0 0', padding: '16px 14px 36px', animation: 'slideUp 0.2s ease',
+  }}
+>
             {/* Handle */}
             <div className="w-8 h-[3px] bg-[#1a3a5c] rounded-full mx-auto mb-[14px]" />
 
@@ -374,28 +407,24 @@ export default function HeatMap({
               </button>
             </div>
 
+            
             {/* Degree badge */}
-            <div
-              className="inline-flex items-center gap-[6px] px-[11px] py-1 rounded-full mb-[14px]"
-              style={{
-                background: degree.bg,
-                border: `1px solid ${degree.color}50`,
-              }}
-            >
-              <div
-                className="w-[7px] h-[7px] rounded-full"
-                style={{ background: degree.color }}
-              />
-              <span
-                className="text-[11px] font-bold"
-                style={{
-                  fontFamily: inter.style.fontFamily,
-                  color: degree.color,
-                }}
-              >
-                {degree.label}
-              </span>
-            </div>
+<div  
+  style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px',  borderRadius: '8px', backgroundColor: degree.bg, border: `1px solid ${degree.color}50`, marginBottom: '14px',
+  }}
+>
+  <div
+    style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: degree.color, flexShrink: 0,
+    }}
+  />
+
+  <span
+    style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', fontWeight: 700, lineHeight: 1, color: degree.color,
+    }}
+  >
+    {degree.label}
+  </span>
+</div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2 mb-3">
@@ -403,7 +432,7 @@ export default function HeatMap({
                 { icon: '❓', value: popup.activity.qs > 0 ? String(popup.activity.qs) : '—', label: 'Questions' },
                 { icon: '⏱️', value: formatTime(popup.activity.mins), label: 'Study Time' },
               ].map((s) => (
-                <div key={s.label} className="bg-[#112236] rounded-[10px] p-[10px_12px]">
+                <div key={s.label} style={{ backgroundColor: '#112236', borderRadius: '8px', padding: '12px 14px', }} >
                   <span className="text-[15px] block mb-[5px]">{s.icon}</span>
                   <span
                     className="text-[20px] font-bold text-[#e8f4ff] block leading-none mb-[2px]"
@@ -430,7 +459,8 @@ export default function HeatMap({
                 ? `${pct}% of your best day (${popup.maxQs} Qs)`
                 : 'No activity recorded'}
             </p>
-            <ProgressBar value={pct} height="sm" color="#25d6a2" animated />
+            <ProgressBar  value={pct} height="sm" gradient={{   from: '#25d6a220',  to: '#25d6a2',  }}  animated
+/>
           </div>
         </div>
       )}
@@ -443,4 +473,4 @@ export default function HeatMap({
       `}</style>
     </>
   )
-}
+  }
