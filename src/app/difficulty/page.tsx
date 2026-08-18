@@ -178,13 +178,9 @@ export default function DifficultyPerformanceCard({
         >
           Your Current Level
         </span>
-        <div
-          className="flex items-center gap-[6px] px-[10px] py-[3px] rounded-full"
-          style={{
-            background: '#25d6a215',
-            border: '1px solid #25d6a230',
-          }}
-        >
+        <div style={{ display: 'flex',   alignItems: 'center',  gap: '7px',  padding: '5px 14px',  borderRadius: '8px',  backgroundColor: '#25d6a215',   border: '1px solid #25d6a230',
+  }}
+>
           <span
             className="w-[6px] h-[6px] rounded-full bg-[#25d6a2]"
             style={{ boxShadow: '0 0 5px #25d6a2' }}
