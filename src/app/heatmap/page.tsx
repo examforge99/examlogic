@@ -240,7 +240,7 @@ export default function HeatMap({
     <div
       key={s.label}
       style={{
-        flex: 1, display: 'flex',  alignItems: 'center',  gap: '5px',  backgroundColor: '#112236',   border: '1px solid #1a3a5c',  borderRadius: '999px',   padding: '6px 9px',  minWidth: 0,
+        flex: 1, display: 'flex',  alignItems: 'center',  gap: '5px',  backgroundColor: '#112236',   border: '1px solid #1a3a5c',  borderRadius: '20px',   padding: '6px 9px',  minWidth: 0,
       }}
     >
       <span
