@@ -224,7 +224,8 @@ export default function HeatMap({
         {/* Streak row */}
         
         <div
-  style={{ display: 'flex', gap: '5px', marginBottom: '10px', }}
+  style={{display: 'flex', gap: '5px', marginTop: '14px',  marginBottom: '10px',
+  }}
 >
   {[
     {
@@ -238,11 +239,9 @@ export default function HeatMap({
     },
   ].map((s) => (
     <div
-      key={s.label}
-      style={{
-        flex: 1, display: 'flex',  alignItems: 'center',  gap: '5px',  backgroundColor: '#112236',   border: '1px solid #1a3a5c',  borderRadius: '20px',   padding: '6px 9px',  minWidth: 0,
-      }}
-    >
+  key={s.label}
+  style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#112236', border: '1px solid #1a3a5c',  borderRadius: '8px', padding: '6px 9px', minWidth: 0,  }}
+>
       <span
         style={{  fontSize: '13px', lineHeight: 1,  flexShrink: 0,
         }}
