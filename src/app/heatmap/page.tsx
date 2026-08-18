@@ -407,28 +407,24 @@ export default function HeatMap({
               </button>
             </div>
 
+            
             {/* Degree badge */}
-            <div
-              className="inline-flex items-center gap-[6px] px-[11px] py-1 rounded-full mb-[14px]"
-              style={{
-                background: degree.bg,
-                border: `1px solid ${degree.color}50`,
-              }}
-            >
-              <div
-                className="w-[7px] h-[7px] rounded-full"
-                style={{ background: degree.color }}
-              />
-              <span
-                className="text-[11px] font-bold"
-                style={{
-                  fontFamily: inter.style.fontFamily,
-                  color: degree.color,
-                }}
-              >
-                {degree.label}
-              </span>
-            </div>
+<div  
+  style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px',  borderRadius: '8px', backgroundColor: degree.bg, border: `1px solid ${degree.color}50`, marginBottom: '14px',
+  }}
+>
+  <div
+    style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: degree.color, flexShrink: 0,
+    }}
+  />
+
+  <span
+    style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', fontWeight: 700, lineHeight: 1, color: degree.color,
+    }}
+  >
+    {degree.label}
+  </span>
+</div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2 mb-3">
