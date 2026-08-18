@@ -193,8 +193,7 @@ export default function HeatMap({
 
   return (
     <>
-      <div className="bg-[#0d1f35] border border-[#1a3a5c] rounded-2xl p-[14px]">
-
+      <div style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c', borderRadius: '16px', padding: '14px', margin: '0 14px' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-[10px]">
           <span
