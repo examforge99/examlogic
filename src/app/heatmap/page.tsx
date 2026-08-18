@@ -459,7 +459,8 @@ export default function HeatMap({
                 ? `${pct}% of your best day (${popup.maxQs} Qs)`
                 : 'No activity recorded'}
             </p>
-            <ProgressBar value={pct} height="sm" color="#25d6a2" animated />
+            <Progressbar  value={pct} height="sm" gradient={{   from: '#25d6a220',  to: '#25d6a2',  }}  animated
+/>
           </div>
         </div>
       )}
