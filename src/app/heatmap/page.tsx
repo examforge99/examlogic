@@ -195,29 +195,30 @@ export default function HeatMap({
     <>
       <div style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c', borderRadius: '16px', padding: '14px', margin: '0 14px' }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-[10px]">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
-            style={{ fontFamily: inter.style.fontFamily }}
-          >
-            Consistency
+<div className="flex items-center justify-between mb-[10px]">
+  <span
+    className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
+    style={{ fontFamily: inter.style.fontFamily }}
+  >
+         Consistency
           </span>
           <select
-            value={monthKey}
-            onChange={(e) => setMonthKey(e.target.value as MonthKey)}
-            className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] px-2 py-1 pr-6 text-[10px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
-            style={{
-              fontFamily: inter.style.fontFamily,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 6px center',
-            }}
-          >
-            <option value="2025-3">Apr 2025</option>
-            <option value="2025-4">May 2025</option>
-            <option value="2025-5">Jun 2025</option>
-            <option value="2025-6">Jul 2025</option>
-          </select>
+  value={monthKey}
+  onChange={(e) => setMonthKey(e.target.value as MonthKey)}
+  className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] text-[11px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
+  style={{
+    fontFamily: inter.style.fontFamily,
+    padding: '4px 28px 4px 10px',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 6px center',
+  }}
+>
+  <option value="2025-3">Apr 2025</option>
+  <option value="2025-4">May 2025</option>
+  <option value="2025-5">Jun 2025</option>
+  <option value="2025-6">Jul 2025</option>
+</select>
         </div>
 
         {/* Streak row */}
