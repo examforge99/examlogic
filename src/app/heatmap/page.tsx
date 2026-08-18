@@ -432,7 +432,7 @@ export default function HeatMap({
                 { icon: '❓', value: popup.activity.qs > 0 ? String(popup.activity.qs) : '—', label: 'Questions' },
                 { icon: '⏱️', value: formatTime(popup.activity.mins), label: 'Study Time' },
               ].map((s) => (
-                <div key={s.label} className="bg-[#112236] rounded-[10px] p-[10px_12px]">
+                <div key={s.label} style={{ backgroundColor: '#112236', borderRadius: '8px', padding: '12px 14px', }} >
                   <span className="text-[15px] block mb-[5px]">{s.icon}</span>
                   <span
                     className="text-[20px] font-bold text-[#e8f4ff] block leading-none mb-[2px]"
