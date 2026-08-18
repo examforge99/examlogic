@@ -385,7 +385,7 @@ export default function HeatMap({
           onClick={(e) => e.target === e.currentTarget && setPopup(null)}
         >
           <div
-               style={{ width: '80%',  maxWidth: '480px', backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '20px 20px 0 0', padding: '16px 14px 36px', animation: 'slideUp 0.2s ease',
+               style={{ width: '100%',  maxWidth: '480px', backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '20px 20px 0 0', padding: '16px 14px 36px', animation: 'slideUp 0.2s ease',
   }}
 >
             {/* Handle */}
