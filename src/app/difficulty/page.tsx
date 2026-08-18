@@ -119,7 +119,8 @@ export default function DifficultyPerformanceCard({
       </div>
 
       {/* Level rows */}
-      <div className="flex flex-col gap-[9px] mb-[14px]">
+      <div style={{  display: 'flex',  flexDirection: 'column',   gap: '9px',   marginBottom: '14px',  }}
+>
         {LEVELS.map((level, i) => {
           const acc = d.levels[i].accuracy
           return (
