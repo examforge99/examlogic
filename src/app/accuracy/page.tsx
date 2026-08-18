@@ -159,7 +159,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
         <select
           value={range}
           onChange={(e) => setRange(e.target.value as TimeRange)}
-          className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] px-4 py-1 pr-8 text-[11px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
+          className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[12px] px-7 py-4 pr-8 text-[14px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
           style={{
             fontFamily: inter.style.fontFamily,
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
