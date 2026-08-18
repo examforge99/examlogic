@@ -189,9 +189,9 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
           avg accuracy
         </span>
         <span
-          className={`text-[11px] font-semibold px-[7px] py-[2px] rounded-full ${d.deltaUp ? 'text-[#25d6a2] bg-[#25d6a215]' : 'text-[#ff6b6b] bg-[#ff6b6b15]'}`}
-          style={{ fontFamily: inter.style.fontFamily }}
-        >
+  className={`text-[11px] font-semibold rounded-full ${d.deltaUp ? 'text-[#25d6a2] bg-[#25d6a215]' : 'text-[#ff6b6b] bg-[#ff6b6b15]'}`}
+  style={{ fontFamily: inter.style.fontFamily, padding: '4px 10px' }}
+>
           {d.delta}
         </span>
       </div>
