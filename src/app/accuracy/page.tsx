@@ -175,7 +175,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
       </div>
 
       {/* Stat row */}
-      <div className="flex items-baseline gap-2 mb-3">
+      <div className="flex items-baseline gap-2 mb-5">
         <span
           className="text-[24px] font-bold text-[#e8f4ff] leading-none"
           style={{ fontFamily: spaceGrotesk.style.fontFamily }}
