@@ -89,7 +89,7 @@ export default function DifficultyPerformanceCard({
 <div className={className} style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c',   borderRadius: '16px',   padding: '14px', }}
 >
       {/* Header */}
-      <div className="flex items-center justify-between mb-[14px]">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '14px', }}>
         <span
           className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
           style={{ fontFamily: inter.style.fontFamily }}
