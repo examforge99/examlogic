@@ -222,34 +222,68 @@ export default function HeatMap({
         </div>
 
         {/* Streak row */}
-        <div className="flex gap-[5px] mb-[10px]">
-          {[
-            { icon: '🔥', value: String(currentStreak), label: 'Current',  color: '#ff8c55' },
-            { icon: '⚡', value: bestStreak > 0 ? String(bestStreak) : '—', label: 'Best Streak', color: '#25d6a2' },
-            { icon: '📅', value: String(daysPracticed), sub: `/${m.today}`, label: 'Practiced', color: '#3FB7FF' },
-          ].map((s) => (
-            <div key={s.label} className="flex-1 bg-[#112236] rounded-[8px] px-2 py-[6px] flex items-center gap-[5px]">
-              <span className="text-[13px] flex-shrink-0">{s.icon}</span>
-              <div>
-                <p
-                  className="text-[14px] font-bold leading-none"
-                  style={{ fontFamily: spaceGrotesk.style.fontFamily, color: s.color }}
-                >
-                  {s.value}
-                  {s.sub && (
-                    <span className="text-[9px] text-[#4d6a87]">{s.sub}</span>
-                  )}
-                </p>
-                <p
-                  className="text-[7px] font-medium text-[#4d6a87] uppercase tracking-[0.04em] mt-[1px]"
-                  style={{ fontFamily: inter.style.fontFamily }}
-                >
-                  {s.label}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        
+        <div
+  style={{ display: 'flex', gap: '5px', marginBottom: '10px', }}
+>
+  {[
+    {
+      icon: '🔥', value: String(currentStreak), label: 'Current', color: '#ff8c55',
+    },
+    {
+      icon: '⚡', value: bestStreak > 0 ? String(bestStreak) : '—', label: 'Best Streak', color: '#25d6a2',
+    },
+    {
+      icon: '📅',  value: String(daysPracticed), sub: `/${m.today}`,  label: 'Practiced', color: '#3FB7FF',
+    },
+  ].map((s) => (
+    <div
+      key={s.label}
+      style={{
+        flex: 1, display: 'flex',  alignItems: 'center',  gap: '5px',  backgroundColor: '#112236',   border: '1px solid #1a3a5c',  borderRadius: '999px',   padding: '6px 9px',  minWidth: 0,
+      }}
+    >
+      <span
+        style={{  fontSize: '13px', lineHeight: 1,  flexShrink: 0,
+        }}
+      >
+        {s.icon}
+      </span>
+
+      <div
+        style={{
+          minWidth: 0,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: spaceGrotesk.style.fontFamily,  fontSize: '14px',   fontWeight: 700, lineHeight: 1, margin: 0, color: s.color,
+          }}
+        >
+          {s.value}
+
+          {s.sub && (
+            <span
+              style={{
+                fontFamily: inter.style.fontFamily,  fontSize: '9px',  color: '#4d6a87',  marginLeft: '1px',
+              }}
+            >
+              {s.sub}
+            </span>
+          )}
+        </p>
+
+        <p
+          style={{
+            fontFamily: inter.style.fontFamily,   fontSize: '7px',   fontWeight: 500,   lineHeight: 1,    color: '#4d6a87',   textTransform: 'uppercase',     letterSpacing: '0.04em', margin: '2px 0 0', whiteSpace: 'nowrap',
+          }}
+        >
+          {s.label}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
 
         {/* Calendar grid */}
         <div
