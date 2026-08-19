@@ -175,7 +175,9 @@ export default function DifficultyPerformanceCard({
       <Divider className="mb-[14px]" />
 
       {/* Current level */}
-      <div className="flex items-center justify-between mb-[10px]">
+      <div style={{ display: 'flex',  alignItems: 'center',  justifyContent: 'space-between', marginBottom: '10px',
+  }}
+>
         <span
           className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#4d6a87]"
           style={{ fontFamily: inter.style.fontFamily }}
@@ -222,16 +224,15 @@ export default function DifficultyPerformanceCard({
         </span>
       </div>
 
-      {/* Points bar */}
-      <div className="mb-[6px]">
-        <ProgressBar
-          value={pct}
-          height="lg"
-          gradient={{ from: '#3FB7FF', to: '#25d6a2' }}
-          showDot
-          animated
-        />
-      </div>
+      
+{/* Points bar */}
+<div style={{   marginBottom: '6px',  }}
+>
+  <ProgressBar  value={pct}  height="lg"  gradient={{  from: '#3FB7FF',   to: '#25d6a2',   }}
+    showDot
+    animated
+  />
+</div>
 
       {/* Caption */}
       <p
