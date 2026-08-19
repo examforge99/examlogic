@@ -77,32 +77,60 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
   return (
     <>
       <div
-        className={`
-          bg-[#0d1f35] border border-[#1a3a5c]
-          rounded-2xl p-[16px]
-          ${className}
-        `}
+        className={className}
+        style={{
+          margin: '0 14px',
+          backgroundColor: '#0d1f35',
+          border: '1px solid #1a3a5c',
+          borderRadius: '16px',
+          padding: '14px',
+        }}
       >
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth={2}>
               <path d="M9 11l3 3L22 4"/>
               <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
             </svg>
             <span
-              className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#4d6a87]"
-              style={{ fontFamily: inter.style.fontFamily }}
+              style={{
+                fontFamily: inter.style.fontFamily,
+                fontSize: '10px',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: '#4d6a87',
+              }}
             >
               Practice Mode Performance
             </span>
           </div>
+
           <select
             value={range}
             onChange={(e) => setRange(e.target.value as TimeRange)}
-            className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] px-2 py-1 pr-6 text-[10px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
             style={{
               fontFamily: inter.style.fontFamily,
+              backgroundColor: '#112236',
+              border: '1px solid #1a3a5c',
+              borderRadius: '8px',
+              padding: '4px 28px 4px 10px',
+              fontSize: '10px',
+              fontWeight: 600,
+              color: '#a8c8e8',
+              outline: 'none',
+              cursor: 'pointer',
+              appearance: 'none',
+              WebkitAppearance: 'none',
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'right 6px center',
@@ -115,42 +143,67 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
         </div>
 
         {/* Mode cards grid */}
-        <div className="grid grid-cols-2 gap-[10px] mb-4">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: '10px',
+            marginBottom: '16px',
+          }}
+        >
           {modes.map((mode) => {
             const s = mode.stats[range]
             return (
               <div
                 key={mode.name}
-                className="bg-[#112236] border border-[#1a3a5c] rounded-[12px] p-[14px_12px] flex flex-col gap-[10px]"
+                style={{
+                  backgroundColor: '#112236',
+                  border: '1px solid #1a3a5c',
+                  borderRadius: '12px',
+                  padding: '14px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
               >
+
                 {/* Mode header */}
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div
-                    className="w-[26px] h-[26px] rounded-[6px] flex items-center justify-center text-[13px] flex-shrink-0"
-                    style={{ background: mode.iconBg }}
+                    style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '13px',
+                      flexShrink: 0,
+                      background: mode.iconBg,
+                    }}
                   >
                     {mode.icon}
                   </div>
                   <span
-                    className="text-[14px] font-bold text-[#e8f4ff] leading-[1.3] min-w-0"
-                    style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                    style={{
+                      fontFamily: spaceGrotesk.style.fontFamily,
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      color: '#e8f4ff',
+                      lineHeight: 1.3,
+                      minWidth: 0,
+                    }}
                   >
                     {mode.name}
                   </span>
                 </div>
 
                 {/* Sessions */}
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-[11px] text-[#4d6a87]"
-                    style={{ fontFamily: inter.style.fontFamily }}
-                  >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
                     Sessions
                   </span>
-                  <span
-                    className="text-[12px] font-semibold text-[#cbd5e1]"
-                    style={{ fontFamily: inter.style.fontFamily }}
-                  >
+                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
                     {s.sessions}
                   </span>
                 </div>
@@ -158,17 +211,23 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 {/* Accuracy */}
                 <div>
                   <span
-                    className="text-[26px] font-bold leading-none"
                     style={{
                       fontFamily: spaceGrotesk.style.fontFamily,
+                      fontSize: '26px',
+                      fontWeight: 700,
+                      lineHeight: 1,
                       color: mode.color,
                     }}
                   >
                     {s.accuracy}%
                   </span>
                   <p
-                    className="text-[11px] text-[#4d6a87] mt-[2px]"
-                    style={{ fontFamily: inter.style.fontFamily }}
+                    style={{
+                      fontFamily: inter.style.fontFamily,
+                      fontSize: '11px',
+                      color: '#4d6a87',
+                      marginTop: '2px',
+                    }}
                   >
                     Accuracy
                   </p>
@@ -177,17 +236,11 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 <Divider />
 
                 {/* Best score */}
-                <div className="flex flex-col gap-[2px]">
-                  <span
-                    className="text-[11px] text-[#4d6a87]"
-                    style={{ fontFamily: inter.style.fontFamily }}
-                  >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
                     Best Score
                   </span>
-                  <span
-                    className="text-[12px] font-semibold text-[#cbd5e1]"
-                    style={{ fontFamily: inter.style.fontFamily }}
-                  >
+                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
                     {s.bestScore}
                   </span>
                 </div>
@@ -195,11 +248,22 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 {/* Review button */}
                 <button
                   onClick={() => setReviewing(mode)}
-                  className="w-full py-2 rounded-[8px] text-[13px] font-bold active:opacity-80 transition-opacity"
                   style={{
+                    width: '100%',
+                    padding: '8px 0',
+                    borderRadius: '8px',
                     fontFamily: spaceGrotesk.style.fontFamily,
-                    background: mode.color,
-                    color: mode.color === '#ef4444' ? '#fff' : '#071426',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: `1px solid ${mode.color}99`,
+                    background: `linear-gradient(135deg, ${mode.color}ee 0%, ${mode.color} 45%, ${mode.color}cc 100%)`,
+                    color: mode.color === '#ef4444' ? '#ffffff' : '#071426',
+                    boxShadow: `
+                      inset 0 1px 0 rgba(255,255,255,0.25),
+                      inset 0 -1px 0 rgba(0,0,0,0.12),
+                      0 3px 10px ${mode.color}25
+                    `,
                   }}
                 >
                   Review
@@ -213,14 +277,25 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
         <Divider />
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-[14px]">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingTop: '14px',
+          }}
+        >
           <span
-            className="text-[11px] text-[#475569] leading-[1.4]"
-            style={{ fontFamily: inter.style.fontFamily }}
+            style={{
+              fontFamily: inter.style.fontFamily,
+              fontSize: '11px',
+              color: '#475569',
+              lineHeight: 1.4,
+            }}
           >
             Tap Review to see session history and missed questions
           </span>
-          <span className="text-[#3FB7FF] text-[16px] flex-shrink-0">›</span>
+          <span style={{ color: '#3FB7FF', fontSize: '16px', flexShrink: 0 }}>›</span>
         </div>
 
       </div>
@@ -228,8 +303,13 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
       {/* Review bottom sheet */}
       {reviewing && (
         <div
-          className="fixed inset-0 z-[200] flex items-end justify-center"
           style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
             background: '#07142670',
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)',
@@ -237,56 +317,125 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
           onClick={(e) => e.target === e.currentTarget && setReviewing(null)}
         >
           <div
-            className="bg-[#0d1f35] border border-[#1a3a5c] rounded-t-[20px] w-full max-w-[480px] p-[16px_18px_40px]"
-            style={{ animation: 'slideUp 0.2s ease' }}
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              backgroundColor: '#0d1f35',
+              border: '1px solid #1a3a5c',
+              borderRadius: '20px 20px 0 0',
+              padding: '14px 18px 40px',
+              animation: 'slideUp 0.2s ease',
+            }}
           >
+
             {/* Handle */}
-            <div className="w-8 h-[3px] bg-[#1a3a5c] rounded-full mx-auto mb-4" />
+            <div
+              style={{
+                width: '32px',
+                height: '3px',
+                backgroundColor: '#1a3a5c',
+                borderRadius: '999px',
+                margin: '0 auto 16px',
+              }}
+            />
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
-                  className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center text-[16px]"
-                  style={{ background: reviewing.iconBg }}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    background: reviewing.iconBg,
+                  }}
                 >
                   {reviewing.icon}
                 </div>
                 <span
-                  className="text-[17px] font-bold text-[#e8f4ff]"
-                  style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                  style={{
+                    fontFamily: spaceGrotesk.style.fontFamily,
+                    fontSize: '17px',
+                    fontWeight: 700,
+                    color: '#e8f4ff',
+                  }}
                 >
                   {reviewing.name}
                 </span>
               </div>
+
               <button
                 onClick={() => setReviewing(null)}
-                className="w-[26px] h-[26px] rounded-[7px] bg-[#112236] border border-[#1a3a5c] flex items-center justify-center text-[#4d6a87] text-[13px]"
+                style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '7px',
+                  backgroundColor: '#112236',
+                  border: '1px solid #1a3a5c',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#4d6a87',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
               >
                 ✕
               </button>
             </div>
 
             {/* Stats summary */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gap: '8px',
+                marginBottom: '16px',
+              }}
+            >
               {[
-                { label: 'Sessions',  value: String(reviewing.stats[range].sessions) },
-                { label: 'Accuracy',  value: `${reviewing.stats[range].accuracy}%`   },
-                { label: 'Best',      value: reviewing.stats[range].bestScore         },
+                { label: 'Sessions', value: String(reviewing.stats[range].sessions) },
+                { label: 'Accuracy', value: `${reviewing.stats[range].accuracy}%`   },
+                { label: 'Best',     value: reviewing.stats[range].bestScore         },
               ].map((s) => (
-                <div key={s.label} className="bg-[#112236] rounded-[10px] p-[10px_12px]">
+                <div
+                  key={s.label}
+                  style={{
+                    backgroundColor: '#112236',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                  }}
+                >
                   <span
-                    className="text-[18px] font-bold text-[#e8f4ff] block leading-none mb-[4px]"
                     style={{
                       fontFamily: spaceGrotesk.style.fontFamily,
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      display: 'block',
+                      lineHeight: 1,
+                      marginBottom: '4px',
                       color: reviewing.color,
                     }}
                   >
                     {s.value}
                   </span>
                   <span
-                    className="text-[10px] text-[#4d6a87]"
-                    style={{ fontFamily: inter.style.fontFamily }}
+                    style={{
+                      fontFamily: inter.style.fontFamily,
+                      fontSize: '10px',
+                      color: '#4d6a87',
+                    }}
                   >
                     {s.label}
                   </span>
@@ -294,12 +443,20 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
               ))}
             </div>
 
-            <Divider className="mb-4" />
+            <div style={{ marginBottom: '16px' }}>
+              <Divider />
+            </div>
 
             {/* Placeholder for session list */}
             <p
-              className="text-[12px] text-[#4d6a87] text-center py-6"
-              style={{ fontFamily: inter.style.fontFamily }}
+              style={{
+                fontFamily: inter.style.fontFamily,
+                fontSize: '12px',
+                color: '#4d6a87',
+                textAlign: 'center',
+                paddingTop: '24px',
+                paddingBottom: '24px',
+              }}
             >
               Session history will appear here once data is connected
             </p>
@@ -316,4 +473,4 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
       `}</style>
     </>
   )
-}
+            }
