@@ -83,6 +83,7 @@ export default function BottomNav() {
           background: '#0d1f35ee',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
+          marginBottom: '8px',
         }}
         className="bottom-nav"
       >
@@ -208,4 +209,4 @@ export default function BottomNav() {
       `}</style>
     </>
   )
-                    }
+}
