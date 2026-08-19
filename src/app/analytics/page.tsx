@@ -3,7 +3,7 @@
 
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
-import StatCard from '@/components/ui/StatCard'
+import StatCard from '@/components/analytics/StatCard'
 import AccuracyTrendChart from '@/components/analytics/AccuracyTrendChart'
 import DifficultyPerformanceCard from '@/components/analytics/DifficultyPerformanceCard'
 import HeatMap from '@/components/analytics/HeatMap'
