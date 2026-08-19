@@ -1,18 +1,19 @@
 // components/ui/Divider.tsx
 
 interface DividerProps {
-  className?: string
   color?: string
+  style?: React.CSSProperties
 }
 
-export default function Divider({
-  className = '',
-  color = '#1a3a5c',
-}: DividerProps) {
+export default function Divider({ color = '#1a3a5c', style }: DividerProps) {
   return (
     <div
-      className={`w-full h-px ${className}`}
-      style={{ background: color }}
+      style={{
+        width: '100%',
+        height: '1px',
+        background: color,
+        ...style,
+      }}
     />
   )
 }
