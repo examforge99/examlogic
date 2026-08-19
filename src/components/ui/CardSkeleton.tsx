@@ -3,50 +3,59 @@
 
 interface CardSkeletonProps {
   height?: string
-  className?: string
   rows?: number
 }
 
-function SkeletonLine({ width = 'w-full', height = 'h-[10px]' }: { width?: string; height?: string }) {
+function SkeletonLine({ width = '100%', height = '10px' }: { width?: string; height?: string }) {
   return (
-    <div className={`
-      ${width} ${height}
-      bg-[#112236]
-      rounded-full
-      animate-pulse
-    `} />
+    <div
+      style={{
+        width,
+        height,
+        backgroundColor: '#112236',
+        borderRadius: '999px',
+        animation: 'pulse 1.5s ease-in-out infinite',
+      }}
+    />
   )
 }
 
-export default function CardSkeleton({
-  height = '180px',
-  className = '',
-  rows = 3,
-}: CardSkeletonProps) {
+export default function CardSkeleton({ height = '180px', rows = 3 }: CardSkeletonProps) {
   return (
-    <div
-      className={`
-        bg-[#0d1f35]
-        border border-[#1a3a5c]
-        rounded-2xl p-4
-        flex flex-col gap-3
-        ${className}
-      `}
-      style={{ minHeight: height }}
-    >
-      {/* Header skeleton */}
-      <div className="flex items-center justify-between">
-        <SkeletonLine width="w-[80px]" height="h-[8px]" />
-        <SkeletonLine width="w-[50px]" height="h-[8px]" />
+    <>
+      <div
+        style={{
+          minHeight: height,
+          backgroundColor: '#0d1f35',
+          border: '1px solid #1a3a5c',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}
+      >
+        {/* Header skeleton */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <SkeletonLine width="80px" height="8px" />
+          <SkeletonLine width="50px" height="8px" />
+        </div>
+
+        {/* Content rows */}
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <SkeletonLine width={i % 2 === 0 ? '75%' : '50%'} />
+            <SkeletonLine height="4px" />
+          </div>
+        ))}
       </div>
 
-      {/* Content rows */}
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex flex-col gap-2">
-          <SkeletonLine width={i % 2 === 0 ? 'w-3/4' : 'w-1/2'} />
-          <SkeletonLine height="h-[4px]" />
-        </div>
-      ))}
-    </div>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.4; }
+        }
+      `}</style>
+    </>
   )
 }
