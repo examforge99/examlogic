@@ -15,9 +15,9 @@ interface StatCardProps {
 }
 
 const deltaColorMap = {
-  up:      'text-[#25d6a2] bg-[#25d6a215]',
-  down:    'text-[#ff6b6b] bg-[#ff6b6b15]',
-  neutral: 'text-[#4d6a87] bg-[#4d6a8715]',
+  up:      { color: '#25d6a2', backgroundColor: 'rgba(37, 214, 162, 0.08)' },
+  down:    { color: '#ff6b6b', backgroundColor: 'rgba(255, 107, 107, 0.08)' },
+  neutral: { color: '#4d6a87', backgroundColor: 'rgba(77, 106, 135, 0.08)' },
 }
 
 const deltaIconMap = {
@@ -39,54 +39,87 @@ export default function StatCard({
 }: StatCardProps) {
   return (
     <div
-      className={`
-        bg-[#0d1f35]
-        border border-[#1a3a5c]
-        rounded-xl
-        p-[10px_8px]
-        flex flex-col
-        items-center
-        gap-[3px]
-        text-center
-        ${className}
-      `}
+      className={className}
+      style={{
+        backgroundColor: '#0d1f35',
+        border: '1px solid #1a3a5c',
+        borderRadius: '12px',
+        padding: '10px 8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '3px',
+        textAlign: 'center',
+      }}
     >
       {/* Icon */}
       <div
-        className="w-6 h-6 rounded-[7px] flex items-center justify-center mb-[2px] flex-shrink-0"
-        style={{ background: iconBg }}
+        style={{
+          width: '24px',
+          height: '24px',
+          borderRadius: '7px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '2px',
+          flexShrink: 0,
+          background: iconBg,
+        }}
       >
         {icon}
       </div>
 
       {/* Value */}
-      <div className="flex items-baseline gap-[2px]">
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
         <span
-          className="font-['Space_Grotesk'] text-[15px] font-bold leading-none"
-          style={{ color: valueColor }}
+          style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: '15px',
+            fontWeight: 700,
+            lineHeight: 1,
+            color: valueColor,
+          }}
         >
           {value}
         </span>
         {suffix && (
-          <span className="font-['Inter'] text-[9px] font-medium text-[#4d6a87]">
+          <span style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: '9px',
+            fontWeight: 500,
+            color: '#4d6a87',
+          }}>
             {suffix}
           </span>
         )}
       </div>
 
       {/* Label */}
-      <span className="font-['Inter'] text-[8px] font-medium text-[#4d6a87] uppercase tracking-[0.05em] leading-[1.2] text-center">
+      <span style={{
+        fontFamily: "'Inter', sans-serif",
+        fontSize: '8px',
+        fontWeight: 500,
+        color: '#4d6a87',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        lineHeight: 1.2,
+        textAlign: 'center',
+      }}>
         {label}
       </span>
 
       {/* Delta — optional */}
       {delta && (
         <span
-          className={`
-            font-['Inter'] text-[8px] font-semibold
-            px-[6px] py-[1px] rounded-full mt-[1px]
-            ${deltaColorMap[deltaDirection]}
-          `}
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: '8px',
+            fontWeight: 600,
+            padding: '1px 6px',
+            borderRadius: '9999px',
+            marginTop: '1px',
+            ...deltaColorMap[deltaDirection],
+          }}
         >
           {deltaIconMap[deltaDirection]} {delta}
         </span>
