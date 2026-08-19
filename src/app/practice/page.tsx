@@ -76,15 +76,12 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
 
   return (
     <>
-      <div
-        className={`
-          bg-[#0d1f35] border border-[#1a3a5c]
-          rounded-2xl p-[16px]
-          ${className}
-        `}
-      >
+       <div className={className} style={{ backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '16px',  padding: '16px', }}
+         >
+         
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '16px',  }}
+>
           <div className="flex items-center gap-2">
             <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth={2}>
               <path d="M9 11l3 3L22 4"/>
