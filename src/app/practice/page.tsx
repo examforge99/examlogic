@@ -118,9 +118,9 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
           {modes.map((mode) => {
             const s = mode.stats[range]
             return (
-              <div
-                key={mode.name}
-                style={{ backgroundColor: '#112236',  border: '1px solid #1a3a5c',  borderRadius: '12px',padding: '14px 12px',display: 'flex', flexDirection: 'column', gap: '10px',}}
+              <div  key={mode.name}  style={{ backgroundColor: '#112236', border: '1px solid #1a3a5c',  borderRadius: '12px', padding: '14px 12px',   display: 'flex',   flexDirection: 'column',   gap: '10px', }}
+>
+  
                 {/* Mode header */}
                 <div className="flex items-center gap-2">
                   <div
