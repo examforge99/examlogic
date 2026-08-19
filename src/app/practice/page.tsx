@@ -113,7 +113,8 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
         </div>
 
         {/* Mode cards grid */}
-        <div className="grid grid-cols-2 gap-[10px] mb-4">
+        <div style={{  display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '10px', marginBottom: '16px',  }}
+           >
           {modes.map((mode) => {
             const s = mode.stats[range]
             return (
