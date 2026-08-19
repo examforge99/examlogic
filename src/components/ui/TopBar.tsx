@@ -118,7 +118,6 @@ export default function TopBar({
                 style={{
                   fontSize: '11px',
                   color: '#4d6a87',
-                  marginTop: '2px',
                   fontFamily: inter.style.fontFamily,
                   margin: 0,
                   marginTop: '2px',
