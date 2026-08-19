@@ -6,35 +6,57 @@ interface SectionHeaderProps {
     label: string
     onClick: () => void
   }
-  className?: string
 }
 
-export default function SectionHeader({
-  title,
-  action,
-  className = '',
-}: SectionHeaderProps) {
+export default function SectionHeader({ title, action }: SectionHeaderProps) {
   return (
-    <div className={`flex items-center justify-between mb-[10px] ${className}`}>
-      <span className="
-        font-['Inter'] text-[10px] font-semibold
-        uppercase tracking-[0.12em]
-        text-[#25d6a2]
-      ">
-        {title}
-      </span>
-      {action && (
-        <button
-          onClick={action.onClick}
-          className="
-            font-['Inter'] text-[11px] font-semibold
-            text-[#3FB7FF]
-            active:opacity-70 transition-opacity
-          "
+    <>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '10px',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '10px',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.12em',
+            color: '#25d6a2',
+          }}
         >
-          {action.label} →
-        </button>
-      )}
-    </div>
+          {title}
+        </span>
+
+        {action && (
+          <button
+            onClick={action.onClick}
+            className="section-header-btn"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: '#3FB7FF',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            {action.label} →
+          </button>
+        )}
+      </div>
+
+      <style>{`
+        .section-header-btn:active {
+          opacity: 0.7;
+        }
+      `}</style>
+    </>
   )
 }
