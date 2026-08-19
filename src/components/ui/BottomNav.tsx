@@ -66,87 +66,146 @@ export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[#1a3a5c] flex items-start justify-around pt-3 pb-3 md:hidden"
-      style={{
-        background: '#0d1f35ee',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-      }}
-    >
-      {navItems.map((item) => {
-        const isActive = pathname === item.href
+    <>
+      <nav
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          borderTop: '1px solid #1a3a5c',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-around',
+          paddingTop: '12px',
+          paddingBottom: '12px',
+          background: '#0d1f35ee',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+        className="bottom-nav"
+      >
+        {navItems.map((item) => {
+          const isActive = pathname === item.href
 
-        if (item.center) {
+          if (item.center) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  flex: 1,
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                }}
+              >
+                <div
+                  style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: '-32px',
+                    background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
+                    boxShadow: '0 8px 28px #25d6a265',
+                  }}
+                >
+                  <svg
+                    width={22}
+                    height={22}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#071426"
+                    strokeWidth={2}
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </div>
+                <span
+                  style={{
+                    fontFamily: inter.style.fontFamily,
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    color: '#25d6a2',
+                  }}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            )
+          }
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-1 flex-1 px-3 py-1 rounded-xl"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                flex: 1,
+                padding: '4px 12px',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                position: 'relative',
+              }}
             >
-              <div
-                className="w-[54px] h-[54px] rounded-[16px] flex items-center justify-center -mt-8"
-                style={{
-                  background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
-                  boxShadow: '0 8px 28px #25d6a265',
-                }}
+              <svg
+                width={22}
+                height={22}
+                viewBox={item.icon.props.viewBox}
+                fill="none"
+                stroke={isActive ? '#25d6a2' : '#4d6a87'}
+                strokeWidth={1.8}
               >
-                <svg
-                  className="w-[22px] h-[22px]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#071426"
-                  strokeWidth={2}
-                >
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
-              </div>
+                {item.icon.props.children}
+              </svg>
+
               <span
-                className="text-[10px] font-semibold text-[#25d6a2]"
-                style={{ fontFamily: inter.style.fontFamily }}
+                style={{
+                  fontFamily: inter.style.fontFamily,
+                  fontSize: '10px',
+                  color: isActive ? '#25d6a2' : '#4d6a87',
+                  fontWeight: isActive ? 700 : 500,
+                }}
               >
                 {item.label}
               </span>
+
+              {isActive && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: '-12px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '24px',
+                    height: '3px',
+                    borderRadius: '4px 4px 0 0',
+                    backgroundColor: '#25d6a2',
+                    boxShadow: '0 0 8px #25d6a2',
+                  }}
+                />
+              )}
             </Link>
           )
+        })}
+      </nav>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .bottom-nav { display: none; }
         }
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-col items-center gap-1 flex-1 px-3 py-1 rounded-xl relative"
-          >
-            <svg
-              className="w-[22px] h-[22px]"
-              viewBox={item.icon.props.viewBox}
-              fill="none"
-              stroke={isActive ? '#25d6a2' : '#4d6a87'}
-              strokeWidth={1.8}
-            >
-              {item.icon.props.children}
-            </svg>
-
-            <span
-              className="text-[10px]"
-              style={{
-                fontFamily: inter.style.fontFamily,
-                color: isActive ? '#25d6a2' : '#4d6a87',
-                fontWeight: isActive ? 700 : 500,
-              }}
-            >
-              {item.label}
-            </span>
-
-            {isActive && (
-              <span
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-t-[4px] bg-[#25d6a2]"
-                style={{ boxShadow: '0 0 8px #25d6a2' }}
-              />
-            )}
-          </Link>
-        )
-      })}
-    </nav>
+      `}</style>
+    </>
   )
-}
+                    }
