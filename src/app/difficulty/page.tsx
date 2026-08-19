@@ -86,9 +86,9 @@ export default function DifficultyPerformanceCard({
   const currentLevelLabel = LEVELS[d.currentLevel - 1].label
 
   return (
-<div className={className} style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c',   borderRadius: '16px',   padding: '14px', }}
->
-      {/* Header */}
+<div className={className} style={{   margin: '0 14px', backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '16px',  padding: '14px',  }}
+>    
+  {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '14px', }}>
         <span
           className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
