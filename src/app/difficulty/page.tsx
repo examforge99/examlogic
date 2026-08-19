@@ -96,26 +96,30 @@ export default function DifficultyPerformanceCard({
         >
           Difficulty Performance
         </span>
-        <select
-          value={range}
-          onChange={(e) => setRange(e.target.value as TimeRange)}
-          className="
-            appearance-none bg-[#112236] border border-[#1a3a5c]
-            rounded-[8px] px-2 py-1 pr-6
-            text-[10px] font-semibold text-[#a8c8e8]
-            focus:outline-none cursor-pointer
-          "
-          style={{
-            fontFamily: inter.style.fontFamily,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 6px center',
-          }}
-        >
-          <option value="7">7 Days</option>
-          <option value="30">30 Days</option>
-          <option value="90">90 Days</option>
-        </select>
+<select
+  value={range}
+  onChange={(e) => setRange(e.target.value as TimeRange)}
+  className="appearance-none"
+  style={{
+    fontFamily: inter.style.fontFamily,
+    backgroundColor: '#112236',
+    border: '1px solid #1a3a5c',
+    borderRadius: '8px',
+    padding: '4px 28px 4px 10px',
+    fontSize: '10px',
+    fontWeight: 600,
+    color: '#a8c8e8',
+    outline: 'none',
+    cursor: 'pointer',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 6px center',
+  }}
+>
+  <option value="7">7 Days</option>
+  <option value="30">30 Days</option>
+  <option value="90">90 Days</option>
+</select>
       </div>
 
       {/* Level rows */}
