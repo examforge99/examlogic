@@ -76,8 +76,11 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
 
   return (
     <>
-       <div className={className} style={{ backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '16px',  padding: '16px', }}
-         >
+       <div
+             className={className}
+                 style={{ margin: '0 14px',  backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',  borderRadius: '16px',   padding: '14px',
+  }}
+>
          
         {/* Header */}
         <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '16px',  }}
