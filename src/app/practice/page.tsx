@@ -219,21 +219,21 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
 
       {/* Review bottom sheet */}
       {reviewing && (
-        <div
-          className="fixed inset-0 z-[200] flex items-end justify-center"
-          style={{
-            background: '#07142670',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-          }}
+        <div  style={{  position: 'fixed',  inset: 0,  zIndex: 200,  display: 'flex',  alignItems: 'flex-end',
+                       justifyContent: 'center', background: '#07142670',  backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+  }}
           onClick={(e) => e.target === e.currentTarget && setReviewing(null)}
         >
           <div
-            className="bg-[#0d1f35] border border-[#1a3a5c] rounded-t-[20px] w-full max-w-[480px] p-[16px_18px_40px]"
-            style={{ animation: 'slideUp 0.2s ease' }}
-          >
+               style={{  width: '100%', maxWidth: '480px', backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c',
+                       borderRadius: '20px 20px 0 0', padding: '14px 18px 40px',  animation: 'slideUp 0.2s ease', }}
+             >
+            
             {/* Handle */}
-            <div className="w-8 h-[3px] bg-[#1a3a5c] rounded-full mx-auto mb-4" />
+               <div
+                    style={{  width: '32px', height: '3px', backgroundColor: '#1a3a5c',  borderRadius: '999px', margin: '0 auto 16px',
+  }}
+/>
 
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
