@@ -229,7 +229,6 @@ export default function DifficultyPerformanceCard({
 <div style={{   marginBottom: '6px',  }}
 >
   <ProgressBar  value={pct}  height="lg"  gradient={{  from: '#3FB7FF',   to: '#25d6a2',   }}
-    showDot
     animated
   />
 </div>
