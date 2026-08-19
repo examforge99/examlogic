@@ -42,28 +42,42 @@ export default function TopBar({
   }, [showNotif])
 
   return (
-<div className="
-  sticky top-0 z-[100]
-  bg-[#071426ee]
-  backdrop-blur-md
-  border-b border-[#1a3a5c]
-  px-6 py-[10px]
-  flex items-center justify-between
-  gap-3
-">
+    <div style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+      backgroundColor: 'rgba(7, 20, 38, 0.93)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid #1a3a5c',
+      padding: '10px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '12px',
+    }}>
 
       {/* Left — logo or back button */}
-      <div className="flex-shrink-0">
+      <div style={{ flexShrink: 0 }}>
         {showBack ? (
-          <div className="flex items-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               onClick={() => router.back()}
-              className="
-                w-[34px] h-[34px] rounded-[9px]
-                bg-[#0d1f35] border border-[#1a3a5c]
-                flex items-center justify-center
-                active:opacity-70 transition-opacity
-              "
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '9px',
+                backgroundColor: '#0d1f35',
+                border: '1px solid #1a3a5c',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+              onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             >
               <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
                 <polyline points="15 18 9 12 15 6" />
@@ -71,26 +85,44 @@ export default function TopBar({
             </button>
             {title && (
               <p
-                className="text-[17px] font-bold text-[#e8f4ff] leading-none"
-                style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                style={{
+                  fontSize: '17px',
+                  fontWeight: 700,
+                  color: '#e8f4ff',
+                  lineHeight: 1,
+                  fontFamily: spaceGrotesk.style.fontFamily,
+                  margin: 0,
+                }}
               >
                 {title}
               </p>
             )}
           </div>
         ) : (
-          <div className="flex flex-col">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <p
-              className="text-[18px] font-bold tracking-tight leading-none"
-              style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+              style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                lineHeight: 1,
+                fontFamily: spaceGrotesk.style.fontFamily,
+                margin: 0,
+              }}
             >
-              <span className="text-[#e8f4ff]">Exam</span>
-              <span className="text-[#25d6a2]">Logic</span>
+              <span style={{ color: '#e8f4ff' }}>Exam</span>
+              <span style={{ color: '#25d6a2' }}>Logic</span>
             </p>
             {subtitle && (
               <p
-                className="text-[11px] text-[#4d6a87] mt-[2px]"
-                style={{ fontFamily: inter.style.fontFamily }}
+                style={{
+                  fontSize: '11px',
+                  color: '#4d6a87',
+                  marginTop: '2px',
+                  fontFamily: inter.style.fontFamily,
+                  margin: 0,
+                  marginTop: '2px',
+                }}
               >
                 {subtitle}
               </p>
@@ -100,30 +132,44 @@ export default function TopBar({
       </div>
 
       {/* Right — notif + avatar or custom element */}
-      <div className="flex items-center gap-[10px] flex-shrink-0">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
         {rightElement ?? (
           <>
             {showNotif && (
               <button
                 onClick={onNotifClick}
-                className="
-                  relative w-[34px] h-[34px] rounded-[9px]
-                  bg-[#0d1f35] border border-[#1a3a5c]
-                  flex items-center justify-center
-                  active:opacity-70 transition-opacity
-                "
+                style={{
+                  position: 'relative',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '9px',
+                  backgroundColor: '#0d1f35',
+                  border: '1px solid #1a3a5c',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.15s ease',
+                }}
+                onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+                onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               >
                 <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                 </svg>
                 {hasNotification && (
-                  <span className="
-                    absolute top-[5px] right-[5px]
-                    w-[6px] h-[6px] rounded-full
-                    bg-[#3FB7FF]
-                    border-[1.5px] border-[#071426]
-                  " />
+                  <span style={{
+                    position: 'absolute',
+                    top: '5px',
+                    right: '5px',
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#3FB7FF',
+                    border: '1.5px solid #071426',
+                  }} />
                 )}
               </button>
             )}
@@ -131,16 +177,24 @@ export default function TopBar({
             {showAvatar && (
               <button
                 onClick={onAvatarClick}
-                className="
-                  w-[34px] h-[34px] rounded-[9px]
-                  flex items-center justify-center
-                  text-[13px] font-bold text-[#071426]
-                  active:opacity-70 transition-opacity
-                "
                 style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '9px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#071426',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.15s ease',
                   fontFamily: spaceGrotesk.style.fontFamily,
                   background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
                 }}
+                onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+                onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               >
                 {avatarInitial}
               </button>
