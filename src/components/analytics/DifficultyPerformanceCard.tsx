@@ -174,7 +174,7 @@ export default function DifficultyPerformanceCard({
         })}
       </div>
 
-      <Divider className="mb-[14px]" />
+      <Divider style={{ marginBottom: '14px' }} />
 
       {/* Current level */}
       <div style={{ display: 'flex',  alignItems: 'center',  justifyContent: 'space-between', marginBottom: '10px',
