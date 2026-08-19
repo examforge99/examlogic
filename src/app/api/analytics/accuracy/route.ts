@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin, getAuthenticatedUserId, sinceDate } from '@/lib/analytics/server'
+import {
+  supabaseAdmin,
+  getAuthenticatedUserId,
+  sinceDate,
+  logError,
+} from '@/lib/analytics/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,8 +20,17 @@ export async function GET() {
     .order('date', { ascending: true })
 
   if (dbError) {
-    console.error('[analytics/accuracy]', dbError)
-    return NextResponse.json({ error: 'Failed to fetch accuracy data' }, { status: 500 })
+    logError('ANALYTICS_ACCURACY_FETCH_FAILED', {
+      userId,
+      supabaseCode: dbError.code,
+      supabaseMessage: dbError.message,
+      hint: dbError.hint ?? null,
+      route: '/api/analytics/accuracy',
+    })
+    return NextResponse.json({
+      error: 'ANALYTICS_ACCURACY_FETCH_FAILED',
+      message: 'We could not load your accuracy trend data. Please try again.',
+    }, { status: 500 })
   }
 
   return NextResponse.json({ data })
