@@ -189,11 +189,26 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 </div>
 
                 {/* Review button */}
-                <button  onClick={() => setReviewing(mode)}
-                    style={{ width: '100%', padding: '8px 0',   border: 'none', borderRadius: '8px',  fontFamily: spaceGrotesk.style.fontFamily,
-                             fontSize: '13px',  fontWeight: 700, backgroundColor: mode.color,  color: mode.color === '#ef4444' ? '#fff' : '#071426',  cursor: 'pointer', transition: 'opacity 0.15s ease',
-                           }}
-                  >
+                <button onClick={() => setReviewing(mode)}
+                     className="w-full py-2 rounded-[8px] text-[13px] font-bold active:opacity-80 transition-opacity"
+  style={{ fontFamily: spaceGrotesk.style.fontFamily,  background: `linear-gradient(
+      135deg,
+      ${mode.color}ee 0%,
+      ${mode.color} 45%,
+      ${mode.color}cc 100%
+    )`,
+    color: mode.color === '#ef4444' ? '#ffffff' : '#071426',
+    border: `1px solid ${mode.color}99`,
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.25),
+      inset 0 -1px 0 rgba(0,0,0,0.12),
+      0 3px 10px ${mode.color}25
+    `,
+    textShadow: mode.color === '#ef4444'
+      ? '0 1px 2px rgba(0,0,0,0.2)'
+      : 'none',
+  }}
+>
   Review
 </button>
 
