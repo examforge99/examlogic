@@ -120,8 +120,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
             return (
               <div
                 key={mode.name}
-                className="bg-[#112236] border border-[#1a3a5c] rounded-[12px] p-[14px_12px] flex flex-col gap-[10px]"
-              >
+                style={{ backgroundColor: '#112236',  border: '1px solid #1a3a5c',  borderRadius: '12px',padding: '14px 12px',display: 'flex', flexDirection: 'column', gap: '10px',}}
                 {/* Mode header */}
                 <div className="flex items-center gap-2">
                   <div
