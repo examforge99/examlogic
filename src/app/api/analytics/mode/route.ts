@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin, getAuthenticatedUserId } from '@/lib/analytics/server'
+import {
+  supabaseAdmin,
+  getAuthenticatedUserId,
+  logError,
+} from '@/lib/analytics/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,7 +13,6 @@ export async function GET() {
   const { userId, error } = await getAuthenticatedUserId()
   if (error) return error
 
-  // fetch last 100 rows per mode in parallel
   const results = await Promise.all(
     MODES.map((mode) =>
       supabaseAdmin
@@ -22,13 +25,25 @@ export async function GET() {
     )
   )
 
-  const errors = results.filter((r) => r.error)
-  if (errors.length > 0) {
-    console.error('[analytics/mode]', errors)
-    return NextResponse.json({ error: 'Failed to fetch mode data' }, { status: 500 })
+  const failedIndex = results.findIndex((r) => r.error)
+  if (failedIndex !== -1) {
+    const failedMode = MODES[failedIndex]
+    const dbError = results[failedIndex].error!
+    logError('ANALYTICS_MODE_FETCH_FAILED', {
+      userId,
+      failedMode,
+      supabaseCode: dbError.code,
+      supabaseMessage: dbError.message,
+      hint: dbError.hint ?? null,
+      route: '/api/analytics/mode',
+    })
+    return NextResponse.json({
+      error: 'ANALYTICS_MODE_FETCH_FAILED',
+      message: `We could not load your ${failedMode.replace('_', ' ')} performance data. Please try again.`,
+      failedMode,
+    }, { status: 500 })
   }
 
-  // key by mode for easy client access
   const data = Object.fromEntries(
     MODES.map((mode, i) => [mode, results[i].data])
   )
