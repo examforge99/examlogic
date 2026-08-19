@@ -1,4 +1,4 @@
-// components/ui/DonutChart.tsx
+ // components/ui/DonutChart.tsx
 
 interface DonutSegment {
   value: number
@@ -13,7 +13,6 @@ interface DonutChartProps {
   centerLabel?: string
   centerSub?: string
   centerColor?: string
-  className?: string
 }
 
 export default function DonutChart({
@@ -23,7 +22,6 @@ export default function DonutChart({
   centerLabel,
   centerSub,
   centerColor = '#e8f4ff',
-  className = '',
 }: DonutChartProps) {
   const r = (size - strokeWidth) / 2
   const cx = size / 2
@@ -36,8 +34,12 @@ export default function DonutChart({
 
   return (
     <div
-      className={`relative flex-shrink-0 ${className}`}
-      style={{ width: size, height: size }}
+      style={{
+        position: 'relative',
+        flexShrink: 0,
+        width: size,
+        height: size,
+      }}
     >
       <svg
         width={size}
@@ -80,11 +82,23 @@ export default function DonutChart({
 
       {/* Center text */}
       {(centerLabel || centerSub) && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
           {centerLabel && (
             <span
-              className="font-['Space_Grotesk'] font-bold leading-none"
               style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontWeight: 700,
+                lineHeight: 1,
                 fontSize: size * 0.2,
                 color: centerColor,
               }}
@@ -94,8 +108,13 @@ export default function DonutChart({
           )}
           {centerSub && (
             <span
-              className="font-['Inter'] font-medium text-[#4d6a87] mt-[2px]"
-              style={{ fontSize: size * 0.08 }}
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: size * 0.08,
+                color: '#4d6a87',
+                marginTop: '2px',
+              }}
             >
               {centerSub}
             </span>
