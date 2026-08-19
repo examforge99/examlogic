@@ -14,7 +14,10 @@ export async function getAuthenticatedUserId(): Promise<
   if (!userId) {
     return {
       userId: null,
-      error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+      error: NextResponse.json({
+        error: 'UNAUTHENTICATED',
+        message: 'You must be signed in to access this resource.',
+      }, { status: 401 }),
     }
   }
   return { userId, error: null }
@@ -24,4 +27,15 @@ export function sinceDate(days: number): string {
   const d = new Date()
   d.setDate(d.getDate() - days)
   return d.toISOString().split('T')[0]
+}
+
+export function logError(
+  code: string,
+  context: Record<string, unknown>
+) {
+  console.error(JSON.stringify({
+    code,
+    ...context,
+    timestamp: new Date().toISOString(),
+  }))
 }
