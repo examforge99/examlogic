@@ -55,6 +55,7 @@ export default function TopBar({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: '12px',
+      marginBottom: '8px',
     }}>
 
       {/* Left — logo or back button */}
