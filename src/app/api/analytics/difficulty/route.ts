@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin, getAuthenticatedUserId, sinceDate } from '@/lib/analytics/server'
+import {
+  supabaseAdmin,
+  getAuthenticatedUserId,
+  sinceDate,
+  logError,
+} from '@/lib/analytics/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,13 +28,31 @@ export async function GET() {
   ])
 
   if (difficultyResult.error) {
-    console.error('[analytics/difficulty] difficulty', difficultyResult.error)
-    return NextResponse.json({ error: 'Failed to fetch difficulty data' }, { status: 500 })
+    logError('ANALYTICS_DIFFICULTY_FETCH_FAILED', {
+      userId,
+      supabaseCode: difficultyResult.error.code,
+      supabaseMessage: difficultyResult.error.message,
+      hint: difficultyResult.error.hint ?? null,
+      route: '/api/analytics/difficulty',
+    })
+    return NextResponse.json({
+      error: 'ANALYTICS_DIFFICULTY_FETCH_FAILED',
+      message: 'We could not load your difficulty performance data. Please try again.',
+    }, { status: 500 })
   }
 
   if (userResult.error) {
-    console.error('[analytics/difficulty] user', userResult.error)
-    return NextResponse.json({ error: 'Failed to fetch user data' }, { status: 500 })
+    logError('ANALYTICS_DIFFICULTY_USER_FETCH_FAILED', {
+      userId,
+      supabaseCode: userResult.error.code,
+      supabaseMessage: userResult.error.message,
+      hint: userResult.error.hint ?? null,
+      route: '/api/analytics/difficulty',
+    })
+    return NextResponse.json({
+      error: 'ANALYTICS_DIFFICULTY_USER_FETCH_FAILED',
+      message: 'We could not load your level progress data. Please try again.',
+    }, { status: 500 })
   }
 
   return NextResponse.json({
