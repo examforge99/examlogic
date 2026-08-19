@@ -86,8 +86,10 @@ export default function DifficultyPerformanceCard({
   const currentLevelLabel = LEVELS[d.currentLevel - 1].label
 
   return (
-<div className={className} style={{ backgroundColor: '#0d1f35', border: '1px solid #1a3a5c',   borderRadius: '16px',   padding: '14px', }}
+    <div className={className}  style={{   margin: '0 14px',  backgroundColor: '#0d1f35',  border: '1px solid #1a3a5c', borderRadius: '16px',  padding: '14px',
+  }}
 >
+ 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '14px', }}>
         <span
@@ -229,7 +231,6 @@ export default function DifficultyPerformanceCard({
 <div style={{   marginBottom: '6px',  }}
 >
   <ProgressBar  value={pct}  height="lg"  gradient={{  from: '#3FB7FF',   to: '#25d6a2',   }}
-    showDot
     animated
   />
 </div>
