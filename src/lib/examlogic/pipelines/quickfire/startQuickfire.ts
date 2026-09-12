@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { fetchCandidates } from '@/lib/engines/shared/candidate'
 import { recordCooldown } from '@/lib/engines/shared/cooldown'
 import { fetchServedQuestions } from '@/lib/engines/shared/questions'
-import { hasActiveSession } from '@/lib/engines/shared/session-guard'
 import { runQuickfireLottery } from '@/lib/engines/quickfire/lottery'
 import type { LotteryResult } from '@/lib/engines/shared/types'
 import { createExamSession } from '@/lib/examlogic/operations/sessions/createExamSession'
@@ -27,13 +26,6 @@ export interface StartQuickfireResult {
 
 export async function startQuickfire(userId: string): Promise<StartQuickfireResult> {
   const supabase = createClient()
-
-  if (await hasActiveSession(userId)) {
-    throw new ExamLogicError(
-      'CONFLICT',
-      'You have an active session. Complete it before starting a new one'
-    )
-  }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
 
