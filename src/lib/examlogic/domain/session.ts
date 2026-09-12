@@ -13,6 +13,8 @@ export type SessionStatus =
   | 'scored'
   | 'terminated'
 
+export type InitialSessionStatus = 'pending' | 'active'
+
 export interface SessionQuestionInput {
   questionId: string
   subjectId: string
@@ -24,7 +26,7 @@ export interface SessionQuestionInput {
 export interface CreateSessionInput {
   userId: string
   mode: SessionMode
-  initialStatus: Extract<SessionStatus, 'pending' | 'active'>
+  initialStatus: InitialSessionStatus
   totalQuestions: number
   timeLimitSeconds: number | null
   startedAt: Date
