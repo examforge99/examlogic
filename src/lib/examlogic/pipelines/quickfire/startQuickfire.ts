@@ -79,14 +79,17 @@ export async function startQuickfire(userId: string): Promise<StartQuickfireResu
     throw new ExamLogicError('UNAVAILABLE', 'Could not resolve user subjects')
   }
 
-  const lotteryResults: LotteryResult[] = []
+  const lotteryResults = await Promise.all(
+    subjects.map(async subject => {
+      const candidates = await fetchCandidates(userId, subject.id)
 
-  for (const subject of subjects) {
-    const candidates = await fetchCandidates(userId, subject.id)
-    lotteryResults.push(
-      runQuickfireLottery(candidates, subject.id, QUESTIONS_PER_SUBJECT)
-    )
-  }
+      return runQuickfireLottery(
+        candidates,
+        subject.id,
+        QUESTIONS_PER_SUBJECT
+      )
+    })
+  )
 
   const allWinningIds = lotteryResults.flatMap(result => result.question_ids)
   if (allWinningIds.length < TOTAL_QUESTIONS) {
