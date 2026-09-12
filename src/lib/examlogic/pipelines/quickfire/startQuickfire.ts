@@ -7,7 +7,7 @@ import { fetchServedQuestions } from '@/lib/engines/shared/questions'
 import { hasActiveSession } from '@/lib/engines/shared/session-guard'
 import { runQuickfireLottery } from '@/lib/engines/quickfire/lottery'
 import type { LotteryResult } from '@/lib/engines/shared/types'
-import { createExamSession } from '@/lib/examlogic/operations/sessions/createSession'
+import { createExamSession } from '@/lib/examlogic/operations/sessions/createExamSession'
 import { ExamLogicError } from '@/lib/examlogic/runtime/errors'
 
 const QUESTIONS_PER_SUBJECT = 5
