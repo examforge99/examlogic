@@ -20,11 +20,7 @@ export async function submitAnswer(
   const { userId, sessionId, questionId, selectedOptionId, timeTakenSeconds } = params
   const supabase = createClient()
 
-  if (!Number.isFinite(timeTakenSeconds) || timeTakenSeconds < 0) {
-    throw new Error('Invalid answer time')
-  }
-
-  // Step 1 — verify session belongs to this user and is active.
+  // Step 1 — verify session belongs to this user and is active
   const { data: session, error: sessionError } = await supabase
     .from('exam_sessions')
     .select('id, user_id, status, mode')
@@ -43,7 +39,7 @@ export async function submitAnswer(
     throw new Error('Session is not active')
   }
 
-  // Step 2 — verify this question belongs to this session.
+  // Step 2 — verify this question belongs to this session
   const { data: sessionQuestion, error: sqError } = await supabase
     .from('exam_session_questions')
     .select('id, question_id, selected_answer')
@@ -55,7 +51,11 @@ export async function submitAnswer(
     throw new Error('Question does not belong to this session')
   }
 
-  // Step 3 — fetch the real correct answer server-side.
+  if (sessionQuestion.selected_answer !== null) {
+    throw new Error('Question already answered')
+  }
+
+  // Step 3 — fetch the real correct_option_id server-side
   const { data: question, error: qError } = await supabase
     .from('questions')
     .select('correct_option_id')
@@ -68,10 +68,8 @@ export async function submitAnswer(
 
   const isCorrect = question.correct_option_id === selectedOptionId
 
-  // Step 4 — atomically claim the unanswered question.
-  // Concurrent requests may both pass the reads above, but only one
-  // can update a row whose selected_answer is still NULL.
-  const { data: claimedQuestion, error: updateError } = await supabase
+  // Step 4 — update exam_session_questions with the result
+  const { error: updateError } = await supabase
     .from('exam_session_questions')
     .update({
       selected_answer: selectedOptionId,
@@ -80,20 +78,12 @@ export async function submitAnswer(
       time_spent_seconds: timeTakenSeconds
     })
     .eq('id', sessionQuestion.id)
-    .is('selected_answer', null)
-    .select('id')
-    .maybeSingle()
 
   if (updateError) {
     throw new Error('Failed to record answer')
   }
 
-  if (!claimedQuestion) {
-    throw new Error('Question already answered')
-  }
-
-  // Step 5 — analytics is recorded only by the request that successfully
-  // claimed the unanswered question, preventing duplicate attempts on replay.
+  // Step 5 — insert into attempts table for analytics
   const { error: attemptError } = await supabase
     .from('attempts')
     .insert({
