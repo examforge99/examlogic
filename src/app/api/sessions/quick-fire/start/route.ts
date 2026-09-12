@@ -7,6 +7,7 @@ import { ExamLogicError } from '@/lib/examlogic/runtime/errors'
 
 const STATUS_BY_ERROR: Record<ExamLogicError['code'], number> = {
   UNAUTHORIZED: 401,
+  VALIDATION: 400,
   CONFLICT: 409,
   NOT_FOUND: 404,
   INVALID_STATE: 400,
