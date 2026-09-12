@@ -7,6 +7,8 @@ import type {
 } from '@/lib/examlogic/domain/session'
 import { ExamLogicError } from '@/lib/examlogic/runtime/errors'
 
+const LIVE_SESSION_CONSTRAINT = 'exam_sessions_one_live_per_user_idx'
+
 export async function createExamSession(
   input: CreateSessionInput
 ): Promise<CreatedSession> {
@@ -39,6 +41,13 @@ export async function createExamSession(
     .single()
 
   if (sessionError || !session) {
+    if (sessionError?.code === '23505' && sessionError.message.includes(LIVE_SESSION_CONSTRAINT)) {
+      throw new ExamLogicError(
+        'CONFLICT',
+        'You already have an active session. Complete it before starting a new one'
+      )
+    }
+
     console.error('[session/create] session insert failed:', sessionError)
     throw new ExamLogicError('INTERNAL', 'Failed to create session')
   }
