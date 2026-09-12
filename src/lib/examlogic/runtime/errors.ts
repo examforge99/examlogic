@@ -2,6 +2,7 @@
 
 export type ExamLogicErrorCode =
   | 'UNAUTHORIZED'
+  | 'VALIDATION'
   | 'CONFLICT'
   | 'NOT_FOUND'
   | 'INVALID_STATE'
