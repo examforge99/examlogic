@@ -110,6 +110,7 @@ export async function startQuickfire(userId: string): Promise<StartQuickfireResu
   const session = await createExamSession({
     userId,
     mode: 'quick_fire',
+    initialStatus: 'active',
     totalQuestions: questions.length,
     timeLimitSeconds: SESSION_TIME_SECONDS,
     startedAt: now,
