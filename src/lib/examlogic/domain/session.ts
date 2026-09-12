@@ -6,6 +6,13 @@ export type SessionMode =
   | 'simulation'
   | 'sudden_death'
 
+export type SessionStatus =
+  | 'pending'
+  | 'active'
+  | 'submitted'
+  | 'scored'
+  | 'terminated'
+
 export interface SessionQuestionInput {
   questionId: string
   subjectId: string
@@ -17,6 +24,7 @@ export interface SessionQuestionInput {
 export interface CreateSessionInput {
   userId: string
   mode: SessionMode
+  initialStatus: Extract<SessionStatus, 'pending' | 'active'>
   totalQuestions: number
   timeLimitSeconds: number | null
   startedAt: Date
@@ -28,7 +36,7 @@ export interface CreatedSession {
   id: string
   userId: string
   mode: SessionMode
-  status: string
+  status: SessionStatus
   totalQuestions: number
   totalTimeSeconds: number | null
   startedAt: string
