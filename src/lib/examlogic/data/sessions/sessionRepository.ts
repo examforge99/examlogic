@@ -7,6 +7,8 @@ import type {
   SessionQuestionInput,
 } from '@/lib/examlogic/domain/session'
 
+const LIVE_SESSION_CONSTRAINT = 'exam_sessions_one_live_per_user_idx'
+
 export async function insertSessionRecord(
   input: Omit<CreateSessionInput, 'questions'>
 ) {
@@ -17,7 +19,7 @@ export async function insertSessionRecord(
     .insert({
       user_id: input.userId,
       mode: input.mode,
-      status: 'active',
+      status: input.initialStatus,
       is_completed: false,
       total_questions: input.totalQuestions,
       correct_count: 0,
@@ -37,7 +39,10 @@ export async function insertSessionRecord(
     .single()
 
   if (error || !data) {
-    if (error?.code === '23505') {
+    if (
+      error?.code === '23505' &&
+      error.message.includes(LIVE_SESSION_CONSTRAINT)
+    ) {
       throw new ExamLogicError(
         'CONFLICT',
         'You already have an active session. Complete it before starting a new one'
