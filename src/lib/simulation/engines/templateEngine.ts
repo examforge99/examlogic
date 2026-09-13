@@ -7,14 +7,14 @@ export async function selectDifficultyTemplates(
   userId: string,
   questionCounts: (40 | 60)[]
 ) {
-  // Fetch user's consumed template ids
+  // Fetch this user's consumed template ids. Template availability remains global;
+  // user history is what prevents unnecessary repetition for the same user.
   const { data: history } = await supabase
     .from("user_template_history")
     .select("template_id")
     .eq("user_id", userId);
 
   const usedIds = (history ?? []).map((r: any) => r.template_id);
-
   const templates = [];
 
   for (const count of questionCounts) {
@@ -35,13 +35,11 @@ export async function selectDifficultyTemplates(
     if (error || !data) return null; // caller handles failure
 
     templates.push(data);
-    usedIds.push(data.id); // exclude from next iteration
+    usedIds.push(data.id); // exclude from next iteration for this user/session
   }
 
   return templates;
 }
-
-// in templateEngine.ts
 
 export async function markTemplatesUsed(
   supabase: SupabaseClient,
@@ -49,7 +47,6 @@ export async function markTemplatesUsed(
   templateIds: number[],
   sessionId: string
 ) {
-  // 1. Insert into history
   const rows = templateIds.map((templateId) => ({
     user_id: userId,
     template_id: templateId,
@@ -60,15 +57,13 @@ export async function markTemplatesUsed(
     .from("user_template_history")
     .insert(rows);
 
-  if (historyError) throw new Error(`markTemplatesUsed history failed: ${historyError.message}`);
+  if (historyError) {
+    throw new Error(`markTemplatesUsed history failed: ${historyError.message}`);
+  }
 
-  // 2. Deprecate globally
-  const { error: deprecateError } = await supabase
-    .from("simulation_templates")
-    .update({ status: "deprecated" })
-    .in("id", templateIds);
-
-  if (deprecateError) throw new Error(`markTemplatesUsed deprecate failed: ${deprecateError.message}`);
+  // Do not deprecate templates globally. Templates are reusable blueprints;
+  // per-user history controls repetition, while status is reserved for actual
+  // lifecycle retirement by an administrator/refill workflow.
 }
 
 export async function checkDifficultyRefillThreshold(supabase: SupabaseClient) {
@@ -93,6 +88,5 @@ export async function checkDifficultyRefillThreshold(supabase: SupabaseClient) {
   const needs40 = counts.total40 === 0 || counts.available40 / counts.total40 < 0.3;
   const needs60 = counts.total60 === 0 || counts.available60 / counts.total60 < 0.3;
 
-  // Return flags — orchestrator decides what to do
   return { needs40Refill: needs40, needs60Refill: needs60 };
-  }
+}
