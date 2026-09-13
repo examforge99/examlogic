@@ -40,15 +40,12 @@ export async function selectTopicTemplates(
   return selected;
 }
 
-// in topicTemplateEngine.ts
-
 export async function markTopicTemplatesUsed(
   supabase: SupabaseClient,
   userId: string,
   templateIds: number[],
   sessionId: string
 ) {
-  // 1. Insert into history
   const rows = templateIds.map((templateId) => ({
     user_id: userId,
     template_id: templateId,
@@ -59,15 +56,13 @@ export async function markTopicTemplatesUsed(
     .from("user_topic_template_history")
     .insert(rows);
 
-  if (historyError) throw new Error(`markTopicTemplatesUsed history failed: ${historyError.message}`);
+  if (historyError) {
+    throw new Error(`markTopicTemplatesUsed history failed: ${historyError.message}`);
+  }
 
-  // 2. Deprecate globally
-  const { error: deprecateError } = await supabase
-    .from("subject_topic_templates")
-    .update({ status: "deprecated" })
-    .in("id", templateIds);
-
-  if (deprecateError) throw new Error(`markTopicTemplatesUsed deprecate failed: ${deprecateError.message}`);
+  // Do not deprecate topic templates globally. They are reusable blueprints;
+  // per-user history controls repetition and status is reserved for true
+  // lifecycle retirement.
 }
 
 export async function checkTopicRefillThreshold(
