@@ -179,7 +179,7 @@ export async function generateMonthlyTimetable(
   }
 
   const studyDays = parseStudyDays(user.study_days);
-  const subjectIds = await getUserSubjectIds(db, userId);
+  const subjectIds = await getUserSubjectIds(supabase, userId);
 
   if (!subjectIds.length) {
     throw new Error('Complete onboarding by selecting your JAMB subjects before generating a timetable.');
