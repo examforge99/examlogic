@@ -132,10 +132,19 @@ export async function generateMonthlyTimetable(
   const start = calendarStart(user.exam_date);
   const exam = new Date(`${user.exam_date}T00:00:00Z`);
   const requestedKey = monthStart(month);
-  const examMonthKey = monthStart(exam);
 
-  if (month >= exam) {
-    throw new Error('Timetable generation is paused because the exam date has been reached or passed.');
+  // A timetable is a planning artifact, so don't create one when there
+  // are seven days or fewer left before the exam.
+  const today = new Date();
+  const todayStart = new Date(Date.UTC(
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
+  ));
+  const daysToExam = Math.floor((exam.getTime() - todayStart.getTime()) / 86_400_000);
+
+  if (daysToExam <= 7) {
+    throw new Error('Timetable generation is unavailable when seven or fewer days remain before the exam.');
   }
 
   const studyDays = parseStudyDays(user.study_days);
@@ -164,34 +173,23 @@ export async function generateMonthlyTimetable(
     .from('monthly_timetable')
     .select('id')
     .eq('user_id', userId)
-    .eq('month', requestedKey)
+    .limit(1)
     .maybeSingle();
 
   if (existingError) throw existingError;
 
-  let timetableId = existing?.id as string | undefined;
-
-  if (timetableId) {
-    const { error: deleteDaysError } = await supabase
-      .from('timetable_days')
-      .delete()
-      .eq('timetable_id', timetableId);
-    if (deleteDaysError) throw deleteDaysError;
-
-    const { error: updateError } = await supabase
-      .from('monthly_timetable')
-      .update({ phase })
-      .eq('id', timetableId);
-    if (updateError) throw updateError;
-  } else {
-    const { data: created, error: createError } = await supabase
-      .from('monthly_timetable')
-      .insert({ user_id: userId, month: requestedKey, phase })
-      .select('id')
-      .single();
-    if (createError) throw createError;
-    timetableId = created.id;
+  if (existing) {
+    throw new Error('A timetable already exists for this student. A new timetable cannot be generated.');
   }
+
+  const { data: created, error: createError } = await supabase
+    .from('monthly_timetable')
+    .insert({ user_id: userId, month: requestedKey, phase })
+    .select('id')
+    .single();
+
+  if (createError) throw createError;
+  const timetableId = created.id;
 
   const { error: insertDaysError } = await supabase
     .from('timetable_days')
