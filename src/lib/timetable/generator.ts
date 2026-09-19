@@ -1,5 +1,4 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { getPhase } from '@/lib/nba/phase';
 import type { Phase } from '@/lib/nba/types';
 import { distributeSubjectsAcrossWeeks } from './distribution';
 import type { GeneratedTimetable, TimetableDay, TimetableGenerationResult, TimetableSubject } from './types';
@@ -74,7 +73,7 @@ function resolveSelectedSubjects(
     }));
 }
 
-function createDays(month: Date, studyDays: number[]): TimetableDay[] {
+function createDays(month: Date, studyDays: number[], activeStart: Date, examDate: Date): TimetableDay[] {
   const year = month.getUTCFullYear();
   const monthIndex = month.getUTCMonth();
   const lastDay = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
@@ -85,9 +84,12 @@ function createDays(month: Date, studyDays: number[]): TimetableDay[] {
     const date = new Date(Date.UTC(year, monthIndex, day));
     const weekday = date.getUTCDay();
 
+    const isBeforeCalendarStart = date < activeStart;
+    const isAfterExam = date > examDate;
+
     days.push({
       date: date.toISOString().slice(0, 10),
-      day_type: allowed.has(weekday) ? 'practice' : 'rest',
+      day_type: !isBeforeCalendarStart && !isAfterExam && allowed.has(weekday) ? 'practice' : 'rest',
       scheduled_subject_ids: [],
     });
   }
@@ -159,7 +161,7 @@ export async function generateMonthlyTimetable(
   const generated: GeneratedTimetable = {
     month: requestedKey,
     phase,
-    days: createDays(month, studyDays),
+    days: createDays(month, studyDays, start, exam),
   };
 
   distributeSubjectsAcrossWeeks(generated.days.filter((day) => day.day_type === 'practice'), subjects);
