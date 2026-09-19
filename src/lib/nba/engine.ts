@@ -71,7 +71,7 @@ export async function fireNBA(user_id:string):Promise<NBAOutput|null> {
   if (!topicRows.length) return null;
 
   const topicIds=topicRows.map(x=>x.id);
-  const [{data:mastery,error:me},{data:concepts,error:ce},{data:attempts,error:ae},{data:analytics,error:de}]=await Promise.all([
+  const [{data:masteryRows,error:me},{data:concepts,error:ce},{data:attempts,error:ae},{data:analytics,error:de}]=await Promise.all([
     db.from('user_topic_mastery').select('topic_id,is_complete').eq('user_id',user_id).in('topic_id',topicIds),
     db.from('concept_windows').select('id,topic_id,name,progression_order,status').in('topic_id',topicIds).eq('status','active').order('progression_order',{ascending:true}),
     db.from('attempts').select('topic_id,is_correct,attempted_at').eq('user_id',user_id).in('topic_id',topicIds),
@@ -79,7 +79,7 @@ export async function fireNBA(user_id:string):Promise<NBAOutput|null> {
   ]);
   if (me) throw me; if (ce) throw ce; if (ae) throw ae; if (de) throw de;
 
-  const mastery=new Map((mastery??[]).map((x:Mastery)=>[x.topic_id,x]));
+  const mastery=new Map((masteryRows??[]).map((x:Mastery)=>[x.topic_id,x]));
   const byTopic=new Map<string,Concept[]>();
   for(const c of (concepts??[]) as Concept[]) (byTopic.get(c.topic_id)??(byTopic.set(c.topic_id,[]),byTopic.get(c.topic_id)!)).push(c);
   const attemptsByTopic=new Map<string,Attempt[]>();
