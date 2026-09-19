@@ -48,7 +48,8 @@ export async function fireNBA(user_id:string):Promise<NBAOutput|null> {
 
   const {data:user,error:userError}=await db.from('users').select('exam_date,daily_hours').eq('id',user_id).maybeSingle();
   if (userError) throw userError;
-  if (!user?.exam_date) return null;
+  if (!user) return null;
+  if (!user.exam_date) return null;
 
   const {data:tt,error:ttError}=await db.from('monthly_timetable').select('id').eq('user_id',user_id).eq('month',monthStart(date)).maybeSingle();
   if (ttError) throw ttError;
