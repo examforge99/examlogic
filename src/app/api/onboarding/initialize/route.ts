@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import { generateMonthlyTimetable } from '@/lib/timetable/generator';
 
 const DAYS = new Set(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
+const REQUIRED_SUBJECT_COUNT = 4;
+const REQUIRED_ENGLISH_SLUG = 'use-of-english';
 
 type OnboardingBody = {
   exam_date?: unknown;
@@ -42,16 +44,18 @@ export async function POST(request: Request) {
     }
 
     const uniqueDays = [...new Set(studyDays)];
-    if (!uniqueDays.length || uniqueDays.some((day) => !DAYS.has(day))) {
-      return NextResponse.json({ error: 'Select at least one valid study day.' }, { status: 400 });
+    if (uniqueDays.length < 5 || uniqueDays.some((day) => !DAYS.has(day))) {
+      return NextResponse.json({ error: 'Select at least 5 valid study days.' }, { status: 400 });
     }
 
     if (!Number.isFinite(dailyHours) || dailyHours <= 0) {
       return NextResponse.json({ error: 'daily_hours must be greater than 0.' }, { status: 400 });
     }
 
-    if (!subjectIds.length) {
-      return NextResponse.json({ error: 'Select at least one JAMB subject.' }, { status: 400 });
+    const uniqueSubjectIds = [...new Set(subjectIds)];
+
+    if (uniqueSubjectIds.length !== REQUIRED_SUBJECT_COUNT) {
+      return NextResponse.json({ error: 'Select exactly 4 JAMB subjects.' }, { status: 400 });
     }
 
     const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -66,12 +70,23 @@ export async function POST(request: Request) {
     const { data: subjects, error: subjectError } = await db
       .from('subjects')
       .select('id')
-      .in('id', subjectIds);
+      .in('id', uniqueSubjectIds);
 
     if (subjectError) throw subjectError;
 
-    if ((subjects ?? []).length !== new Set(subjectIds).size) {
+    if ((subjects ?? []).length !== uniqueSubjectIds.length) {
       return NextResponse.json({ error: 'One or more selected subjects are not available.' }, { status: 400 });
+    }
+
+    const { data: selectedSubjects, error: selectedSubjectError } = await db
+      .from('subjects')
+      .select('id,slug')
+      .in('id', uniqueSubjectIds);
+
+    if (selectedSubjectError) throw selectedSubjectError;
+
+    if (!(selectedSubjects ?? []).some((subject) => subject.slug === REQUIRED_ENGLISH_SLUG)) {
+      return NextResponse.json({ error: 'Use of English is required.' }, { status: 400 });
     }
 
     const { data: existing, error: existingError } = await db
@@ -93,7 +108,7 @@ export async function POST(request: Request) {
         exam_date: examDate,
         study_days: uniqueDays,
         daily_hours: dailyHours,
-        jamb_subjects: subjectIds,
+        jamb_subjects: uniqueSubjectIds,
       })
       .eq('id', userId);
 
@@ -106,7 +121,7 @@ export async function POST(request: Request) {
         exam_date: examDate,
         study_days: uniqueDays,
         daily_hours: dailyHours,
-        subject_ids: subjectIds,
+        subject_ids: uniqueSubjectIds,
       },
       timetable,
     }, { status: 201 });
