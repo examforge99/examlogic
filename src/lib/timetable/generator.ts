@@ -84,12 +84,11 @@ function createDays(month: Date, studyDays: number[], activeStart: Date, examDat
     const date = new Date(Date.UTC(year, monthIndex, day));
     const weekday = date.getUTCDay();
 
-    const isBeforeCalendarStart = date < activeStart;
     const isAfterExam = date > examDate;
 
     days.push({
       date: date.toISOString().slice(0, 10),
-      day_type: !isBeforeCalendarStart && !isAfterExam && allowed.has(weekday) ? 'practice' : 'rest',
+      day_type: !isAfterExam && allowed.has(weekday) ? 'practice' : 'rest',
       scheduled_subject_ids: [],
     });
   }
@@ -133,15 +132,10 @@ export async function generateMonthlyTimetable(
   const start = calendarStart(user.exam_date);
   const exam = new Date(`${user.exam_date}T00:00:00Z`);
   const requestedKey = monthStart(month);
-  const startKey = monthStart(start);
   const examMonthKey = monthStart(exam);
 
-  if (requestedKey < startKey) {
-    throw new Error(`ExamLogic calendar has not started yet. It begins in ${startKey}.`);
-  }
-
-  if (requestedKey > examMonthKey) {
-    throw new Error('Cannot generate a timetable after the exam month.');
+  if (month >= exam) {
+    throw new Error('Timetable generation is paused because the exam date has been reached or passed.');
   }
 
   const studyDays = parseStudyDays(user.study_days);
