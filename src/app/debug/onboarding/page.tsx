@@ -49,7 +49,9 @@ export default function OnboardingPrototype() {
         if (data.current) {
           setExamDate(data.current.exam_date ?? '');
           setStudyDays(data.current.study_days ?? []);
-          setSubjectIds(data.current.subject_ids ?? []);
+          const currentSubjectIds = data.current.subject_ids ?? [];
+          const englishId = (data.subjects ?? []).find((s: Subject) => s.slug === 'use-of-english')?.id;
+          setSubjectIds(currentSubjectIds.filter((id: string) => id !== englishId).slice(0, 3));
           setDailyHours(data.current.daily_hours ? String(data.current.daily_hours) : '2');
         }
       })
