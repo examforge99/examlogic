@@ -53,18 +53,16 @@ function parseStudyDays(value: string[] | null | undefined): number[] {
   return days.sort((a, b) => a - b);
 }
 
-function normalizeSubjectName(value: string): string {
-  return value.toLowerCase().trim().replace(/_/g, '-').replace(/\s+/g, '-');
-}
-
 function resolveSelectedSubjects(
   jambSubjects: string[] | null | undefined,
   rows: Array<{ id: string; name: string; slug: string }>,
 ): TimetableSubject[] {
-  const requested = new Set((jambSubjects ?? []).map(normalizeSubjectName));
+  const requestedIds = new Set(
+    (jambSubjects ?? []).filter((value): value is string => typeof value === 'string'),
+  );
 
   return rows
-    .filter((row) => requested.has(normalizeSubjectName(row.slug)) || requested.has(normalizeSubjectName(row.name)))
+    .filter((row) => requestedIds.has(row.id))
     .map((row) => ({
       id: row.id,
       name: row.name,
@@ -113,37 +111,6 @@ function phaseForMonth(month: Date, examDate: string): Phase {
   return 'PERFORMANCE';
 }
 
-async function getUserSubjectIds(db: SupabaseClient, userId: string): Promise<string[]> {
-  const { data, error } = await db
-    .from('users')
-    .select('jamb_subjects')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  const names = Array.isArray(data?.jamb_subjects) ? data.jamb_subjects : [];
-  if (!names.length) return [];
-
-  const { data: subjects, error: subjectError } = await db
-    .from('subjects')
-    .select('id,name,slug');
-
-  if (subjectError) throw subjectError;
-
-  const normalized = new Set(
-    names
-      .filter((value): value is string => typeof value === 'string')
-      .map((value) => value.trim().toLowerCase()),
-  );
-
-  return (subjects ?? [])
-    .filter((subject) => normalized.has(String(subject.id).toLowerCase())
-      || normalized.has(String(subject.name).trim().toLowerCase())
-      || normalized.has(String(subject.slug).trim().toLowerCase()))
-    .map((subject) => subject.id as string);
-}
-
 export async function generateMonthlyTimetable(
   userId: string,
   requestedMonth?: string,
@@ -179,11 +146,6 @@ export async function generateMonthlyTimetable(
   }
 
   const studyDays = parseStudyDays(user.study_days);
-  const subjectIds = await getUserSubjectIds(supabase, userId);
-
-  if (!subjectIds.length) {
-    throw new Error('Complete onboarding by selecting your JAMB subjects before generating a timetable.');
-  }
   if (!studyDays.length) throw new Error('Select at least one study day before generating a timetable.');
 
   const { data: subjectRows, error: subjectError } = await supabase
@@ -194,7 +156,9 @@ export async function generateMonthlyTimetable(
   if (subjectError) throw subjectError;
 
   const subjects = resolveSelectedSubjects(user.jamb_subjects, subjectRows ?? []);
-  if (!subjects.length) throw new Error('No valid JAMB subjects are configured for this user.');
+  if (!subjects.length) {
+    throw new Error('Complete onboarding by selecting your JAMB subjects before generating a timetable.');
+  }
 
   const phase = phaseForMonth(month, user.exam_date);
   const generated: GeneratedTimetable = {
