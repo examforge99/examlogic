@@ -49,9 +49,9 @@ export default function OnboardingPrototype() {
         if (data.current) {
           setExamDate(data.current.exam_date ?? '');
           setStudyDays(data.current.study_days ?? []);
-          const currentSubjectIds = data.current.subject_ids ?? [];
-          const englishId = (data.subjects ?? []).find((s: Subject) => s.slug === 'use-of-english')?.id;
-          setSubjectIds(currentSubjectIds.filter((id: string) => id !== englishId).slice(0, 3));
+          // This is a clean test prototype. Do not preload existing subject selections,
+          // otherwise the 3 optional slots can appear locked before the tester chooses anything.
+          setSubjectIds([]);
           setDailyHours(data.current.daily_hours ? String(data.current.daily_hours) : '2');
         }
       })
@@ -105,6 +105,7 @@ export default function OnboardingPrototype() {
   if (loading) return <main style={styles.page}><div style={styles.shell}>Loading onboarding…</div></main>;
 
   const selectedCount = (english ? 1 : 0) + subjectIds.length;
+  const optionalSlotsFull = subjectIds.length >= 3;
   const valid =
     Boolean(examDate) &&
     studyDays.length >= 5 &&
@@ -161,7 +162,8 @@ export default function OnboardingPrototype() {
               const selected = subjectIds.includes(subject.id);
               return (
                 <button key={subject.id} type="button" onClick={() => toggleSubject(subject.id)}
-                  style={{ ...styles.subject, ...(selected ? styles.selectedSubject : {}) }}>
+                  disabled={!selected && optionalSlotsFull}
+                  style={{ ...styles.subject, ...(selected ? styles.selectedSubject : {}), opacity: !selected && optionalSlotsFull ? 0.45 : 1 }}>
                   <span>{subject.name}</span>
                   <span>{selected ? '✓' : '+'}</span>
                 </button>
