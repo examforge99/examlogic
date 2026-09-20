@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Your timetable has already been created.' }, { status: 409 });
     }
 
-    const { error: updateError } = await db
+    const { data: updatedUser, error: updateError } = await db
       .from('users')
       .update({
         exam_date: examDate,
@@ -110,10 +110,15 @@ export async function POST(request: Request) {
         daily_hours: dailyHours,
         jamb_subjects: uniqueSubjectIds,
       })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select('id,exam_date,study_days,daily_hours,jamb_subjects')
+      .single();
 
     if (updateError) throw updateError;
+    if (!updatedUser) throw new Error('Unable to save your onboarding profile.');
 
+    // The timetable generator reads the persisted profile. Only generate after
+    // the onboarding data has been successfully written to the database.
     const timetable = await generateMonthlyTimetable(userId);
 
     return NextResponse.json({
