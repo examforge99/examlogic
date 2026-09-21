@@ -79,90 +79,90 @@ const styles: Record<string, CSSProperties> = {
     width: 'min(100%, 430px)',
     background: '#0D1B2E',
     border: '1px solid rgba(255,255,255,0.09)',
-    borderRadius: '24px',
+    borderRadius: '22px',
     boxShadow: '0 30px 80px rgba(0,0,0,0.48), 0 0 0 1px rgba(0,0,0,0.15)',
-    padding: '30px',
+    padding: '26px',
   },
   mark: {
-    width: '54px',
-    height: '54px',
+    width: '46px',
+    height: '46px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '16px',
+    borderRadius: '14px',
     background: '#168C73',
     color: '#FFFFFF',
-    marginBottom: '28px',
-    boxShadow: '0 10px 30px rgba(37,214,162,0.14)',
+    marginBottom: '22px',
+    boxShadow: '0 8px 24px rgba(37,214,162,0.12)',
   },
   eyebrow: {
     color: '#25D6A2',
-    fontSize: '12px',
-    fontWeight: 750,
-    letterSpacing: '0.11em',
+    fontSize: '11px',
+    fontWeight: 700,
+    letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    marginBottom: '11px',
+    marginBottom: '9px',
   },
   title: {
-    fontSize: '34px',
-    lineHeight: 1.08,
-    letterSpacing: '-0.045em',
-    fontWeight: 760,
+    fontSize: '20px',
+    lineHeight: 1.2,
+    letterSpacing: '-0.025em',
+    fontWeight: 650,
     maxWidth: '340px',
-    marginBottom: '14px',
+    marginBottom: '10px',
   },
   description: {
     color: '#7D8A9A',
-    fontSize: '16px',
-    lineHeight: 1.55,
+    fontSize: '14px',
+    lineHeight: 1.5,
     maxWidth: '350px',
-    marginBottom: '30px',
+    marginBottom: '24px',
   },
   info: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     borderTop: '1px solid rgba(255,255,255,0.08)',
     borderBottom: '1px solid rgba(255,255,255,0.08)',
-    marginBottom: '24px',
+    marginBottom: '20px',
   },
   infoItem: {
-    padding: '17px 0',
+    padding: '14px 0',
   },
   infoItemSecond: {
-    padding: '17px 0 17px 18px',
+    padding: '14px 0 14px 18px',
     borderLeft: '1px solid rgba(255,255,255,0.08)',
   },
   infoLabel: {
     color: '#7D8A9A',
-    fontSize: '12px',
-    marginBottom: '5px',
+    fontSize: '11px',
+    marginBottom: '4px',
   },
   infoValue: {
-    fontSize: '15px',
-    fontWeight: 650,
+    fontSize: '14px',
+    fontWeight: 600,
   },
   button: {
     width: '100%',
-    minHeight: '56px',
+    minHeight: '52px',
     border: 0,
-    borderRadius: '14px',
+    borderRadius: '13px',
     background: '#25D6A2',
     color: '#061812',
     fontFamily: 'var(--font-inter), system-ui, -apple-system, sans-serif',
-    fontSize: '16px',
-    fontWeight: 750,
+    fontSize: '14px',
+    fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '9px',
-    boxShadow: '0 8px 24px rgba(37,214,162,0.16)',
+    gap: '8px',
+    boxShadow: '0 7px 20px rgba(37,214,162,0.14)',
   },
   footnote: {
     textAlign: 'center',
     color: '#5F6D7D',
-    fontSize: '12px',
+    fontSize: '11px',
     lineHeight: 1.4,
-    marginTop: '14px',
+    marginTop: '12px',
   },
 }
 
@@ -194,16 +194,7 @@ export default function FirstSessionPrototype() {
           style={styles.modal}
         >
           <div style={styles.mark} aria-hidden="true">
-            <svg
-              width="25"
-              height="25"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
             </svg>
           </div>
@@ -232,17 +223,7 @@ export default function FirstSessionPrototype() {
 
           <button type="button" style={styles.button}>
             Start First Session
-            <svg
-              width="19"
-              height="19"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M5 12h14" />
               <path d="m13 6 6 6-6 6" />
             </svg>
