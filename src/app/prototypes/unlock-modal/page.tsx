@@ -224,7 +224,7 @@ export default function UnlockModalPrototype() {
             0 0 0 1px rgba(93,218,255,.08),
             0 0 42px rgba(32,169,232,.10),
             inset 0 1px 0 rgba(255,255,255,.11);
-          animation: modal-in .42s cubic-bezier(.2,.85,.25,1) both;
+          animation: modal-in .65s cubic-bezier(.16,1,.3,1) both;
         }
 
         .unlock-modal::before {
@@ -318,7 +318,7 @@ export default function UnlockModalPrototype() {
           background: #5DDAFF;
           box-shadow: 0 0 7px #5DDAFF, 0 0 15px rgba(93,218,255,.55);
           opacity: 0;
-          animation: dust 760ms cubic-bezier(.1,.72,.22,1) var(--delay) both;
+          animation: dust 820ms cubic-bezier(.1,.72,.22,1) var(--delay) both;
         }
 
         .particle.star {
@@ -359,11 +359,11 @@ export default function UnlockModalPrototype() {
         @keyframes modal-in {
           from {
             opacity: 0;
-            transform: translateY(14px) scale(.95);
+            transform: scale(.72);
           }
           to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: scale(1);
           }
         }
 
