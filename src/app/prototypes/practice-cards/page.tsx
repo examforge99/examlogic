@@ -4,7 +4,6 @@ type Mode = {
   name: string
   description: string
   state: string
-  mark: string
   accent: string
   glow: string
   meta: string[]
@@ -23,10 +22,9 @@ const styles: Record<string, CSSProperties> = {
   heading: { margin: '0 0 6px', fontSize: '20px', fontWeight: 650, letterSpacing: '-0.025em' },
   sub: { margin: '0 0 24px', color: '#8D99A6', fontSize: '13px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px' },
-  card: { position: 'relative', minHeight: '190px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.16)', borderRadius: '20px', padding: '22px', boxShadow: '0 20px 46px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.20), inset 0 -1px 0 rgba(0,0,0,.20)' },
+  card: { position: 'relative', minHeight: '190px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.14)', borderRadius: '20px', padding: '22px', boxShadow: '0 20px 46px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.18), inset 0 -1px 0 rgba(0,0,0,.24)' },
   glow: { position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.34, background: 'linear-gradient(135deg, rgba(255,255,255,.18), transparent 42%, rgba(0,0,0,.16))' },
   top: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' },
-  mark: { width: '34px', height: '34px', borderRadius: '10px', display: 'grid', placeItems: 'center', border: '1px solid rgba(255,255,255,.09)', fontSize: '15px', fontWeight: 700 },
   state: { fontSize: '10px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6F7B87' },
   title: { position: 'relative', margin: '24px 0 7px', fontSize: '18px', letterSpacing: '-.02em', fontWeight: 650 },
   description: { position: 'relative', margin: 0, color: '#8D99A6', fontSize: '12.5px', lineHeight: 1.5, maxWidth: '290px' },
