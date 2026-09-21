@@ -11,10 +11,10 @@ type Mode = {
 }
 
 const modes: Mode[] = [
-  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', mark: '⚡', accent: '#BFE0FF', glow: 'linear-gradient(135deg, #245B91 0%, #347FC0 52%, #2867A5 100%)', meta: ['20 questions', '15 min'] },
-  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', mark: '◈', accent: '#D3C4F4', glow: 'linear-gradient(135deg, #604A9A 0%, #8065C2 52%, #694FA7 100%)', meta: ['Subject & topic', 'Self-paced'] },
-  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', mark: '▣', accent: '#F0D19A', glow: 'linear-gradient(135deg, #9A6929 0%, #C58A3C 52%, #A8752F 100%)', meta: ['180 questions', '2 hours'] },
-  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', mark: '×', accent: '#F0B0BB', glow: 'linear-gradient(135deg, #96364A 0%, #BD4D62 52%, #9F3D51 100%)', meta: ['1 min / question', 'High pressure'] },
+  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', mark: '⚡', accent: '#BFE0FF', glow: 'linear-gradient(145deg, #174A78 0%, #2869A8 48%, #1D578E 100%)', meta: ['20 questions', '15 min'] },
+  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', mark: '◈', accent: '#D3C4F4', glow: 'linear-gradient(145deg, #493477 0%, #6849A4 48%, #543A88 100%)', meta: ['Subject & topic', 'Self-paced'] },
+  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', mark: '▣', accent: '#F0D19A', glow: 'linear-gradient(145deg, #704719 0%, #9B6726 48%, #7E511E 100%)', meta: ['180 questions', '2 hours'] },
+  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', mark: '×', accent: '#F0B0BB', glow: 'linear-gradient(145deg, #681F32 0%, #96364E 48%, #76263A 100%)', meta: ['1 min / question', 'High pressure'] },
 ]
 
 const styles: Record<string, CSSProperties> = {
