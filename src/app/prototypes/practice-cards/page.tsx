@@ -10,10 +10,10 @@ type Mode = {
 }
 
 const modes: Mode[] = [
-  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', mark: '⚡', accent: '#BFE0FF', glow: 'linear-gradient(135deg, #123D67 0%, #2269A2 38%, #2D8C88 68%, #194F7C 100%)', meta: ['20 questions', '15 min'] },
-  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', mark: '◈', accent: '#D3C4F4', glow: 'linear-gradient(135deg, #3D2769 0%, #6044A0 38%, #9A5C9D 68%, #503681 100%)', meta: ['Subject & topic', 'Self-paced'] },
-  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', mark: '▣', accent: '#F0D19A', glow: 'linear-gradient(135deg, #684016 0%, #9B641F 38%, #C08A38 68%, #7A4D1B 100%)', meta: ['180 questions', '2 hours'] },
-  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', mark: '×', accent: '#F0B0BB', glow: 'linear-gradient(135deg, #5D1B30 0%, #8D2D48 38%, #B74467 68%, #70233B 100%)', meta: ['1 min / question', 'High pressure'] },
+  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', accent: '#BFE0FF', glow: 'linear-gradient(135deg, #123D67 0%, #2269A2 38%, #2D8C88 68%, #194F7C 100%)', meta: ['20 questions', '15 min'] },
+  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', accent: '#D3C4F4', glow: 'linear-gradient(135deg, #3D2769 0%, #6044A0 38%, #9A5C9D 68%, #503681 100%)', meta: ['Subject & topic', 'Self-paced'] },
+  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', accent: '#F0D19A', glow: 'linear-gradient(135deg, #684016 0%, #9B641F 38%, #C08A38 68%, #7A4D1B 100%)', meta: ['180 questions', '2 hours'] },
+  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', accent: '#F0B0BB', glow: 'linear-gradient(135deg, #5D1B30 0%, #8D2D48 38%, #B74467 68%, #70233B 100%)', meta: ['1 min / question', 'High pressure'] },
 ]
 
 const styles: Record<string, CSSProperties> = {
