@@ -11,10 +11,10 @@ type Mode = {
 }
 
 const modes: Mode[] = [
-  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', mark: '⚡', accent: '#438FEF', glow: 'rgba(67,143,239,.30)', meta: ['20 questions', '15 min'] },
-  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', mark: '◈', accent: '#9276D8', glow: 'rgba(146,118,216,.28)', meta: ['Subject & topic', 'Self-paced'] },
-  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', mark: '▣', accent: '#D49A45', glow: 'rgba(212,154,69,.28)', meta: ['180 questions', '2 hours'] },
-  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', mark: '×', accent: '#D45569', glow: 'rgba(212,85,105,.28)', meta: ['1 min / question', 'High pressure'] },
+  { name: 'Quick Fire', description: 'Fast, focused practice to keep your recall sharp.', state: 'Available', mark: '⚡', accent: '#BFE0FF', glow: 'linear-gradient(135deg, #245B91 0%, #347FC0 52%, #2867A5 100%)', meta: ['20 questions', '15 min'] },
+  { name: 'Campaign', description: 'Build your preparation through deliberate practice.', state: 'Unlocked', mark: '◈', accent: '#D3C4F4', glow: 'linear-gradient(135deg, #604A9A 0%, #8065C2 52%, #694FA7 100%)', meta: ['Subject & topic', 'Self-paced'] },
+  { name: 'Simulation', description: 'Experience the pressure and rhythm of the real exam.', state: 'Locked', mark: '▣', accent: '#F0D19A', glow: 'linear-gradient(135deg, #9A6929 0%, #C58A3C 52%, #A8752F 100%)', meta: ['180 questions', '2 hours'] },
+  { name: 'Sudden Death', description: 'One question. One minute. Keep your focus.', state: 'Locked', mark: '×', accent: '#F0B0BB', glow: 'linear-gradient(135deg, #96364A 0%, #BD4D62 52%, #9F3D51 100%)', meta: ['1 min / question', 'High pressure'] },
 ]
 
 const styles: Record<string, CSSProperties> = {
@@ -23,8 +23,8 @@ const styles: Record<string, CSSProperties> = {
   heading: { margin: '0 0 6px', fontSize: '20px', fontWeight: 650, letterSpacing: '-0.025em' },
   sub: { margin: '0 0 24px', color: '#8D99A6', fontSize: '13px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px' },
-  card: { position: 'relative', minHeight: '190px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.09)', borderRadius: '20px', background: '#0A1A2B', padding: '22px', boxShadow: '0 18px 42px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.035)' },
-  glow: { position: 'absolute', left: '-10%', top: '-35%', width: '75%', height: '150px', borderRadius: '50%', filter: 'blur(28px)', opacity: 0.55, pointerEvents: 'none', transform: 'rotate(-8deg)' },
+  card: { position: 'relative', minHeight: '190px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.16)', borderRadius: '20px', padding: '22px', boxShadow: '0 18px 42px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.18)' },
+  glow: { position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.34, background: 'linear-gradient(135deg, rgba(255,255,255,.18), transparent 42%, rgba(0,0,0,.16))' },
   top: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' },
   mark: { width: '34px', height: '34px', borderRadius: '10px', display: 'grid', placeItems: 'center', border: '1px solid rgba(255,255,255,.09)', fontSize: '15px', fontWeight: 700 },
   state: { fontSize: '10px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6F7B87' },
@@ -43,9 +43,9 @@ export default function PracticeCardsPrototype() {
         <section className="practice-card-grid" style={styles.grid}>
           {modes.map((mode) => (
             <article key={mode.name} style={styles.card}>
-              <div aria-hidden="true" style={{ ...styles.glow, background: 'linear-gradient(90deg, ' + mode.glow + ', transparent)' }} />
+              <div aria-hidden="true" style={{ ...styles.glow, background: mode.glow }} />
               <div style={styles.top}>
-                <div style={{ ...styles.mark, background: 'linear-gradient(145deg, ' + mode.glow + ', rgba(255,255,255,.025))', color: mode.accent }}>{mode.mark}</div>
+                <div style={{ ...styles.mark, background: 'linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.04))', color: mode.accent }}>{mode.mark}</div>
                 <span style={styles.state}>{mode.state}</span>
               </div>
               <h2 style={styles.title}>{mode.name}</h2>
