@@ -58,20 +58,17 @@ export default function FirstSessionPrototype() {
       <div style={styles.overlay}>
         <section role="dialog" aria-modal="true" aria-labelledby="first-session-title" style={styles.modalBorder}>
           <div style={styles.modal}>
-            <div style={styles.eyebrow}>Your first session</div>
-            <h1 id="first-session-title" style={styles.title}>Your first session is ready.</h1>
-            <p style={styles.description}>Let’s see where you’re starting from.</p>
+            <h1 id="first-session-title" style={styles.title}>You're in. 👋</h1>
+            <p style={styles.description}>Let's start with a quick practice session.</p>
             <div style={styles.info}>
               <div style={styles.infoItem}><div style={styles.infoLabel}>Session</div><div style={styles.infoValue}>Quick Fire</div></div>
               <div style={styles.infoItemSecond}><div style={styles.infoLabel}>Questions</div><div style={styles.infoValue}>20 questions</div></div>
             </div>
             <button type="button" style={styles.button}>
-              Start First Session
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
-              </svg>
+              Begin
+              <span aria-hidden="true">→</span>
             </button>
-            <p style={styles.footnote}>Your first session will help establish your starting point.</p>
+            <p style={styles.footnote}>This is where your preparation begins.</p>
           </div>
         </section>
       </div>
