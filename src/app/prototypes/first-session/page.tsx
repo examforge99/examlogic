@@ -12,7 +12,7 @@ const styles: Record<string, CSSProperties> = {
   skeletonLine: { width: '310px', height: '14px', borderRadius: '6px', background: '#153B59', marginBottom: '28px' },
   skeletonCard: { height: '150px', background: '#102A43', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', marginBottom: '14px' },
   overlay: { position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(3,8,16,0.62)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', zIndex: 10 },
-  modalBorder: { width: 'min(100%, 430px)', padding: '1px', borderRadius: '22px', background: 'linear-gradient(135deg, rgba(63,183,255,0.72), rgba(47,128,255,0.28) 52%, rgba(37,214,162,0.38))', boxShadow: '0 30px 80px rgba(0,0,0,0.48), 0 0 32px rgba(63,183,255,0.07)' },
+  modalBorder: { width: 'min(100%, 430px)', padding: '1px', borderRadius: '22px', background: 'conic-gradient(from var(--border-angle), #3FB7FF, #2F80FF 28%, #102C50 48%, #25D6A2 72%, #2F80FF 88%, #3FB7FF)', boxShadow: '0 30px 80px rgba(0,0,0,0.48), 0 0 32px rgba(63,183,255,0.07)', animation: 'borderOrbit 7s linear infinite', ['--border-angle' as string]: '0deg' },
   modal: { width: '100%', background: '#0A1A2B', borderRadius: '21px', padding: '26px' },
   eyebrow: { color: '#2F80FF', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '9px' },
   title: { fontSize: '20px', lineHeight: 1.2, letterSpacing: '-0.025em', fontWeight: 650, color: '#C9D1D9', maxWidth: '340px', marginBottom: '10px' },
@@ -26,9 +26,22 @@ const styles: Record<string, CSSProperties> = {
   footnote: { textAlign: 'center', color: '#5F6A76', fontSize: '11px', lineHeight: 1.4, marginTop: '12px' },
 }
 
+const keyframes = `
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes borderOrbit {
+    from { --border-angle: 0deg; }
+    to { --border-angle: 360deg; }
+  }
+`
+
 export default function FirstSessionPrototype() {
   return (
-    <main style={styles.page}>
+    <main style={styles.page}>\n      <style>{keyframes}</style>
       <section aria-hidden="true" style={styles.dashboard}>
         <header style={styles.header}>
           <div style={styles.brand}>Exam<span style={styles.brandAccent}>Logic</span></div>
