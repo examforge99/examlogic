@@ -88,17 +88,17 @@ export default function NbaPrototype() {
           margin: 0;
           max-width: 560px;
           font-family: var(--font-geist-sans), Inter, sans-serif;
-          font-size: clamp(25px, 6vw, 34px);
-          font-weight: 650;
+          font-size: clamp(30px, 7.5vw, 42px);
+          font-weight: 700;
           line-height: 1.05;
-          letter-spacing: -.035em;
+          letter-spacing: -.045em;
         }
 
         .nba-content p {
           max-width: 520px;
-          margin: 10px 0 0;
-          color: rgba(236, 253, 245, .72);
-          font-size: 14px;
+          margin: 14px 0 0;
+          color: rgba(236, 253, 245, .62);
+          font-size: 13px;
           line-height: 1.6;
         }
 
@@ -106,7 +106,7 @@ export default function NbaPrototype() {
           display: flex;
           flex-wrap: wrap;
           gap: 7px;
-          margin-top: 18px;
+          margin-top: 14px;
         }
 
         .nba-meta span {
@@ -114,7 +114,7 @@ export default function NbaPrototype() {
           border: 1px solid rgba(110,231,183,.22);
           border-radius: 8px;
           background: rgba(2, 44, 34, .28);
-          color: rgba(236,253,245,.78);
+          color: rgba(236,253,245,.58);
           font-size: 11px;
           line-height: 1;
         }
@@ -122,7 +122,7 @@ export default function NbaPrototype() {
         .nba-cta {
           width: 100%;
           min-height: 48px;
-          margin-top: 22px;
+          margin-top: 20px;
           border: 1px solid #6EE7B7;
           border-radius: 11px;
           background: transparent;
