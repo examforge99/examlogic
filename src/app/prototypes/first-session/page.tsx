@@ -65,7 +65,7 @@ export default function FirstSessionPrototype() {
               <div style={styles.infoItemSecond}><div style={styles.infoLabel}>Questions</div><div style={styles.infoValue}>20 questions</div></div>
             </div>
             <button type="button" style={styles.button}>
-              Begin
+              Start First Session
               <span aria-hidden="true">→</span>
             </button>
             <p style={styles.footnote}>This is where your preparation begins.</p>
