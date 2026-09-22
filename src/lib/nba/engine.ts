@@ -1,7 +1,14 @@
 import { resolveActionType } from './actions';
 import { checkBoundaries } from './boundaries';
 import { getPhase } from './phase';
-import { getServiceRoleClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+function getNBAClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) throw new Error('Missing Supabase secret key configuration');
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
 import type { ActionType, NBAOutput, Phase, BoundaryState } from './types';
 
 const MESSAGES: Record<ActionType, string> = {
@@ -38,7 +45,7 @@ function stats(xs:Attempt[]) {
 function message(action:ActionType, concept:string) { return MESSAGES[action].replace('{concept}',concept); }
 
 export async function fireNBA(user_id:string):Promise<NBAOutput|null> {
-  const db = getServiceRoleClient();
+  const db = getNBAClient();
   const date=today();
 
   const {data:user,error:userError}=await db.from('users').select('exam_date,daily_hours').eq('id',user_id).maybeSingle();
