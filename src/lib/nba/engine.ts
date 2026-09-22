@@ -1,7 +1,7 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { resolveActionType } from './actions';
 import { checkBoundaries } from './boundaries';
 import { getPhase } from './phase';
+import { getServiceRoleClient } from '@/lib/supabase/server';
 import type { ActionType, NBAOutput, Phase, BoundaryState } from './types';
 
 const MESSAGES: Record<ActionType, string> = {
@@ -22,12 +22,6 @@ type Mastery = { topic_id: string; is_complete: boolean };
 type Attempt = { topic_id: string; is_correct: boolean | null; attempted_at: string | null };
 type Day = { id: string; date: string; day_type: 'practice'|'revision'|'rest'; scheduled_subject_ids: string[]|null };
 
-function client(): SupabaseClient {
-  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error('Supabase server credentials are not configured.');
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
-}
 function today() { return new Date().toISOString().slice(0,10); }
 function monthStart(d:string) { return `${d.slice(0,7)}-01`; }
 function daysSince(v:string|null) {
@@ -44,7 +38,8 @@ function stats(xs:Attempt[]) {
 function message(action:ActionType, concept:string) { return MESSAGES[action].replace('{concept}',concept); }
 
 export async function fireNBA(user_id:string):Promise<NBAOutput|null> {
-  const db=client(), date=today();
+  const db = getServiceRoleClient();
+  const date=today();
 
   const {data:user,error:userError}=await db.from('users').select('exam_date,daily_hours').eq('id',user_id).maybeSingle();
   if (userError) throw userError;
