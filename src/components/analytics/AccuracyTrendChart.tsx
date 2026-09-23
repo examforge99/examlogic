@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-  }
 
   const avg     = Math.round(filtered.reduce((s, r) => s + Number(r.accuracy), 0) / filtered.length)
   const first   = Math.round(Number(filtered[0].accuracy))
