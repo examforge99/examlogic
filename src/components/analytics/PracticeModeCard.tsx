@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import Divider from '@/components/ui/Divider'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['700'] })
 
 type TimeRange = '7' | '30' | 'all'
 
@@ -186,7 +185,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                   </div>
                   <span
                     style={{
-                      fontFamily: spaceGrotesk.style.fontFamily,
+                      fontFamily: 'var(--font-inter), Inter, sans-serif',
                       fontSize: '14px',
                       fontWeight: 700,
                       color: '#e8f4ff',
@@ -212,7 +211,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 <div>
                   <span
                     style={{
-                      fontFamily: spaceGrotesk.style.fontFamily,
+                      fontFamily: 'var(--font-inter), Inter, sans-serif',
                       fontSize: '26px',
                       fontWeight: 700,
                       lineHeight: 1,
@@ -252,7 +251,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                     width: '100%',
                     padding: '8px 0',
                     borderRadius: '8px',
-                    fontFamily: spaceGrotesk.style.fontFamily,
+                    fontFamily: 'var(--font-inter), Inter, sans-serif',
                     fontSize: '13px',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -365,7 +364,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 </div>
                 <span
                   style={{
-                    fontFamily: spaceGrotesk.style.fontFamily,
+                    fontFamily: 'var(--font-inter), Inter, sans-serif',
                     fontSize: '17px',
                     fontWeight: 700,
                     color: '#e8f4ff',
@@ -419,7 +418,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                 >
                   <span
                     style={{
-                      fontFamily: spaceGrotesk.style.fontFamily,
+                      fontFamily: 'var(--font-inter), Inter, sans-serif',
                       fontSize: '18px',
                       fontWeight: 700,
                       display: 'block',
