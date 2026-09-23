@@ -2,10 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Space_Grotesk, Inter } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'] })
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'] })
 
 interface TopBarProps {
   title?: string
@@ -91,7 +89,7 @@ export default function TopBar({
                   fontWeight: 700,
                   color: '#e8f4ff',
                   lineHeight: 1,
-                  fontFamily: spaceGrotesk.style.fontFamily,
+                  fontFamily: 'var(--font-inter), Inter, sans-serif',
                   margin: 0,
                 }}
               >
@@ -107,7 +105,7 @@ export default function TopBar({
                 fontWeight: 700,
                 letterSpacing: '-0.025em',
                 lineHeight: 1,
-                fontFamily: spaceGrotesk.style.fontFamily,
+                fontFamily: 'var(--font-inter), Inter, sans-serif',
                 margin: 0,
               }}
             >
@@ -189,7 +187,7 @@ export default function TopBar({
                   color: '#071426',
                   cursor: 'pointer',
                   transition: 'opacity 0.15s ease',
-                  fontFamily: spaceGrotesk.style.fontFamily,
+                  fontFamily: 'var(--font-inter), Inter, sans-serif',
                   background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
                 }}
                 onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
