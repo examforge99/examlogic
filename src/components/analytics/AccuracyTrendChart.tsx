@@ -1,105 +1,9 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['700'] })
-
-type TimeRange = '7' | '30' | '90'
-
-interface DayRow {
-  date: string
-  accuracy: number
-  total_questions: number
-  correct_answers: number
-  study_time_mins: number
-}
-
-interface DataPoint {
-  v: number
-  main: string
-  sub: string
-}
-
-interface RangeData {
-  stat: string
-  delta: string
-  deltaUp: boolean
-  points: DataPoint[]
-}
-
-const COLOR = '#25d6a2'
-const POINT_W = 72
-const Y_LABELS = ['100%', '75%', '50%', '25%', '0%']
-
-// ── helpers ──────────────────────────────────────────────────────────────────
-
-function filterByDays(data: DayRow[], days: number): DayRow[] {
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - days)
-  return data.filter((r) => new Date(r.date) >= cutoff)
-}
-
-function toWeekLabel(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function buildRangeData(rows: DayRow[], range: TimeRange): RangeData {
-  const days = range === '7' ? 7 : range === '30' ? 30 : 90
-  const filtered = filterByDays(rows, days)
-
-  if (filtered.length === 0) {
-    return { stat: '—', delta: '—', deltaUp: true, points: [] }
-  }
-
-  let points: DataPoint[] = []
-
-  if (range === '7') {
-    points = filtered.map((r) => ({
-      v: Math.round(Number(r.accuracy)),
-      main: new Date(r.date).toLocaleDateString('en-US', { weekday: 'short' }),
-      sub:  toWeekLabel(r.date),
-    }))
-  } else if (range === '30') {
-    // group into weeks
-    const weeks: Record<number, DayRow[]> = {}
-    filtered.forEach((r) => {
-      const d    = new Date(r.date)
-      const week = Math.floor(
-        (d.getTime() - new Date(filtered[0].date).getTime()) / (7 * 24 * 60 * 60 * 1000)
-      )
-      if (!weeks[week]) weeks[week] = []
-      weeks[week].push(r)
-    })
-    points = Object.entries(weeks).map(([w, rows]) => {
-      const avg = rows.reduce((s, r) => s + Number(r.accuracy), 0) / rows.length
-      const start = toWeekLabel(rows[0].date)
-      const end   = toWeekLabel(rows[rows.length - 1].date)
-      return {
-        v:    Math.round(avg),
-        main: `Week ${Number(w) + 1}`,
-        sub:  `${start}–${end}`,
-      }
-    })
-  } else {
-    // group into months
-    const months: Record<string, DayRow[]> = {}
-    filtered.forEach((r) => {
-      const key = r.date.slice(0, 7) // YYYY-MM
-      if (!months[key]) months[key] = []
-      months[key].push(r)
-    })
-    points = Object.entries(months).map(([key, rows]) => {
-      const avg = rows.reduce((s, r) => s + Number(r.accuracy), 0) / rows.length
-      const d   = new Date(key + '-01')
-      return {
-        v:    Math.round(avg),
-        main: d.toLocaleDateString('en-US', { month: 'short' }),
-        sub:  d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-      }
-    })
   }
 
   const avg     = Math.round(filtered.reduce((s, r) => s + Number(r.accuracy), 0) / filtered.length)
@@ -395,7 +299,7 @@ export default function AccuracyTrendChart() {
       >
         <span
           style={{
-            fontFamily: spaceGrotesk.style.fontFamily,
+            fontFamily: 'var(--font-inter), Inter, sans-serif',
             fontSize: '24px',
             fontWeight: 700,
             color: '#e8f4ff',
