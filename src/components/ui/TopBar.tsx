@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Inter } from 'next/font/google'
 
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
+
 
 interface TopBarProps {
   title?: string
