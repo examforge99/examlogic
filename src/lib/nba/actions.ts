@@ -1,5 +1,14 @@
 import type { ActionType, Phase } from './types';
 
+export const ACTION_MULTIPLIERS: Record<ActionType, number> = {
+  READ: 1.0,
+  RECALL: 0.4,
+  PRACTICE: 0.6,
+  REVIEW: 0.5,
+  DRILL: 0.5,
+  RELEARN: 0.8,
+};
+
 const PHASE_ACTIONS: Record<Phase, readonly ActionType[]> = {
   HABIT_BUILDING: ['READ', 'RECALL'],
   TRANSITION: ['RECALL', 'PRACTICE', 'REVIEW'],
