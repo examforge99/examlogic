@@ -2,12 +2,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import ProgressBar from '@/components/ui/ProgressBar'
 import Divider from '@/components/ui/Divider'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['700'] })
 
 type TimeRange = '7' | '30' | '90'
 
@@ -136,7 +135,7 @@ export default function DifficultyPerformanceCard({
               <div className="w-[42px] flex-shrink-0 flex flex-col gap-[1px]">
                 <span
                   className="text-[11px] font-bold text-[#e8f4ff] leading-none"
-                  style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                  style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
                 >
                   Level {i + 1}
                 </span>
@@ -162,7 +161,7 @@ export default function DifficultyPerformanceCard({
               <span
                 className="text-[13px] font-bold w-[34px] text-right flex-shrink-0"
                 style={{
-                  fontFamily: spaceGrotesk.style.fontFamily,
+                  fontFamily: 'var(--font-inter), Inter, sans-serif',
                   color: level.color,
                 }}
               >
@@ -207,7 +206,7 @@ export default function DifficultyPerformanceCard({
         <div className="flex items-baseline gap-1">
           <span
             className="text-[18px] font-bold text-[#e8f4ff] leading-none"
-            style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+            style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
           >
             {d.currentPoints.toLocaleString()}
           </span>
