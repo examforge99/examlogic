@@ -187,9 +187,6 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     { data: masteryRows, error: masteryError },
     { data: concepts, error: conceptsError },
     { data: attempts, error: attemptsError },
-    { data: analytics, error: analyticsError },
-    { data: allLogs, error: allLogsError },
-    { data: todayLogs, error: todayLogsError },
   ] = await Promise.all([
     db.from('user_topic_mastery').select('topic_id,is_complete').eq('user_id', user_id).in('topic_id', topicIds),
     db.from('concept_windows')
@@ -198,11 +195,25 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
       .eq('status', 'active')
       .order('progression_order', { ascending: true }),
     db.from('attempts').select('topic_id,is_correct,attempted_at').eq('user_id', user_id).in('topic_id', topicIds),
-    db.from('user_daily_analytics').select('study_time_mins').eq('user_id', user_id).eq('date', date).maybeSingle(),
+  ]);
+
+  if (masteryError) throw masteryError;
+  if (conceptsError) throw conceptsError;
+  if (attemptsError) throw attemptsError;
+
+  const conceptRows = (concepts ?? []) as Concept[];
+  if (!conceptRows.length) return [];
+
+  const conceptIds = conceptRows.map(concept => concept.id);
+
+  const [
+    { data: allLogs, error: allLogsError },
+    { data: todayLogs, error: todayLogsError },
+  ] = await Promise.all([
     db.from('nba_log')
       .select('subject_id,topic_id,concept_window_id,action_type,phase,fired_at,boundary_state')
       .eq('user_id', user_id)
-      .in('concept_window_id', (await db.from('concept_windows').select('id').in('topic_id', topicIds).eq('status', 'active')).data?.map((x: { id: string }) => x.id) ?? []),
+      .in('concept_window_id', conceptIds),
     db.from('nba_log')
       .select('subject_id,topic_id,concept_window_id,action_type,phase,fired_at,boundary_state')
       .eq('user_id', user_id)
@@ -210,14 +221,8 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
       .lt('fired_at', `${tomorrow(date)}T00:00:00.000Z`),
   ]);
 
-  if (masteryError) throw masteryError;
-  if (conceptsError) throw conceptsError;
-  if (attemptsError) throw attemptsError;
-  if (analyticsError) throw analyticsError;
   if (allLogsError) throw allLogsError;
   if (todayLogsError) throw todayLogsError;
-
-  const conceptRows = (concepts ?? []) as Concept[];
   const mastery = new Map((masteryRows ?? []).map((x: Mastery) => [x.topic_id, x]));
 
   const byTopic = new Map<string, Concept[]>();
