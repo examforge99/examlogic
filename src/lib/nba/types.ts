@@ -15,6 +15,7 @@ export interface NBAOutput {
   subject_id: string;
   topic_id: string;
   concept_window_id: string;
+  concept_name: string;
   concept_progression_order: number;
   concept_description: string | null;
   estimated_minutes: number;
