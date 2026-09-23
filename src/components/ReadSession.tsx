@@ -219,9 +219,6 @@ export default function ReadSession({ schedule, subjectNames, topicNames }: Read
           0%, 100% { opacity: 0.6; }
           50% { opacity: 0.38; }
         }
-        @media (max-width: 520px) {
-          .read-session-content { padding-top: 34px !important; }
-        }
       `}</style>
 
       {uiState === 'subject-switch' ? (
@@ -260,8 +257,7 @@ export default function ReadSession({ schedule, subjectNames, topicNames }: Read
           </header>
 
           <div
-            className="read-session-content"
-            style={{
+                        style={{
               ...styles.contentWrap,
               animation: uiState === 'reading' || uiState === 'loading' ? 'readSessionSlideUp 300ms ease-out' : undefined,
               transform: isTransitioning ? 'translateY(-20px)' : undefined,
