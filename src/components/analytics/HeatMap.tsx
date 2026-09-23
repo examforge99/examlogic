@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import ProgressBar from '@/components/ui/ProgressBar'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['700'] })
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -256,7 +255,7 @@ export default function HeatMap({
       >
         <p
           style={{
-            fontFamily: spaceGrotesk.style.fontFamily,  fontSize: '14px',   fontWeight: 700, lineHeight: 1, margin: 0, color: s.color,
+            fontFamily: 'var(--font-inter), Inter, sans-serif',  fontSize: '14px',   fontWeight: 700, lineHeight: 1, margin: 0, color: s.color,
           }}
         >
           {s.value}
@@ -395,7 +394,7 @@ export default function HeatMap({
             <div className="flex items-center justify-between mb-[10px]">
               <span
                 className="text-[15px] font-bold text-[#e8f4ff]"
-                style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
               >
                 {DAY_NAMES[popup.dayIdx]}, {popup.monthName} {popup.date}
               </span>
@@ -436,7 +435,7 @@ export default function HeatMap({
                   <span className="text-[15px] block mb-[5px]">{s.icon}</span>
                   <span
                     className="text-[20px] font-bold text-[#e8f4ff] block leading-none mb-[2px]"
-                    style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+                    style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
                   >
                     {s.value}
                   </span>
