@@ -2,10 +2,9 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['700'] })
 
 type TimeRange = '7' | '30' | '90'
 
@@ -178,7 +177,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
       <div className="flex items-baseline gap-2 mb-5">
         <span
           className="text-[24px] font-bold text-[#e8f4ff] leading-none"
-          style={{ fontFamily: spaceGrotesk.style.fontFamily }}
+          style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
         >
           {d.stat}
         </span>
