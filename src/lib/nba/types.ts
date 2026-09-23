@@ -16,6 +16,8 @@ export interface NBAOutput {
   topic_id: string;
   concept_window_id: string;
   concept_progression_order: number;
+  concept_description: string | null;
+  estimated_minutes: number;
   action_type: ActionType;
   phase: Phase;
   message: string;
