@@ -1,214 +1,544 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-type Stage = 'intro' | 'reading' | 'reading-complete' | 'next-action' | 'boundary'
+type Stage = 'ready' | 'reading' | 'recommended' | 'next-action'
+type Action = 'READ' | 'RECALL' | 'PRACTICE'
+
+const actionCopy: Record<Action, { lead: string; title: string; detail: string; metric: string; cta: string }> = {
+  READ: {
+    lead: 'Start here today.',
+    title: 'Read through Motion',
+    detail: 'Uniform motion • Displacement • Speed',
+    metric: '~12 min',
+    cta: 'Start Reading',
+  },
+  RECALL: {
+    lead: 'Done reading? Quick check.',
+    title: 'Recall Motion',
+    detail: 'Key ideas before you move on',
+    metric: '10 questions',
+    cta: 'Start Recall',
+  },
+  PRACTICE: {
+    lead: 'Time to test yourself.',
+    title: 'Practice Motion',
+    detail: '10 JAMB-style questions',
+    metric: '10 questions',
+    cta: 'Start Practice',
+  },
+}
 
 export default function NBASessionPrototype() {
-  const [stage, setStage] = useState<Stage>('intro')
+  const [action, setAction] = useState<Action>('READ')
+  const [stage, setStage] = useState<Stage>('ready')
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false)
   const [seconds, setSeconds] = useState(12 * 60)
+  const copy = actionCopy[action]
+
+  useEffect(() => {
+    if (stage !== 'reading' || action !== 'READ') return
+
+    const timer = window.setInterval(() => {
+      setSeconds((value) => Math.max(0, value - 1))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [stage, action])
+
+  useEffect(() => {
+    if (stage === 'reading' && seconds === 0) {
+      setStage('recommended')
+    }
+  }, [seconds, stage])
 
   const startReading = () => {
     setStage('reading')
     setSeconds(12 * 60)
   }
 
+  const finishReading = () => {
+    setAction('RECALL')
+    setStage('next-action')
+  }
+
+  const primaryAction = () => {
+    if (stage === 'ready') startReading()
+    else if (stage === 'recommended') finishReading()
+    else if (stage === 'next-action') setAction('PRACTICE')
+  }
+
   return (
     <main className="nba-prototype">
-      <div className="shell">
+      <div className="dashboard">
         <header className="topbar">
           <span className="brand">ExamLogic</span>
-          <span className="context">Today's focus</span>
+          <span className="context">Dashboard</span>
         </header>
 
-        <section className="hero">
-          <p className="eyebrow">Next move</p>
-          <div className="subject">Chemistry</div>
-          <h1>Separation of Mixtures</h1>
-          <p className="description">
-            Start here. Read through this concept first.
-          </p>
-        </section>
+        <article className="nba-card" aria-label="Next Best Action">
+          <div className="card-topline">
+            <span className="eyebrow">{stage === 'reading' ? 'Reading now' : 'Next move'}</span>
+            <span className="subject">Physics</span>
+          </div>
 
-        {stage === 'intro' && (
-          <section className="card">
-            <div className="notice">
-              <span className="notice-line" />
-              <div>
-                <strong>Before you begin</strong>
-                <p>
-                  ExamLogic provides the focus and recommended timing, not the
-                  learning material. Use your textbook, notes, tutorial, or
-                  preferred study material.
-                </p>
-              </div>
-            </div>
-            <button className="primary" onClick={startReading}>
-              Start Reading <span>→</span>
-            </button>
-          </section>
-        )}
+          {stage === 'reading' ? (
+            <ReadingState
+              seconds={seconds}
+              onDone={finishReading}
+            />
+          ) : stage === 'recommended' ? (
+            <RecommendedState
+              onContinue={startReading}
+              onReady={finishReading}
+            />
+          ) : stage === 'next-action' ? (
+            <NextActionState
+              copy={copy}
+              onAction={primaryAction}
+            />
+          ) : (
+            <ReadyState copy={copy} onAction={primaryAction} />
+          )}
 
-        {stage === 'reading' && (
-          <section className="card reading-card">
-            <div className="reading-top">
-              <div>
-                <p className="label">Recommended reading</p>
-                <h2>{formatTime(seconds)}</h2>
-              </div>
-              <span className="pill">12 min guide</span>
-            </div>
-
-            <div className="progress">
-              <span style={{ width: `${Math.max(0, (seconds / 720) * 100)}%` }} />
-            </div>
-
-            <p className="helper">
-              This is a guide, not a deadline. Finish when you are ready.
-            </p>
-
-            <div className="actions">
-              <button className="secondary" onClick={() => setStage('reading-complete')}>
-                I'm Done Reading
+          {stage !== 'reading' && (
+            <div className="disclaimer">
+              <button
+                className="disclaimer-toggle"
+                aria-expanded={disclaimerOpen}
+                onClick={() => setDisclaimerOpen((open) => !open)}
+              >
+                <span>About recommended reading time</span>
+                <span className={`chevron ${disclaimerOpen ? 'open' : ''}`}>⌄</span>
               </button>
-              <button className="ghost" onClick={() => setSeconds(0)}>
-                Simulate time up
-              </button>
+
+              {disclaimerOpen && (
+                <div className="disclaimer-body">
+                  <p>
+                    The recommended time gives you a focused window for this concept. It is not a deadline or a measure of mastery.
+                  </p>
+                  <p>
+                    ExamLogic provides the focus and recommended timing, not the learning material. Use your textbook, notes, tutorial, or preferred study material.
+                  </p>
+                </div>
+              )}
             </div>
-          </section>
-        )}
+          )}
+        </article>
 
-        {stage === 'reading-complete' && (
-          <section className="card">
-            <p className="eyebrow">Reading complete</p>
-            <h2>Ready for a quick check?</h2>
-            <p className="description">
-              Move into the next NBA action for this concept.
-            </p>
-            <button className="primary" onClick={() => setStage('next-action')}>
-              Start Practice <span>→</span>
-            </button>
-          </section>
-        )}
+        <p className="dashboard-note">
+          NBA stays here and changes as your next action changes.
+        </p>
 
-        {stage === 'next-action' && (
-          <section className="card">
-            <p className="eyebrow">Next action</p>
-            <h2>Quick recall</h2>
-            <p className="description">
-              Check what you remember before moving on.
-            </p>
-            <button className="primary" onClick={() => setStage('boundary')}>
-              Complete Concept <span>→</span>
-            </button>
-          </section>
-        )}
-
-        {stage === 'boundary' && (
-          <section className="card">
-            <p className="eyebrow">Session boundary</p>
-            <h2>You’ve reached your study goal.</h2>
-            <p className="description">
-              More concepts are available in today’s scheduled scope.
-            </p>
-            <button className="primary" onClick={() => setStage('intro')}>
-              Continue <span>→</span>
-            </button>
-            <button className="link-button" onClick={() => setStage('intro')}>
-              End session
-            </button>
-          </section>
-        )}
-
-        <footer>
-          <span>NBA surfaces one action at a time.</span>
-          <span>Student controls continuation.</span>
-        </footer>
+        <div className="prototype-controls" aria-label="Prototype controls">
+          <span>Preview state</span>
+          <button onClick={() => { setAction('READ'); setStage('ready') }}>Read</button>
+          <button onClick={() => { setAction('RECALL'); setStage('next-action') }}>Recall</button>
+          <button onClick={() => { setAction('PRACTICE'); setStage('next-action') }}>Practice</button>
+        </div>
       </div>
 
       <style>{`
         .nba-prototype {
-          min-height: 100vh;
+          min-height:100vh;
+          margin:0;
+          padding:18px 14px 50px;
           background:
-            radial-gradient(circle at 50% -15%, rgba(51, 183, 207, .10), transparent 38%),
-            linear-gradient(145deg, #111A23 0%, #0D151E 55%, #101923 100%);
-          color: #EEF3F5;
-          font-family: var(--font-inter), Inter, system-ui, sans-serif;
-          padding: 24px 16px 56px;
+            radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
+            #071426;
+          color:#E8F0F7;
+          font-family:var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        .shell { width: min(100%, 620px); margin: 0 auto; }
+
+        .dashboard { width:min(100%, 620px); margin:0 auto; padding-top:5vh; }
+
         .topbar {
-          display:flex; justify-content:space-between; align-items:center;
-          padding: 4px 2px 34px; color:#91A1AE; font-size:12px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          margin-bottom:14px;
+          padding:0 2px;
         }
-        .brand { color:#EAF2F3; font-weight:650; letter-spacing:-.02em; font-size:16px; }
-        .context { letter-spacing:.04em; }
-        .hero { padding: 8px 4px 24px; }
+
+        .brand {
+          color:#E8F0F7;
+          font-family:var(--font-geist-sans), Inter, sans-serif;
+          font-size:16px;
+          font-weight:700;
+          letter-spacing:-.025em;
+        }
+
+        .context { color:rgba(232,240,247,.42); font-size:11px; }
+
+        .nba-card {
+          position:relative;
+          overflow:hidden;
+          padding:21px;
+          border:1px solid rgba(37,214,162,.28);
+          border-radius:20px;
+          background:
+            linear-gradient(145deg, rgba(16,42,67,.98), rgba(15,49,63,.98) 62%, rgba(16,54,61,.98));
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.07),
+            0 22px 55px rgba(0,0,0,.22);
+        }
+
+        .nba-card::before {
+          content:"";
+          position:absolute;
+          top:0;
+          left:10%;
+          right:10%;
+          height:1px;
+          background:linear-gradient(90deg, transparent, rgba(37,214,162,.7), transparent);
+        }
+
+        .card-topline {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:16px;
+          margin-bottom:24px;
+        }
+
         .eyebrow {
-          margin:0 0 10px; color:#45B8BD; font-size:10px; font-weight:700;
-          letter-spacing:.13em; text-transform:uppercase;
+          margin:0;
+          color:#25D6A2;
+          font-size:10px;
+          font-weight:800;
+          letter-spacing:.15em;
+          line-height:1;
+          text-transform:uppercase;
         }
-        .subject { color:#AAB8C0; font-size:13px; margin-bottom:5px; }
-        h1 {
-          margin:0; font-family:var(--font-geist-sans), Inter, sans-serif;
-          font-size:34px; line-height:1.05; letter-spacing:-.045em; font-weight:620;
+
+        .subject { color:rgba(232,240,247,.55); font-size:11px; font-weight:700; }
+
+        .stage-label {
+          margin:0 0 8px;
+          color:rgba(232,240,247,.62);
+          font-size:13px;
+          line-height:1.4;
         }
-        h2 {
-          margin:0; font-family:var(--font-geist-sans), Inter, sans-serif;
-          font-size:25px; line-height:1.12; letter-spacing:-.035em; font-weight:620;
+
+        h1, h2 {
+          margin:0;
+          font-family:var(--font-geist-sans), Inter, sans-serif;
+          font-weight:700;
+          letter-spacing:-.045em;
+          line-height:1.04;
         }
-        .description { color:#9AA8B4; font-size:13px; line-height:1.6; margin:10px 0 0; max-width:470px; }
-        .card {
-          border:1px solid rgba(255,255,255,.09); border-radius:22px;
-          background:linear-gradient(145deg, rgba(29,43,55,.96), rgba(17,27,37,.98));
-          box-shadow:0 20px 55px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.045);
-          padding:20px;
+
+        h1 { max-width:560px; font-size:clamp(31px, 8vw, 44px); }
+        h2 { font-size:26px; }
+
+        .detail, .support {
+          max-width:530px;
+          margin:13px 0 0;
+          color:rgba(232,240,247,.57);
+          font-size:13px;
+          line-height:1.6;
         }
-        .notice {
-          display:flex; gap:12px; padding:14px; margin-bottom:18px;
-          border-radius:15px; background:rgba(255,255,255,.035);
-          border:1px solid rgba(255,255,255,.06);
+
+        .meta {
+          display:flex;
+          flex-wrap:wrap;
+          gap:7px;
+          margin-top:18px;
         }
-        .notice-line { width:3px; border-radius:4px; background:#45B8BD; flex-shrink:0; }
-        .notice strong { font-size:12px; color:#DDE7EA; }
-        .notice p { margin:5px 0 0; color:#91A1AE; font-size:11px; line-height:1.55; }
-        button {
-          border:0; font:inherit; cursor:pointer; transition:transform .16s ease, opacity .16s ease;
+
+        .meta span {
+          padding:7px 9px;
+          border:1px solid rgba(37,214,162,.18);
+          border-radius:8px;
+          background:rgba(7,20,38,.24);
+          color:rgba(232,240,247,.58);
+          font-size:11px;
+          line-height:1;
         }
-        button:active { transform:translateY(1px); }
-        .primary, .secondary {
-          width:100%; min-height:48px; border-radius:14px; display:flex;
-          align-items:center; justify-content:center; gap:10px; font-size:13px; font-weight:650;
-        }
+
         .primary {
-          color:#F4FBFC; background:linear-gradient(135deg,#3FAEB3,#226F77);
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.15), 0 9px 24px rgba(0,0,0,.22);
+          width:100%;
+          min-height:50px;
+          margin-top:23px;
+          border:1px solid #25D6A2;
+          border-radius:12px;
+          background:#25D6A2;
+          color:#061C19;
+          font:800 13px var(--font-inter), Inter, sans-serif;
+          cursor:pointer;
         }
-        .secondary { color:#E8F0F2; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.09); }
-        .ghost { color:#71818E; background:transparent; font-size:11px; padding:8px 0; }
-        .reading-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-        .label { margin:0 0 6px; color:#899AA7; font-size:11px; }
-        .reading-top h2 { font-size:42px; letter-spacing:-.055em; font-variant-numeric:tabular-nums; }
-        .pill {
-          padding:7px 9px; border-radius:999px; color:#9FB0BA; background:rgba(255,255,255,.045);
-          border:1px solid rgba(255,255,255,.06); font-size:10px;
+
+        .primary span { margin-left:7px; }
+
+        .primary:hover { filter:brightness(1.06); }
+
+        .secondary {
+          width:100%;
+          min-height:50px;
+          margin-top:22px;
+          border:1px solid rgba(37,214,162,.55);
+          border-radius:12px;
+          background:transparent;
+          color:#B8F8E8;
+          font:800 13px var(--font-inter), Inter, sans-serif;
+          cursor:pointer;
         }
-        .progress { height:5px; border-radius:99px; background:rgba(255,255,255,.06); overflow:hidden; margin:22px 0 10px; }
-        .progress span { display:block; height:100%; background:#45B8BD; border-radius:inherit; transition:width .2s linear; }
-        .helper { color:#81919D; font-size:11px; line-height:1.5; margin:0 0 18px; }
-        .actions { display:grid; gap:8px; }
-        .link-button { display:block; margin:13px auto 0; color:#778894; background:none; font-size:11px; }
-        footer {
-          display:flex; justify-content:space-between; gap:12px; padding:18px 4px 0;
-          color:#667681; font-size:10px; line-height:1.4;
+
+        .secondary:hover { background:rgba(37,214,162,.08); }
+
+        button:focus-visible {
+          outline:2px solid #3FB7FF;
+          outline-offset:3px;
         }
-        @media (max-width:520px) {
-          .nba-prototype { padding-top:18px; }
-          h1 { font-size:30px; }
-          footer { flex-direction:column; }
+
+        .timer {
+          margin-top:23px;
+          font-size:clamp(50px, 13vw, 76px);
+          font-weight:700;
+          letter-spacing:-.06em;
+          line-height:.95;
+          font-variant-numeric:tabular-nums;
+        }
+
+        .progress {
+          height:4px;
+          margin-top:19px;
+          overflow:hidden;
+          border-radius:99px;
+          background:rgba(232,240,247,.1);
+        }
+
+        .progress span {
+          display:block;
+          height:100%;
+          border-radius:inherit;
+          background:#25D6A2;
+          transition:width 1s linear;
+        }
+
+        .reading-actions {
+          display:grid;
+          gap:8px;
+          margin-top:18px;
+        }
+
+        .reading-actions .secondary { margin-top:0; }
+
+        .text-button {
+          border:0;
+          background:transparent;
+          color:rgba(232,240,247,.48);
+          font:700 11px var(--font-inter), Inter, sans-serif;
+          cursor:pointer;
+        }
+
+        .boundary {
+          margin-top:18px;
+          padding:10px 11px;
+          border:1px solid rgba(232,240,247,.08);
+          border-radius:10px;
+          background:rgba(7,20,38,.24);
+          color:rgba(232,240,247,.5);
+          font-size:11px;
+          line-height:1.5;
+        }
+
+        .cta-row {
+          display:grid;
+          gap:8px;
+          margin-top:22px;
+        }
+
+        .cta-row .primary { margin-top:0; }
+
+        .disclaimer {
+          margin-top:17px;
+          border-top:1px solid rgba(232,240,247,.09);
+        }
+
+        .disclaimer-toggle {
+          display:flex;
+          width:100%;
+          align-items:center;
+          justify-content:space-between;
+          gap:12px;
+          padding:13px 0 4px;
+          border:0;
+          background:transparent;
+          color:rgba(232,240,247,.46);
+          font:600 11px var(--font-inter), Inter, sans-serif;
+          text-align:left;
+          cursor:pointer;
+        }
+
+        .chevron {
+          display:inline-block;
+          font-size:15px;
+          line-height:1;
+          transition:transform .16s ease;
+        }
+
+        .chevron.open { transform:rotate(180deg); }
+
+        .disclaimer-body {
+          padding:8px 0 2px;
+          color:rgba(232,240,247,.5);
+          font-size:11px;
+          line-height:1.6;
+          animation:reveal .16s ease-out;
+        }
+
+        .disclaimer-body p { margin:0 0 8px; }
+        .disclaimer-body p:last-child { margin-bottom:0; }
+
+        .reading-info {
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          margin-top:8px;
+          color:rgba(232,240,247,.46);
+          font-size:11px;
+        }
+
+        .dashboard-note {
+          margin:10px 3px 0;
+          color:rgba(232,240,247,.3);
+          font-size:10px;
+        }
+
+        .prototype-controls {
+          display:flex;
+          flex-wrap:wrap;
+          align-items:center;
+          gap:6px;
+          margin-top:28px;
+          padding:10px;
+          border:1px dashed rgba(232,240,247,.1);
+          border-radius:12px;
+          color:rgba(232,240,247,.35);
+          font-size:10px;
+        }
+
+        .prototype-controls button {
+          border:1px solid rgba(232,240,247,.12);
+          border-radius:7px;
+          padding:5px 8px;
+          background:rgba(255,255,255,.035);
+          color:rgba(232,240,247,.55);
+          font-size:10px;
+          cursor:pointer;
+        }
+
+        @keyframes reveal {
+          from { opacity:0; transform:translateY(-4px); }
+          to { opacity:1; transform:translateY(0); }
+        }
+
+        @media (min-width:640px) {
+          .nba-prototype { padding:24px 18px 60px; }
+          .dashboard { padding-top:10vh; }
+          .nba-card { padding:27px; }
+          .primary, .secondary { width:auto; min-width:210px; padding-inline:22px; }
+          .reading-actions { display:flex; align-items:center; }
+          .reading-actions .secondary { flex:0 0 auto; }
         }
       `}</style>
     </main>
+  )
+}
+
+function ReadyState({
+  copy,
+  onAction,
+}: {
+  copy: (typeof actionCopy)[Action]
+  onAction: () => void
+}) {
+  return (
+    <>
+      <p className="stage-label">{copy.lead}</p>
+      <h1>{copy.title}</h1>
+      <p className="detail">{copy.detail}</p>
+      <div className="meta">
+        <span>Recommended {copy.metric}</span>
+        <span>Today</span>
+      </div>
+      <button className="primary" onClick={onAction}>{copy.cta} <span>→</span></button>
+    </>
+  )
+}
+
+function ReadingState({
+  seconds,
+  onDone,
+}: {
+  seconds: number
+  onDone: () => void
+}) {
+  const progress = Math.max(0, Math.min(100, (seconds / 720) * 100))
+
+  return (
+    <>
+      <p className="stage-label">Reading Motion</p>
+      <h2>Stay with the concept.</h2>
+      <div className="timer">{formatTime(seconds)}</div>
+      <div className="progress" aria-label={`${Math.round(progress)} percent of recommended reading time remaining`}>
+        <span style={{ width: `${progress}%` }} />
+      </div>
+      <div className="reading-info">
+        <span>Recommended: 12 min</span>
+        <span>Guide, not deadline</span>
+      </div>
+      <div className="reading-actions">
+        <button className="secondary" onClick={onDone}>I'm Done Reading</button>
+      </div>
+    </>
+  )
+}
+
+function RecommendedState({
+  onContinue,
+  onReady,
+}: {
+  onContinue: () => void
+  onReady: () => void
+}) {
+  return (
+    <>
+      <p className="stage-label">Recommended time reached</p>
+      <h2>You can keep reading.</h2>
+      <p className="support">
+        You've reached the recommended reading window. Continue if you need more time, or move on when you're ready.
+      </p>
+      <div className="boundary">
+        Recommended: 12 min • Extra reading continues without changing the recommendation.
+      </div>
+      <div className="cta-row">
+        <button className="primary" onClick={onContinue}>Continue Reading <span>→</span></button>
+        <button className="text-button" onClick={onReady}>I'm Ready →</button>
+      </div>
+    </>
+  )
+}
+
+function NextActionState({
+  copy,
+  onAction,
+}: {
+  copy: (typeof actionCopy)[Action]
+  onAction: () => void
+}) {
+  return (
+    <>
+      <p className="stage-label">{copy.lead}</p>
+      <h2>{copy.title}</h2>
+      <p className="support">{copy.detail}</p>
+      <div className="meta">
+        <span>{copy.metric}</span>
+        <span>Next in progression</span>
+      </div>
+      <button className="primary" onClick={onAction}>{copy.cta} <span>→</span></button>
+    </>
   )
 }
 
