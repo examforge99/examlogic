@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 
 type Stage = 'ready' | 'reading' | 'recommended' | 'next-action'
+
+type Notice = 'none' | 'reading-info'
 type Action = 'READ' | 'RECALL' | 'PRACTICE'
 
 const actionCopy: Record<Action, { lead: string; title: string; detail: string; metric: string; cta: string }> = {
@@ -33,6 +35,7 @@ export default function NBASessionPrototype() {
   const [action, setAction] = useState<Action>('READ')
   const [stage, setStage] = useState<Stage>('ready')
   const [disclaimerOpen, setDisclaimerOpen] = useState(false)
+  const [notice, setNotice] = useState<Notice>('none')
   const [seconds, setSeconds] = useState(12 * 60)
   const copy = actionCopy[action]
 
@@ -53,8 +56,13 @@ export default function NBASessionPrototype() {
   }, [seconds, stage])
 
   const startReading = () => {
-    setStage('reading')
-    setSeconds(12 * 60)
+    setDisclaimerOpen(false)
+    setNotice('reading-info')
+    window.setTimeout(() => {
+      setNotice('none')
+      setStage('reading')
+      setSeconds(12 * 60)
+    }, 2000)
   }
 
   const finishReading = () => {
@@ -75,6 +83,14 @@ export default function NBASessionPrototype() {
           <span className="brand">ExamLogic</span>
           <span className="context">Dashboard</span>
         </header>
+
+        {notice === 'reading-info' && (
+          <div className="reading-transition" role="status" aria-live="polite">
+            <span className="transition-kicker">Before you begin</span>
+            <strong>Your focus is set.</strong>
+            <p>ExamLogic provides the focus and recommended timing, not the learning material. Use your own textbook, notes, tutorial, or preferred study material.</p>
+          </div>
+        )}
 
         <article className="nba-card" aria-label="Next Best Action">
           <div className="card-topline">
@@ -106,14 +122,15 @@ export default function NBASessionPrototype() {
               <button
                 className="disclaimer-toggle"
                 aria-expanded={disclaimerOpen}
+                aria-controls="nba-disclaimer"
                 onClick={() => setDisclaimerOpen((open) => !open)}
               >
-                <span>About recommended reading time</span>
+                <span className="disclaimer-label"><span className="info-mark">i</span> About this recommendation</span>
                 <span className={`chevron ${disclaimerOpen ? 'open' : ''}`}>⌄</span>
               </button>
 
               {disclaimerOpen && (
-                <div className="disclaimer-body">
+                <div id="nba-disclaimer" className="disclaimer-body">
                   <p>
                     The recommended time gives you a focused window for this concept. It is not a deadline or a measure of mastery.
                   </p>
@@ -351,6 +368,28 @@ export default function NBASessionPrototype() {
 
         .cta-row .primary { margin-top:0; }
 
+        .reading-transition {
+          position:relative;
+          margin-bottom:12px;
+          padding:16px 17px;
+          border:1px solid rgba(37,214,162,.28);
+          border-radius:16px;
+          background:rgba(16,42,67,.96);
+          box-shadow:0 18px 45px rgba(0,0,0,.22);
+          animation:transitionIn .22s ease-out;
+        }
+        .transition-kicker {
+          display:block;
+          margin-bottom:5px;
+          color:#25D6A2;
+          font-size:9px;
+          font-weight:800;
+          letter-spacing:.14em;
+          text-transform:uppercase;
+        }
+        .reading-transition strong { display:block; font-size:15px; letter-spacing:-.02em; }
+        .reading-transition p { margin:6px 0 0; color:rgba(232,240,247,.55); font-size:11px; line-height:1.55; }
+
         .disclaimer {
           margin-top:17px;
           border-top:1px solid rgba(232,240,247,.09);
@@ -371,6 +410,12 @@ export default function NBASessionPrototype() {
           cursor:pointer;
         }
 
+        .disclaimer-label { display:flex; align-items:center; gap:7px; }
+        .info-mark {
+          display:inline-flex; align-items:center; justify-content:center;
+          width:15px; height:15px; border:1px solid rgba(232,240,247,.25); border-radius:50%;
+          font-size:9px; font-weight:800;
+        }
         .chevron {
           display:inline-block;
           font-size:15px;
@@ -427,6 +472,11 @@ export default function NBASessionPrototype() {
           color:rgba(232,240,247,.55);
           font-size:10px;
           cursor:pointer;
+        }
+
+        @keyframes transitionIn {
+          from { opacity:0; transform:translateY(-8px); }
+          to { opacity:1; transform:translateY(0); }
         }
 
         @keyframes reveal {
