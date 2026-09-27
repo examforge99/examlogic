@@ -58,11 +58,11 @@ export default function NBASessionPrototype() {
   const startReading = () => {
     setDisclaimerOpen(false)
     setNotice('reading-info')
+    setStage('reading')
+    setSeconds(12 * 60)
     window.setTimeout(() => {
       setNotice('none')
-      setStage('reading')
-      setSeconds(12 * 60)
-    }, 3000)
+    }, 7000)
   }
 
   const finishReading = () => {
