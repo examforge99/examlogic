@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 
 type Stage = 'intro' | 'reading' | 'reading-complete' | 'next-action' | 'boundary'
