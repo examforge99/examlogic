@@ -86,9 +86,11 @@ export default function NBASessionPrototype() {
 
         {notice === 'reading-info' && (
           <div className="reading-transition" role="status" aria-live="polite">
-            <span className="transition-kicker">Before you begin</span>
-            <strong>Your focus is set.</strong>
-            <p>ExamLogic provides the focus and recommended timing, not the learning material. Use your own textbook, notes, tutorial, or preferred study material.</p>
+            <div className="transition-inner">
+              <span className="transition-kicker">Before you begin</span>
+              <strong>Your focus is set.</strong>
+              <p>ExamLogic provides the focus and recommended timing, not the learning material. Use your own textbook, notes, tutorial, or preferred study material.</p>
+            </div>
           </div>
         )}
 
@@ -369,14 +371,25 @@ export default function NBASessionPrototype() {
         .cta-row .primary { margin-top:0; }
 
         .reading-transition {
-          position:relative;
-          margin-bottom:12px;
+          position:fixed;
+          z-index:50;
+          top:0;
+          left:0;
+          right:0;
+          display:flex;
+          justify-content:center;
+          pointer-events:none;
+          animation:dropFromTop 3s cubic-bezier(.22,.75,.2,1) forwards;
+        }
+
+        .transition-inner {
+          width:min(100% - 28px, 620px);
+          margin-top:14px;
           padding:16px 17px;
           border:1px solid rgba(37,214,162,.28);
           border-radius:16px;
-          background:rgba(16,42,67,.96);
-          box-shadow:0 18px 45px rgba(0,0,0,.22);
-          animation:transitionIn .22s ease-out;
+          background:rgba(16,42,67,.98);
+          box-shadow:0 18px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
         }
         .transition-kicker {
           display:block;
@@ -474,9 +487,11 @@ export default function NBASessionPrototype() {
           cursor:pointer;
         }
 
-        @keyframes transitionIn {
-          from { opacity:0; transform:translateY(-8px); }
-          to { opacity:1; transform:translateY(0); }
+        @keyframes dropFromTop {
+          0% { opacity:0; transform:translateY(-110%); }
+          12% { opacity:1; transform:translateY(0); }
+          82% { opacity:1; transform:translateY(0); }
+          100% { opacity:0; transform:translateY(-110%); }
         }
 
         @keyframes reveal {
