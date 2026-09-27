@@ -62,7 +62,7 @@ export default function NBASessionPrototype() {
       setNotice('none')
       setStage('reading')
       setSeconds(12 * 60)
-    }, 2000)
+    }, 3000)
   }
 
   const finishReading = () => {
