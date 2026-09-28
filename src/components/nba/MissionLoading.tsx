@@ -2,12 +2,12 @@
 
 export default function MissionLoading() {
   return (
-    <div className='nba-card'>
+    <div className='nba-card mission-loading-card' aria-label='Loading today’s mission' aria-busy='true'>
       <div className='card-topline'>
         <span className='identity-tag nba-tag'>Today’s Mission</span>
         <span className='skeleton skeleton-subject' />
       </div>
-      <div className='loading-state' aria-label='Loading today’s mission' aria-busy='true'>
+      <div className='loading-state'>
         <div className='skeleton skeleton-topic' />
         <div className='skeleton skeleton-title' />
         <div className='skeleton skeleton-title short' />
