@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { ChevronDown, Clock3 } from 'lucide-react'
+import MissionLoading from './MissionLoading'
+import MissionEmpty from './MissionEmpty'
+import MissionError from './MissionError'
+import MissionDisclaimer from './MissionDisclaimer'
 
 type Action = 'READ' | 'RECALL' | 'PRACTICE' | 'REVIEW' | 'DRILL' | 'RELEARN'
 
@@ -202,34 +206,15 @@ export default function TodayMission() {
     setSelectedSubjectId(subjectId); setSubjectOpen(false); setStage('ready')
   }
 
-  if (stage === 'loading') return (
-    <MissionShell>
-      <MissionCard>
-        <div className='card-topline'>
-          <span className='identity-tag nba-tag'>Today’s Mission</span>
-          <span className='skeleton skeleton-subject' />
-        </div>
-        <div className='loading-state' aria-label='Loading today’s mission' aria-busy='true'>
-          <div className='skeleton skeleton-topic' />
-          <div className='skeleton skeleton-title' />
-          <div className='skeleton skeleton-title short' />
-          <div className='skeleton-row'>
-            <span className='skeleton skeleton-meta' />
-            <span className='skeleton skeleton-meta small' />
-          </div>
-          <span className='skeleton skeleton-button' />
-        </div>
-      </MissionCard>
-    </MissionShell>
-  )
-  if (stage === 'error') return <MissionShell><MissionCard><p className='stage-label'>Today’s Mission</p><h2>We couldn’t load the mission.</h2><p className='support mission-error'>{error}</p><button className='primary' onClick={() => void loadBatch()}>Try Again <span>→</span></button></MissionCard></MissionShell>
-  if (stage === 'complete') return <MissionShell><MissionCard><p className='stage-label'>Today’s Mission</p><h2>This NBA batch is complete.</h2><p className='support'>Your scheduled work is complete. You can keep going when you choose.</p><button className='primary' onClick={() => { setBoundaryResult({ completed: true, batch_completed: true }); setStage('boundary') }}>Continue <span>→</span></button></MissionCard></MissionShell>
+  if (stage === 'loading') return <MissionShell><MissionLoading /></MissionShell>
+  if (stage === 'error') return <MissionShell><MissionError error={error} onRetry={() => void loadBatch()} /></MissionShell>
+  if (stage === 'complete') return <MissionShell><MissionEmpty onContinue={() => { setBoundaryResult({ completed: true, batch_completed: true }); setStage('boundary') }} /></MissionShell>
 
   const subjectLabel = selectedSubject?.subject_name ?? selectedSubject?.subject_id ?? 'Subject'
 
   return (
     <MissionShell>
-      {notice && <div className='reading-transition' role='status' aria-live='polite'><div className='transition-inner'><span className='transition-kicker'>Before you begin</span><strong>Your focus is set.</strong><p>ExamLogic provides the focus and recommended timing, not the learning material. Use your own textbook, notes, tutorial, or preferred study material.</p></div></div>}
+      <MissionDisclaimer open={notice} />
       <MissionCard>
         <div className='card-topline'>
           <span className='identity-tag nba-tag'>Today’s Mission</span>
