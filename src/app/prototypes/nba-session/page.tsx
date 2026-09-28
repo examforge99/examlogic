@@ -166,7 +166,7 @@ export default function NBASessionPrototype() {
             radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
             #071426;
           color:#E8F0F7;
-          font-family:var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-family:Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .dashboard { width:min(100%, 620px); margin:0 auto; padding-top:5vh; }
@@ -181,7 +181,7 @@ export default function NBASessionPrototype() {
 
         .brand {
           color:#E8F0F7;
-          font-family:var(--font-geist-sans), Inter, sans-serif;
+          font-family:"Space Grotesk", Inter, "Segoe UI", system-ui, sans-serif;
           font-size:16px;
           font-weight:700;
           letter-spacing:-.025em;
@@ -193,7 +193,7 @@ export default function NBASessionPrototype() {
           position:relative;
           overflow:hidden;
           padding:21px;
-          border:1px solid rgba(63,183,255,.34);
+          border:1px solid rgba(63,183,255,.24);
           border-radius:20px;
           background:
             linear-gradient(145deg, rgba(14,43,73,.99), rgba(17,55,91,.99) 62%, rgba(20,65,105,.99));
@@ -283,7 +283,7 @@ export default function NBASessionPrototype() {
           border-radius:12px;
           background:#25D6A2;
           color:#06182A;
-          font:800 13px var(--font-inter), Inter, sans-serif;
+          font:800 13px Inter, "Segoe UI", system-ui, sans-serif;
           cursor:pointer;
         }
 
@@ -299,7 +299,7 @@ export default function NBASessionPrototype() {
           border-radius:12px;
           background:transparent;
           color:#C5E9FF;
-          font:800 13px var(--font-inter), Inter, sans-serif;
+          font:800 13px Inter, "Segoe UI", system-ui, sans-serif;
           cursor:pointer;
         }
 
@@ -347,7 +347,7 @@ export default function NBASessionPrototype() {
           border:0;
           background:transparent;
           color:rgba(232,240,247,.48);
-          font:700 11px var(--font-inter), Inter, sans-serif;
+          font:700 11px Inter, "Segoe UI", system-ui, sans-serif;
           cursor:pointer;
         }
 
@@ -418,7 +418,7 @@ export default function NBASessionPrototype() {
           border:0;
           background:transparent;
           color:rgba(232,240,247,.46);
-          font:600 11px var(--font-inter), Inter, sans-serif;
+          font:600 11px Inter, "Segoe UI", system-ui, sans-serif;
           text-align:left;
           cursor:pointer;
         }
