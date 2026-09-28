@@ -7,6 +7,7 @@ import MissionLoading from './MissionLoading'
 import MissionEmpty from './MissionEmpty'
 import MissionError from './MissionError'
 import MissionDisclaimer from './MissionDisclaimer'
+import MissionReading from './MissionReading'
 
 type Action = 'READ' | 'RECALL' | 'PRACTICE' | 'REVIEW' | 'DRILL' | 'RELEARN'
 
@@ -223,7 +224,7 @@ export default function TodayMission() {
             {subjectOpen && <div className='subject-menu'>{subjects.map((subject) => <button key={subject.subject_id} className={subject.subject_id === selectedSubjectId ? 'subject-option active' : 'subject-option'} onClick={() => selectSubject(subject.subject_id)}>{subject.subject_name ?? subject.subject_id}</button>)}</div>}
           </div>
         </div>
-        {stage === 'reading' && currentMission ? <ReadingState seconds={seconds} estimatedMinutes={currentMission.estimated_minutes} onDone={finishReading} />
+        {stage === 'reading' && currentMission ? <MissionReading seconds={seconds} estimatedMinutes={currentMission.estimated_minutes} onDone={finishReading} />
           : stage === 'recommended' ? <RecommendedState onContinue={startReading} onReady={finishReading} />
           : stage === 'next-action' && currentMission ? <NextActionState conceptName={currentMission.concept_name} onAction={() => void completeMission()} busy={busy} />
           : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
@@ -244,11 +245,6 @@ function MissionShell({ children }: { children: ReactNode }) {
 }
 
 function MissionCard({ children }: { children: React.ReactNode }) { return <article className='mission-card' aria-label='Today’s Mission'>{children}</article> }
-
-function ReadingState({ seconds, estimatedMinutes, onDone }: { seconds: number; estimatedMinutes: number; onDone: () => void }) {
-  const progress = Math.max(0, Math.min(100, (seconds / (estimatedMinutes * 60)) * 100))
-  return <><p className='stage-label'>Reading this concept</p><h2>Stay with the concept.</h2><div className='timer'>{formatTime(seconds)}</div><div className='progress'><span style={{ width: progress + '%' }} /></div><div className='reading-info'><span>Recommended: {estimatedMinutes} min</span><span>Guide, not deadline</span></div><div className='reading-actions'><button className='secondary' onClick={onDone}>I’m Done Reading</button></div></>
-}
 
 function RecommendedState({ onContinue, onReady }: { onContinue: () => void; onReady: () => void }) {
   return <><p className='stage-label'>Recommended time reached</p><h2>You can keep reading.</h2><p className='support'>You’ve reached the recommended reading window. Continue if you need more time, or move on when you’re ready.</p><div className='boundary'>Recommended window reached • Extra reading continues without changing the recommendation.</div><div className='cta-row'><button className='primary' onClick={onContinue}>Continue Reading <span>→</span></button><button className='text-button' onClick={onReady}>I’m Ready →</button></div></>
