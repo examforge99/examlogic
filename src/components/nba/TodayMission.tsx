@@ -217,16 +217,21 @@ export default function TodayMission() {
         setStage('boundary')
       } else {
         const remaining = missions.some((mission) => !done.has(mission.concept_window_id))
-        const subjectRemaining = missions.some(
+        const sameSubjectRemaining = missions.some(
           (mission) => mission.subject_id === currentMission.subject_id && !done.has(mission.concept_window_id),
         )
 
         if (!remaining) {
           setStage('complete')
+        } else if (sameSubjectRemaining) {
+          // There is another concept in the selected subject, so surface it immediately.
+          setBoundaryResult(null)
+          setStage('ready')
         } else {
+          // This subject is exhausted, but another subject still has work.
           setBoundaryResult({
             ...result,
-            subject_completed: !subjectRemaining,
+            subject_completed: true,
           })
           setStage('boundary')
         }
