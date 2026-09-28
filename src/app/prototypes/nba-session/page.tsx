@@ -99,8 +99,8 @@ export default function NBASessionPrototype() {
 
         <article className="nba-card" aria-label="Next Best Action">
           <div className="card-topline">
-            <span className="eyebrow">{stage === 'reading' ? 'Reading now' : 'Next move'}</span>
-            <span className="subject">Physics</span>
+            <span className="identity-tag nba-tag">NBA</span>
+            <span className="identity-tag subject-tag">PHYSICS</span>
           </div>
 
           {stage === 'reading' ? (
@@ -220,14 +220,27 @@ export default function NBASessionPrototype() {
           margin-bottom:24px;
         }
 
-        .eyebrow {
-          margin:0;
-          color:var(--color-primary);
+        .identity-tag {
+          display:inline-flex;
+          align-items:center;
+          min-height:28px;
+          padding:0 11px;
+          border:1px solid rgba(255,255,255,.16);
+          border-radius:8px;
+          background:rgba(255,255,255,.025);
+          color:var(--color-text-primary);
           font-size:10px;
           font-weight:800;
-          letter-spacing:.15em;
+          letter-spacing:.13em;
           line-height:1;
-          text-transform:uppercase;
+        }
+        .nba-tag {
+          border-color:rgba(63,183,255,.34);
+          background:rgba(63,183,255,.06);
+          color:var(--color-primary);
+        }
+        .subject-tag {
+          border-color:rgba(255,255,255,.13);
         }
 
         .subject { color:rgba(232,240,247,.55); font-size:11px; font-weight:700; }
