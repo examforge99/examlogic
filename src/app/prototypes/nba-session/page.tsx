@@ -101,7 +101,7 @@ export default function NBASessionPrototype() {
           </div>
         )}
 
-        <article className="nba-card" aria-label="Next Best Action">
+        <article className="nba-card" aria-label="Today's Mission">
           <div className="card-topline">
             <span className="identity-tag nba-tag">NBA</span>
             <span className="identity-tag subject-tag">PHYSICS</span>
