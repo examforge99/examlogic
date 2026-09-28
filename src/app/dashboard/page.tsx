@@ -14,7 +14,7 @@ export default function DashboardPage() {
         avatarInitial="V"
       />
 
-      <main className="px-4 pt-6 pb-28">
+      <main className="px-4 pt-2 pb-28">
         <TodayMission />
       </main>
 
