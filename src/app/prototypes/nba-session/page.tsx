@@ -1,6 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type Stage = 'ready' | 'reading' | 'recommended' | 'next-action'
 
