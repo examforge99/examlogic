@@ -791,26 +791,55 @@ function BoundaryStateView({
     )
   }
 
-  const reasons = [
-    timeBoundary ? 'Your planned study time for this session has been reached.' : null,
-    topicBoundary ? 'You’ve reached the end of this topic.' : null,
-  ].filter(Boolean)
-  const reason = reasons.length ? reasons.join(' ') : batchCompleted ? 'All of today’s planned concepts are completed.' : 'More eligible work is available in today’s scheduled scope.'
-  const nextStep = batchCompleted
-    ? 'You can continue to increase your growth and improvement to build more progress.'
-    : 'There’s still eligible work in today’s schedule. Continue to move to the next concept.'
+  if (batchCompleted) {
+    return (
+      <>
+        <p className='stage-label boundary-label'>Today’s goal complete</p>
+        <h2 className='boundary-title'>You’ve completed today’s goal.</h2>
+        <div className='boundary-message'>
+          <strong>All of today’s planned concepts are completed.</strong>
+          <span>You can continue to increase your growth and improvement to build more progress.</span>
+        </div>
+        <div className='cta-row'>
+          <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
+          <button className='secondary boundary-end' onClick={onEnd} disabled={busy}>End session</button>
+        </div>
+      </>
+    )
+  }
 
-  return (
-    <>
-      <p className='stage-label boundary-label'>{batchCompleted ? 'Today’s goal complete' : 'Session boundary'}</p>
-      <h2 className='boundary-title'>{batchCompleted ? 'You’ve completed today’s goal.' : 'You’ve reached a stopping point.'}</h2>
-      <div className='boundary-message'><strong>{reason}</strong><span>{nextStep}</span></div>
-      <div className='cta-row'>
-        <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
-        <button className='secondary boundary-end' onClick={onEnd} disabled={busy}>End session</button>
-      </div>
-    </>
-  )
+  if (timeBoundary) {
+    return (
+      <>
+        <p className='stage-label boundary-label'>Study time reached</p>
+        <h2 className='boundary-title'>You’ve reached your planned study time.</h2>
+        <div className='boundary-message'>
+          <strong>You can end your session here or continue if you still want to study.</strong>
+        </div>
+        <div className='cta-row'>
+          <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
+          <button className='secondary boundary-end' onClick={onEnd} disabled={busy}>End session</button>
+        </div>
+      </>
+    )
+  }
+
+  if (topicBoundary) {
+    return (
+      <>
+        <p className='stage-label boundary-label'>Topic completed</p>
+        <h2 className='boundary-title'>You’ve reached the end of this topic.</h2>
+        <div className='boundary-message'>
+          <strong>Continue to the next available concept.</strong>
+        </div>
+        <div className='cta-row'>
+          <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
+        </div>
+      </>
+    )
+  }
+
+  return null
 }
 
 function formatTime(seconds: number) { const minutes = Math.floor(seconds / 60); const secs = seconds % 60; return String(minutes).padStart(2,'0') + ':' + String(secs).padStart(2,'0') }
