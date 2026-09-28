@@ -1,13 +1,10 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
-import EmptyState from '@/components/ui/EmptyState'
+import TodayMission from '@/components/nba/TodayMission'
 
 export default function DashboardPage() {
-  const router = useRouter()
-
   return (
     <div style={{ backgroundColor: '#071426' }} className="min-h-screen">
       <TopBar
@@ -17,16 +14,8 @@ export default function DashboardPage() {
         avatarInitial="V"
       />
 
-      <main className="px-4 pt-6 pb-28 flex flex-col items-center justify-center min-h-[75vh]">
-        <EmptyState
-          icon="📚"
-          title="No sessions yet"
-          description="You haven't started any practice sessions. Begin your first session to track your progress."
-          action={{
-            label: 'Start Practice',
-            onClick: () => router.push('/practice'),
-          }}
-        />
+      <main className="px-4 pt-6 pb-28">
+        <TodayMission />
       </main>
 
       <BottomNav />
