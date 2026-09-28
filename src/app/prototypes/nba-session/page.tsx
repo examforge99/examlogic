@@ -166,7 +166,7 @@ export default function NBASessionPrototype() {
             radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
             #071426;
           color:var(--color-text-primary);
-          font-family:Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family:${inter.style.fontFamily};
         }
 
         .dashboard { width:min(100%, 620px); margin:0 auto; padding-top:5vh; }
@@ -181,7 +181,7 @@ export default function NBASessionPrototype() {
 
         .brand {
           color:#E8F0F7;
-          font-family:"Space Grotesk", Inter, "Segoe UI", system-ui, sans-serif;
+          font-family:${inter.style.fontFamily};
           font-size:16px;
           font-weight:700;
           letter-spacing:-.025em;
@@ -238,7 +238,7 @@ export default function NBASessionPrototype() {
 
         h1, h2 {
           margin:0;
-          font-family:var(--font-inter), system-ui, -apple-system, sans-serif;
+          font-family:${inter.style.fontFamily};
           font-weight:700;
           letter-spacing:-.045em;
           line-height:1.04;
@@ -280,7 +280,7 @@ export default function NBASessionPrototype() {
           border-radius:var(--radius);
           background:var(--color-primary);
           color:#06182A;
-          font:700 13px var(--font-inter), system-ui, sans-serif;
+          font:700 13px ${inter.style.fontFamily}, system-ui, sans-serif;
           cursor:pointer;
         }
 
