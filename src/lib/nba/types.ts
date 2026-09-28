@@ -12,6 +12,7 @@ export interface BoundaryState {
 }
 
 export interface NBAOutput {
+  subject_name?: string;
   subject_id: string;
   topic_id: string;
   concept_window_id: string;
