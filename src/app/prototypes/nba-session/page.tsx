@@ -37,8 +37,7 @@ const actionCopy: Record<Action, { lead: string; title: string; detail: string; 
 export default function NBASessionPrototype() {
   const [action, setAction] = useState<Action>('READ')
   const [stage, setStage] = useState<Stage>('ready')
-  const [disclaimerOpen, setDisclaimerOpen] = useState(false)
-  const [notice, setNotice] = useState<Notice>('none')
+    const [notice, setNotice] = useState<Notice>('none')
   const [seconds, setSeconds] = useState(12 * 60)
   const copy = actionCopy[action]
 
@@ -59,13 +58,12 @@ export default function NBASessionPrototype() {
   }, [seconds, stage])
 
   const startReading = () => {
-    setDisclaimerOpen(false)
     setNotice('reading-info')
     setStage('reading')
     setSeconds(12 * 60)
     window.setTimeout(() => {
       setNotice('none')
-    }, 7000)
+    }, 5000)
   }
 
   const finishReading = () => {
@@ -122,30 +120,6 @@ export default function NBASessionPrototype() {
             <ReadyState copy={copy} onAction={primaryAction} />
           )}
 
-          {stage !== 'reading' && (
-            <div className="disclaimer">
-              <button
-                className="disclaimer-toggle"
-                aria-expanded={disclaimerOpen}
-                aria-controls="nba-disclaimer"
-                onClick={() => setDisclaimerOpen((open) => !open)}
-              >
-                <span className="disclaimer-label"><span className="info-mark">i</span> About this recommendation</span>
-                <span className={`chevron ${disclaimerOpen ? 'open' : ''}`}>⌄</span>
-              </button>
-
-              {disclaimerOpen && (
-                <div id="nba-disclaimer" className="disclaimer-body">
-                  <p>
-                    The recommended time gives you a focused window for this concept. It is not a deadline or a measure of mastery.
-                  </p>
-                  <p>
-                    ExamLogic provides the focus and recommended timing, not the learning material. Use your textbook, notes, tutorial, or preferred study material.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </article>
 
         <p className="dashboard-note">
