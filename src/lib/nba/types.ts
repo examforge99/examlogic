@@ -15,6 +15,7 @@ export interface NBAOutput {
   subject_name?: string;
   subject_id: string;
   topic_id: string;
+  topic_name?: string;
   concept_window_id: string;
   concept_name: string;
   concept_progression_order: number;
