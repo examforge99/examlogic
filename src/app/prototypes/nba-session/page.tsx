@@ -289,7 +289,7 @@ export default function NBASessionPrototype() {
           margin-top:23px;
           border:1px solid var(--color-primary);
           border-radius:var(--radius);
-          background:var(--color-primary);
+          background: linear-gradient(105deg, #2766F3 0%, #1E8CEB 52%, #1ED0A7 100%;
           color:#06182A;
           font:700 13px ${inter.style.fontFamily}, system-ui, sans-serif;
           cursor:pointer;
@@ -297,7 +297,7 @@ export default function NBASessionPrototype() {
 
         .primary span { margin-left:7px; }
 
-        .primary:hover { filter:brightness(1.06); }
+        .primary:hover { filter: brightness(1.06); }
 
         .secondary {
           width:100%;
@@ -441,7 +441,7 @@ export default function NBASessionPrototype() {
           display:inline-block;
           font-size:15px;
           line-height:1;
-          transition:transform .16s ease;
+          transition: transform .16s ease, filter .16s ease;
         }
 
         .chevron.open { transform:rotate(180deg); }
