@@ -10,6 +10,7 @@ type Mission = {
   subject_id: string
   subject_name?: string
   topic_id: string
+  topic_name?: string
   concept_window_id: string
   concept_name: string
   concept_progression_order: number
@@ -177,7 +178,7 @@ export default function TodayMission() {
           : stage === 'next-action' && currentMission ? <NextActionState conceptName={currentMission.concept_name} onAction={() => void completeMission()} busy={busy} />
           : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
           : currentMission ? <>
-              <div className='recommendation-row'><span className='recommendation-badge'><span className='pulse-dot' />{currentMission.concept_name}</span></div>
+              <div className='recommendation-row'><span className='recommendation-badge'><span className='pulse-dot' />{currentMission.topic_name ?? currentMission.concept_name}</span></div>
               <div className='recommendation-body'><div><span className='eyebrow'>{copy.lead}</span><h1>{currentMission.action_type === 'READ' ? 'Read ' : ''}{currentMission.concept_name}</h1><p className='detail'>{currentMission.concept_description ?? copy.detail}</p><div className='meta'><span className='meta-time'><Clock3 size={13} strokeWidth={2} />{currentMission.estimated_minutes} min</span><span>{copy.secondaryMetric}</span></div></div></div>
               <button className='primary' onClick={startReading}>{copy.cta} <span>→</span></button>
             </> : null}
