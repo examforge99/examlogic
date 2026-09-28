@@ -117,6 +117,7 @@ async function returnBatch(
   batch: NbaBatch,
   conceptById: Map<string, Concept>,
   phase: Phase,
+  subjectNameById: Map<string, string>,
 ) {
   const { data, error } = await db
     .from('nba_log')
@@ -127,13 +128,14 @@ async function returnBatch(
 
   return ((data ?? []) as NbaLog[])
     .filter(log => log.concept_window_id && conceptById.has(log.concept_window_id))
-    .map(log => toOutput(log, conceptById.get(log.concept_window_id!)!, phase));
+    .map(log => toOutput(log, conceptById.get(log.concept_window_id!)!, phase, subjectNameById.get(log.subject_id)));
 }
 
 function toOutput(
   log: NbaLog,
   concept: Concept,
   phase: Phase,
+  subjectName?: string,
 ): NBAOutput {
   const estimated_minutes = estimatedMinutes(concept, log.action_type);
   const boundary = log.boundary_state ?? {
@@ -145,7 +147,7 @@ function toOutput(
 
   return {
     subject_id: log.subject_id,
-    subject_name: subjectNameById.get(log.subject_id) ?? undefined,
+    subject_name: subjectName,
     topic_id: log.topic_id ?? concept.topic_id,
     concept_window_id: concept.id,
     concept_name: concept.name,
@@ -284,7 +286,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
   const conceptById = new Map(conceptRows.map(concept => [concept.id, concept]));
 
   if (activeBatch) {
-    return returnBatch(db, activeBatch, conceptById, phase);
+    return returnBatch(db, activeBatch, conceptById, phase, subjectNameById);
   }
 
   const completedConcepts = new Set(
@@ -439,7 +441,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
   if (batchError) {
     const racedBatch = await getActiveBatch(db, user_id, date);
-    if (racedBatch) return returnBatch(db, racedBatch, conceptById, phase);
+    if (racedBatch) return returnBatch(db, racedBatch, conceptById, phase, subjectNameById);
     throw batchError;
   }
 
