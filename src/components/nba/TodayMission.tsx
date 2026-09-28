@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { ChevronDown, Clock3 } from 'lucide-react'
 
@@ -50,6 +50,7 @@ export default function TodayMission() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [apiLoading, setApiLoading] = useState(false)
+  const readingStartedAt = useRef<number | null>(null)
 
   const subjects = useMemo(() => {
     const seen = new Set<string>()
@@ -142,7 +143,7 @@ export default function TodayMission() {
   }
   function startReading() {
     if (!currentMission) return
-    setNotice(true); setStage('reading'); setSeconds(Math.max(1, currentMission.estimated_minutes) * 60)
+    setNotice(true); readingStartedAt.current = Date.now(); setStage('reading'); setSeconds(Math.max(1, currentMission.estimated_minutes) * 60)
     window.setTimeout(() => setNotice(false), 4000)
   }
 
@@ -155,11 +156,12 @@ export default function TodayMission() {
       const response = await fetch('/api/nba/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ concept_window_id: currentMission.concept_window_id, action_type: currentMission.action_type }),
+        body: JSON.stringify({ concept_window_id: currentMission.concept_window_id, action_type: currentMission.action_type, time_spent_seconds: readingStartedAt.current ? Math.max(0, Math.floor((Date.now() - readingStartedAt.current) / 1000)) : 0 }),
       })
       const result = await response.json() as CompletionResult & { error?: string }
       if (!response.ok) throw new Error(result.error ?? 'Failed to complete this mission.')
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); setBoundaryResult(result)
+      readingStartedAt.current = null
       if (result.batch_completed || currentMission.time_boundary_reached || currentMission.topic_concept_boundary_reached) setStage('boundary')
       else advanceWithinBatch(done)
     } catch (err) {
