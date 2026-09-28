@@ -197,7 +197,7 @@ export default function NBASessionPrototype() {
           overflow:hidden;
           padding:21px;
           border:1px solid var(--color-border);
-          border-radius:20px;
+          border-radius:18px;
           background:var(--color-surface);
           box-shadow:var(--shadow-card);
         }
