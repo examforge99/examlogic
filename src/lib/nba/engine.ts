@@ -326,7 +326,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     return null;
   };
 
-  const schedule: NBAOutput[] = [...scheduledExisting];
+  const schedule: NBAOutput[] = [];
   let rolledMinutes = 0;
   let madeProgress = true;
 
@@ -396,24 +396,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
       };
 
       schedule.push(output);
-
-      if (!todayKeys.has(logKey(concept.id, action))) {
-        const { error: logError } = await db.from('nba_log').insert({
-          user_id,
-          subject_id: subjectId,
-          topic_id: topic.id,
-          concept_window_id: concept.id,
-          action_type: action,
-          phase,
-          fired_at: new Date().toISOString(),
-          boundary_state: boundary,
-        });
-
-        if (logError) throw logError;
-        todayKeys.add(logKey(concept.id, action));
-      }
-
-      completedConcepts.add(concept.id);
+      reservedConcepts.add(concept.id);
       madeProgress = true;
     }
   }
