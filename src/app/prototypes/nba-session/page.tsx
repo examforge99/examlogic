@@ -196,9 +196,7 @@ export default function NBASessionPrototype() {
           border:1px solid var(--color-border);
           border-radius:20px;
           background:var(--color-surface);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.07),
-            0 22px 55px rgba(0,0,0,.22);
+          box-shadow:var(--shadow-card);
         }
 
         .nba-card::before {
@@ -278,11 +276,11 @@ export default function NBASessionPrototype() {
           width:100%;
           min-height:50px;
           margin-top:23px;
-          border:1px solid #25D6A2;
-          border-radius:12px;
-          background:#25D6A2;
+          border:1px solid var(--color-primary);
+          border-radius:var(--radius);
+          background:var(--color-primary);
           color:#06182A;
-          font:800 13px Inter, "Segoe UI", system-ui, sans-serif;
+          font:700 13px var(--font-inter), system-ui, sans-serif;
           cursor:pointer;
         }
 
@@ -322,7 +320,7 @@ export default function NBASessionPrototype() {
           height:4px;
           margin-top:19px;
           overflow:hidden;
-          border-radius:99px;
+          border-radius:999px;
           background:rgba(232,240,247,.1);
         }
 
@@ -330,7 +328,7 @@ export default function NBASessionPrototype() {
           display:block;
           height:100%;
           border-radius:inherit;
-          background:#25D6A2;
+          background:var(--color-primary);
           transition:width 1s linear;
         }
 
@@ -354,7 +352,7 @@ export default function NBASessionPrototype() {
           margin-top:18px;
           padding:10px 11px;
           border:1px solid rgba(232,240,247,.08);
-          border-radius:10px;
+          border-radius:var(--radius-sm);
           background:rgba(7,20,38,.24);
           color:rgba(232,240,247,.5);
           font-size:11px;
@@ -386,7 +384,7 @@ export default function NBASessionPrototype() {
           margin-top:14px;
           padding:16px 17px;
           border:1px solid var(--color-border);
-          border-radius:16px;
+          border-radius:var(--radius-lg);
           background:var(--color-surface);
           box-shadow:0 18px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
         }
@@ -478,7 +476,7 @@ export default function NBASessionPrototype() {
 
         .prototype-controls button {
           border:1px solid rgba(232,240,247,.12);
-          border-radius:7px;
+          border-radius:var(--radius-sm);
           padding:5px 8px;
           background:rgba(255,255,255,.035);
           color:rgba(232,240,247,.55);
