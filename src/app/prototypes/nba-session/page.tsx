@@ -10,26 +10,32 @@ type Stage = 'ready' | 'reading' | 'recommended' | 'next-action'
 type Notice = 'none' | 'reading-info'
 type Action = 'READ' | 'RECALL' | 'PRACTICE'
 
-const actionCopy: Record<Action, { lead: string; title: string; detail: string; metric: string; cta: string }> = {
+const actionCopy: Record<Action, { lead: string; title: string; detail: string; reason: string; metric: string; secondaryMetric: string; cta: string }> = {
   READ: {
-    lead: 'Start here today.',
-    title: 'Read through Motion',
-    detail: 'Uniform motion • Displacement • Speed',
+    lead: 'Start with the concept',
+    title: 'Read Electromagnetic Induction',
+    detail: 'Key ideas, definitions, and relationships',
+    reason: 'This concept is next in your learning progression.',
     metric: '~12 min',
+    secondaryMetric: 'Guided reading',
     cta: 'Start Reading',
   },
   RECALL: {
-    lead: 'Done reading? Quick check.',
-    title: 'Recall Motion',
-    detail: 'Key ideas before you move on',
+    lead: 'Test what stuck',
+    title: 'Recall Electromagnetic Induction',
+    detail: 'Show-answer recall on the key ideas',
+    reason: 'You studied this recently. Let’s check what you can retrieve.',
     metric: '10 questions',
+    secondaryMetric: 'Recall',
     cta: 'Start Recall',
   },
   PRACTICE: {
-    lead: 'Time to test yourself.',
-    title: 'Practice Motion',
-    detail: '10 JAMB-style questions',
+    lead: 'Time to test yourself',
+    title: 'Practice Electromagnetic Induction',
+    detail: 'JAMB-style questions focused on this topic',
+    reason: 'Your accuracy in this topic has dropped recently.',
     metric: '10 questions',
+    secondaryMetric: 'Medium',
     cta: 'Start Practice',
   },
 }
@@ -116,8 +122,25 @@ export default function NBASessionPrototype() {
               copy={copy}
               onAction={primaryAction}
             />
+
           ) : (
-            <ReadyState copy={copy} onAction={primaryAction} />
+            <>
+              <div className="recommendation-row">
+                <span className="recommendation-badge"><span className="pulse-dot" />Recommended for you</span>
+              </div>
+              <div className="recommendation-body">
+                <div>
+                  <span className="eyebrow">{copy.lead}</span>
+                  <h1>{copy.title}</h1>
+                  <p className="detail">{copy.reason}</p>
+                  <div className="meta">
+                    <span>{copy.metric}</span>
+                    <span>{copy.secondaryMetric}</span>
+                  </div>
+                </div>
+                <div className="topic-visual" aria-hidden="true"><span className="orbit" /><span className="core" /><span className="spark" /></div>
+              </div>
+              <button className="primary" onClick={primaryAction}>{copy.cta} <span>→</span></button>
           )}
 
         </article>
@@ -185,6 +208,16 @@ export default function NBASessionPrototype() {
           height:1px;
           background:linear-gradient(90deg, transparent, rgba(63,183,255,.28), transparent);
         }
+
+        .recommendation-row { position:relative; z-index:1; }
+        .recommendation-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid rgba(240,201,79,.18); border-radius:10px; background:rgba(127,92,21,.18); color:#F0C94F; font-size:11px; font-weight:750; }
+        .pulse-dot { width:6px; height:6px; border-radius:50%; background:#F0C94F; box-shadow:0 0 12px rgba(240,201,79,.6); }
+        .recommendation-body { position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1fr) 160px; gap:20px; align-items:center; margin-top:20px; }
+        .eyebrow { display:block; margin-bottom:8px; color:rgba(232,240,247,.62); font-size:13px; }
+        .topic-visual { width:150px; height:150px; margin-left:auto; position:relative; border:1px solid rgba(130,92,255,.2); border-radius:50%; background:radial-gradient(circle,rgba(103,73,230,.18),transparent 68%); }
+        .orbit { position:absolute; inset:20px; border:1px solid rgba(150,120,255,.24); border-radius:50%; transform:rotate(35deg) scaleX(.65); }
+        .core { position:absolute; width:48px; height:60px; left:51px; top:46px; border:9px solid #8C68F6; border-top:0; border-radius:0 0 22px 22px; box-shadow:0 0 20px rgba(128,88,255,.35); }
+        .spark { position:absolute; width:5px; height:5px; right:28px; top:35px; border-radius:50%; background:#C5B2FF; box-shadow:0 0 10px #A27EFF; }
 
         .card-topline {
           display:flex;
@@ -485,6 +518,8 @@ export default function NBASessionPrototype() {
           from { opacity:0; transform:translateY(-4px); }
           to { opacity:1; transform:translateY(0); }
         }
+
+        @media (max-width:680px) { .recommendation-body { grid-template-columns:1fr; } .topic-visual { width:120px; height:120px; margin:8px 8px 0 auto; } .core { transform:scale(.78); transform-origin:center; left:36px; top:29px; } }
 
         @media (min-width:640px) {
           .nba-prototype { padding:24px 18px 60px; }
