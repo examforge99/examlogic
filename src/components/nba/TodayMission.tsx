@@ -49,6 +49,7 @@ export default function TodayMission() {
   const [boundaryResult, setBoundaryResult] = useState<CompletionResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [apiLoading, setApiLoading] = useState(false)
 
   const subjects = useMemo(() => {
     const seen = new Set<string>()
@@ -79,22 +80,66 @@ export default function TodayMission() {
     if (stage === 'reading' && seconds === 0) setStage('recommended')
   }, [seconds, stage])
 
+  const cacheKey = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    return `examlogic:nba:${today}`
+  }, [])
+
+  function readCachedBatch(): Mission[] | null {
+    try {
+      const raw = window.localStorage.getItem(cacheKey)
+      if (!raw) return null
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed as Mission[] : null
+    } catch {
+      return null
+    }
+  }
+
+  function writeCachedBatch(batch: Mission[]) {
+    try {
+      window.localStorage.setItem(cacheKey, JSON.stringify(batch))
+    } catch {
+      // Cache is an optimization. API remains authoritative.
+    }
+  }
+
+  function showBatch(next: Mission[]) {
+    setMissions(next)
+    setCompletedIds(new Set())
+    setBoundaryResult(null)
+    if (!next.length) {
+      setStage('complete')
+      return
+    }
+    setSelectedSubjectId((current) => next.some((mission) => mission.subject_id === current) ? current : next[0].subject_id)
+    setStage('ready')
+  }
+
   async function loadBatch() {
-    setStage('loading'); setError(null)
+    setError(null)
+    const cached = readCachedBatch()
+    if (cached?.length) {
+      showBatch(cached)
+    } else {
+      setStage('loading')
+    }
+
+    setApiLoading(true)
     try {
       const response = await fetch('/api/nba/fire', { method: 'POST', cache: 'no-store' })
       const data = await response.json()
       if (!response.ok) throw new Error(data?.error ?? 'Failed to load today’s mission.')
       const next = (data ?? []) as Mission[]
-      setMissions(next); setCompletedIds(new Set()); setBoundaryResult(null)
-      if (!next.length) { setStage('complete'); return }
-      setSelectedSubjectId(next[0].subject_id); setStage('ready')
+      writeCachedBatch(next)
+      showBatch(next)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load today’s mission.')
       setStage('error')
+    } finally {
+      setApiLoading(false)
     }
   }
-
   function startReading() {
     if (!currentMission) return
     setNotice(true); setStage('reading'); setSeconds(Math.max(1, currentMission.estimated_minutes) * 60)
@@ -140,9 +185,8 @@ export default function TodayMission() {
         const data = await response.json()
         if (!response.ok) throw new Error(data?.error ?? 'Failed to generate the next NBA batch.')
         const next = (data ?? []) as Mission[]
-        setMissions(next); setCompletedIds(new Set()); setBoundaryResult(null)
-        if (!next.length) { setStage('complete'); return }
-        setSelectedSubjectId(next[0].subject_id); setStage('ready')
+        writeCachedBatch(next)
+        showBatch(next)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to generate the next NBA batch.')
         setStage('error')
