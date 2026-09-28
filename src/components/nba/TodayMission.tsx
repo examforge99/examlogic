@@ -268,10 +268,7 @@ export default function TodayMission() {
 }
 
 function MissionShell({ children }: { children: ReactNode }) {
-  const styles = `hell({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <style jsx>{\`        .nba-prototype {
+  const styles = `        .nba-prototype {
           min-height:100vh;
           margin:0;
           padding:18px 14px 50px;
@@ -313,11 +310,7 @@ function MissionShell({ children }: { children: ReactNode }) {
         }
 
         .nba-card::before {
-          content:"\\`}</style>
-      <div className='nba-prototype'><div className='dashboard'>{children}</div></div>
-    </>
-  )
-}
+          content:"";
           position:absolute;
           top:0;
           left:10%;
