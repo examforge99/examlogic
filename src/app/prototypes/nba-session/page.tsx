@@ -126,7 +126,7 @@ export default function NBASessionPrototype() {
           ) : (
             <>
               <div className="recommendation-row">
-                <span className="recommendation-badge"><span className="pulse-dot" />Recommended for you</span>
+                <span className="recommendation-badge"><span className="pulse-dot" />Electromagnetic Induction</span>
               </div>
               <div className="recommendation-body">
                 <div>
