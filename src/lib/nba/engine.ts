@@ -47,13 +47,24 @@ type Day = {
   day_type: 'practice' | 'revision' | 'rest';
   scheduled_subject_ids: string[] | null;
 };
+type NbaBatch = {
+  id: string;
+  batch_date: string;
+  batch_number: number;
+  status: 'active' | 'completed';
+};
+
 type NbaLog = {
+  id?: string;
+  batch_id: string;
   subject_id: string;
   topic_id: string | null;
   concept_window_id: string | null;
   action_type: ActionType;
   phase: Phase;
   fired_at: string;
+  status: 'pending' | 'completed';
+  completed_at?: string | null;
   boundary_state: BoundaryState;
 };
 
@@ -95,8 +106,34 @@ function estimatedMinutes(concept: Concept, action: ActionType) {
   return Number(concept.read_minutes ?? 10) * ACTION_MULTIPLIERS[action];
 }
 
-function logKey(conceptWindowId: string, action: ActionType) {
-  return `${conceptWindowId}:${action}`;
+async function getActiveBatch(db: ReturnType<typeof getNBAClient>, userId: string, date: string) {
+  const { data, error } = await db
+    .from('nba_batches')
+    .select('id,batch_date,batch_number,status')
+    .eq('user_id', userId)
+    .eq('batch_date', date)
+    .eq('status', 'active')
+    .maybeSingle<NbaBatch>();
+  if (error) throw error;
+  return data;
+}
+
+async function returnBatch(
+  db: ReturnType<typeof getNBAClient>,
+  batch: NbaBatch,
+  conceptById: Map<string, Concept>,
+  phase: Phase,
+) {
+  const { data, error } = await db
+    .from('nba_log')
+    .select('id,batch_id,subject_id,topic_id,concept_window_id,action_type,phase,fired_at,status,completed_at,boundary_state')
+    .eq('batch_id', batch.id)
+    .order('fired_at', { ascending: true });
+  if (error) throw error;
+
+  return ((data ?? []) as NbaLog[])
+    .filter(log => log.concept_window_id && conceptById.has(log.concept_window_id))
+    .map(log => toOutput(log, conceptById.get(log.concept_window_id!)!, phase));
 }
 
 function toOutput(
@@ -207,23 +244,25 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
   const conceptIds = conceptRows.map(concept => concept.id);
 
-  const [
-    { data: allLogs, error: allLogsError },
-    { data: todayLogs, error: todayLogsError },
-  ] = await Promise.all([
-    db.from('nba_log')
-      .select('subject_id,topic_id,concept_window_id,action_type,phase,fired_at,boundary_state')
-      .eq('user_id', user_id)
-      .in('concept_window_id', conceptIds),
-    db.from('nba_log')
-      .select('subject_id,topic_id,concept_window_id,action_type,phase,fired_at,boundary_state')
-      .eq('user_id', user_id)
-      .gte('fired_at', `${date}T00:00:00.000Z`)
-      .lt('fired_at', `${tomorrow(date)}T00:00:00.000Z`),
-  ]);
+  const { data: activeBatch, error: activeBatchError } = await db
+    .from('nba_batches')
+    .select('id,batch_date,batch_number,status')
+    .eq('user_id', user_id)
+    .eq('batch_date', date)
+    .eq('status', 'active')
+    .maybeSingle<NbaBatch>();
+
+  if (activeBatchError) throw activeBatchError;
+
+  const { data: allLogs, error: allLogsError } = await db
+    .from('nba_log')
+    .select('id,batch_id,subject_id,topic_id,concept_window_id,action_type,phase,fired_at,status,completed_at,boundary_state')
+    .eq('user_id', user_id)
+    .eq('status', 'completed')
+    .in('concept_window_id', conceptIds);
 
   if (allLogsError) throw allLogsError;
-  if (todayLogsError) throw todayLogsError;
+
   const mastery = new Map((masteryRows ?? []).map((x: Mastery) => [x.topic_id, x]));
 
   const byTopic = new Map<string, Concept[]>();
@@ -240,57 +279,27 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     attemptsByTopic.set(attempt.topic_id, list);
   }
 
-  const historicalLogs = (allLogs ?? []) as NbaLog[];
-  const existingTodayLogs = (todayLogs ?? []) as NbaLog[];
-
   const conceptById = new Map(conceptRows.map(concept => [concept.id, concept]));
+
+  if (activeBatch) {
+    return returnBatch(db, activeBatch, conceptById, phase);
+  }
+
   const completedConcepts = new Set(
-    historicalLogs
+    ((allLogs ?? []) as NbaLog[])
       .map(log => log.concept_window_id)
       .filter((id): id is string => Boolean(id)),
   );
 
-  const todayKeys = new Set(
-    existingTodayLogs
-      .filter(log => log.concept_window_id)
-      .map(log => logKey(log.concept_window_id!, log.action_type)),
-  );
-
-  const timeAlreadyUsed = new Map<string, number>();
-  for (const log of existingTodayLogs) {
-    if (!log.concept_window_id) continue;
-    const concept = conceptById.get(log.concept_window_id);
-    if (!concept) continue;
-
-    const minutes = estimatedMinutes(concept, log.action_type);
-    timeAlreadyUsed.set(
-      log.subject_id,
-      (timeAlreadyUsed.get(log.subject_id) ?? 0) + minutes,
-    );
-  }
-
-  const scheduledExisting: NBAOutput[] = [];
-  const existingIds = new Set<string>();
-
-  for (const log of existingTodayLogs) {
-    if (!log.concept_window_id) continue;
-    const concept = conceptById.get(log.concept_window_id);
-    if (!concept) continue;
-
-    const key = `${log.subject_id}:${logKey(concept.id, log.action_type)}`;
-    if (existingIds.has(key)) continue;
-    existingIds.add(key);
-
-    scheduledExisting.push(toOutput(log, concept, phase));
-  }
-
   const totalMinutes = user.daily_hours == null ? 0 : Number(user.daily_hours) * 60;
-  if (totalMinutes <= 0) return scheduledExisting;
+  if (totalMinutes <= 0) return [];
 
   const fairShare = totalMinutes / subjectIds.length;
   const usedBySubject = new Map<string, number>(
-    subjectIds.map(subjectId => [subjectId, timeAlreadyUsed.get(subjectId) ?? 0]),
+    subjectIds.map(subjectId => [subjectId, 0]),
   );
+
+  const reservedConcepts = new Set(completedConcepts);
 
   const subjectTopics = new Map<string, Topic[]>();
   for (const subjectId of subjectIds) {
@@ -308,7 +317,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
       const next = (byTopic.get(topic.id) ?? [])
         .sort((a, b) => a.progression_order - b.progression_order || a.id.localeCompare(b.id))
-        .find(concept => !completedConcepts.has(concept.id));
+        .find(concept => !reservedConcepts.has(concept.id));
 
       if (next) {
         const topicStats = stats(attemptsByTopic.get(topic.id) ?? []);
@@ -399,6 +408,60 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
       reservedConcepts.add(concept.id);
       madeProgress = true;
     }
+  }
+
+  if (!schedule.length) return [];
+
+  const { data: latestBatch, error: latestBatchError } = await db
+    .from('nba_batches')
+    .select('batch_number')
+    .eq('user_id', user_id)
+    .eq('batch_date', date)
+    .order('batch_number', { ascending: false })
+    .limit(1)
+    .maybeSingle<{ batch_number: number }>();
+
+  if (latestBatchError) throw latestBatchError;
+
+  const { data: batch, error: batchError } = await db
+    .from('nba_batches')
+    .insert({
+      user_id,
+      batch_date: date,
+      batch_number: (latestBatch?.batch_number ?? 0) + 1,
+      status: 'active',
+    })
+    .select('id,batch_date,batch_number,status')
+    .single<NbaBatch>();
+
+  if (batchError) {
+    const racedBatch = await getActiveBatch(db, user_id, date);
+    if (racedBatch) return returnBatch(db, racedBatch, conceptById, phase);
+    throw batchError;
+  }
+
+  const rows = schedule.map(output => ({
+    user_id,
+    batch_id: batch.id,
+    subject_id: output.subject_id,
+    topic_id: output.topic_id,
+    concept_window_id: output.concept_window_id,
+    action_type: output.action_type,
+    phase,
+    fired_at: new Date().toISOString(),
+    status: 'pending',
+    boundary_state: {
+      time_boundary_reached: output.time_boundary_reached,
+      topic_concept_boundary_reached: output.topic_concept_boundary_reached,
+      continuation_available: output.continuation_available,
+      subject_exhausted: output.subject_exhausted,
+    },
+  }));
+
+  const { error: logError } = await db.from('nba_log').insert(rows);
+  if (logError) {
+    await db.from('nba_batches').delete().eq('id', batch.id);
+    throw logError;
   }
 
   return schedule;
