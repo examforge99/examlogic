@@ -48,6 +48,7 @@ export default function TodayMission() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
   const [subjectOpen, setSubjectOpen] = useState(false)
+  const subjectPickerRef = useRef<HTMLDivElement>(null)
   const [stage, setStage] = useState<Stage>('loading')
   const [seconds, setSeconds] = useState(0)
   const [notice, setNotice] = useState(false)
@@ -86,6 +87,21 @@ export default function TodayMission() {
   useEffect(() => {
     if (stage === 'reading' && seconds === 0) setStage('recommended')
   }, [seconds, stage])
+
+  useEffect(() => {
+    if (!subjectOpen) return
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      if (!subjectPickerRef.current?.contains(target)) setSubjectOpen(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [subjectOpen])
+
+
 
   const cacheKey = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
@@ -286,7 +302,7 @@ export default function TodayMission() {
       <MissionCard>
         <div className='card-topline'>
           <span className='identity-tag nba-tag'>Today’s Mission</span>
-          <div className='subject-picker'>
+          <div className='subject-picker' ref={subjectPickerRef}>
             <button className='identity-tag subject-tag subject-trigger' disabled={stage !== 'ready'} onClick={() => setSubjectOpen((value) => !value)} aria-expanded={subjectOpen}>{subjectLabel}<ChevronDown size={14} className={subjectOpen ? 'chevron-open' : ''} /></button>
             {subjectOpen && <div className='subject-menu'>{subjects.map((subject) => <button key={subject.subject_id} className={subject.subject_id === selectedSubjectId ? 'subject-option active' : 'subject-option'} onClick={() => selectSubject(subject.subject_id)}>{subject.subject_name ?? subject.subject_id}</button>)}</div>}
           </div>
