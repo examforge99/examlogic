@@ -307,7 +307,7 @@ export default function TodayMission() {
             {subjectOpen && <div className='subject-menu'>{subjects.map((subject) => <button key={subject.subject_id} className={subject.subject_id === selectedSubjectId ? 'subject-option active' : 'subject-option'} onClick={() => selectSubject(subject.subject_id)}>{subject.subject_name ?? subject.subject_id}</button>)}</div>}
           </div>
         </div>
-        {stage === 'reading' && currentMission ? <MissionReading seconds={seconds} estimatedMinutes={currentMission.estimated_minutes} onDone={finishReading} />
+        {stage === 'reading' && currentMission ? <MissionReading seconds={seconds} estimatedMinutes={currentMission.estimated_minutes} conceptName={currentMission.concept_name} onDone={finishReading} />
           : stage === 'recommended' ? <RecommendedState onContinue={startReading} onReady={finishReading} />
           : stage === 'next-action' && currentMission ? <NextActionState conceptName={currentMission.concept_name} onAction={() => void completeMission()} busy={busy} />
           : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} subjectCompleted={boundaryResult?.subject_completed ?? false} conceptCompleted={Boolean(boundaryResult) && !boundaryResult?.batch_completed && !boundaryResult?.subject_completed && !(currentMission?.time_boundary_reached ?? false) && !(currentMission?.topic_concept_boundary_reached ?? false)} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
