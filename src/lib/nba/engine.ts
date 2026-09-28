@@ -145,6 +145,7 @@ function toOutput(
 
   return {
     subject_id: log.subject_id,
+    subject_name: subjectNameById.get(log.subject_id) ?? undefined,
     topic_id: log.topic_id ?? concept.topic_id,
     concept_window_id: concept.id,
     concept_name: concept.name,
@@ -197,6 +198,13 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
   const subjectIds = day.scheduled_subject_ids ?? [];
   if (!subjectIds.length) return [];
+
+  const { data: subjectRows, error: subjectsError } = await db
+    .from('subjects')
+    .select('id,name')
+    .in('id', subjectIds);
+  if (subjectsError) throw subjectsError;
+  const subjectNameById = new Map((subjectRows ?? []).map((subject: { id: string; name: string }) => [subject.id, subject.name]));
 
   const phase: Phase = getPhase(user.exam_date);
 
@@ -382,6 +390,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
       const output: NBAOutput = {
         subject_id: subjectId,
+        subject_name: subjectNameById.get(subjectId) ?? undefined,
         topic_id: topic.id,
         concept_window_id: concept.id,
         concept_name: concept.name,
