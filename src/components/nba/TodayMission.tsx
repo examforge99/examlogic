@@ -213,8 +213,16 @@ export default function TodayMission() {
       if (!response.ok) throw new Error(result.error ?? 'Failed to complete this mission.')
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); setBoundaryResult(result)
       readingStartedAt.current = null
-      if (result.batch_completed) setStage('boundary')
-      else advanceWithinBatch(done)
+      if (result.batch_completed) {
+        setStage('boundary')
+      } else {
+        const remaining = missions.some((mission) => !done.has(mission.concept_window_id))
+        if (remaining) {
+          setStage('boundary')
+        } else {
+          setStage('complete')
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete this mission.')
       setStage('error')
@@ -273,7 +281,7 @@ export default function TodayMission() {
         {stage === 'reading' && currentMission ? <MissionReading seconds={seconds} estimatedMinutes={currentMission.estimated_minutes} onDone={finishReading} />
           : stage === 'recommended' ? <RecommendedState onContinue={startReading} onReady={finishReading} />
           : stage === 'next-action' && currentMission ? <NextActionState conceptName={currentMission.concept_name} onAction={() => void completeMission()} busy={busy} />
-          : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
+          : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} conceptCompleted={!boundaryResult?.batch_completed && Boolean(completedIds.has(currentMission?.concept_window_id ?? ''))} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
           : selectedSubjectComplete ? <SubjectCompleteState subjectName={selectedSubject?.subject_name ?? 'This subject'} onChooseAnother={() => setSubjectOpen(true)} />
           : currentMission ? <>
               <div className='recommendation-row'><span className='recommendation-badge'><span className='pulse-dot' />{currentMission.topic_name ?? currentMission.concept_name}</span></div>
@@ -725,11 +733,59 @@ function NextActionState({ conceptName, onAction, busy }: { conceptName: string;
   return <><p className='stage-label'>Test what stuck</p><h2>Quick recall on {conceptName}</h2><p className='support'>Check what you can retrieve before moving on.</p><div className='meta'><span>Recall</span><span>Next in progression</span></div><button className='primary' onClick={onAction} disabled={busy}>{busy ? 'Saving…' : 'Complete Concept'} <span>→</span></button></>
 }
 
-function BoundaryStateView({ timeBoundary, topicBoundary, batchCompleted, onContinue, onEnd, busy }: { timeBoundary: boolean; topicBoundary: boolean; batchCompleted: boolean; onContinue: () => void; onEnd: () => void; busy: boolean }) {
-  const reasons = [timeBoundary ? 'You’ve reached today’s study goal.' : null, topicBoundary ? 'You’ve reached the end of this topic.' : null].filter(Boolean)
-  const reason = reasons.length ? reasons.join(' ') : batchCompleted ? 'This NBA batch is complete.' : 'More eligible work is available in today’s scheduled scope.'
-  const nextStep = batchCompleted ? 'You’ve completed everything in this batch. Continue to load the next available mission.' : 'There’s still eligible work in today’s schedule. Continue to move to the next concept.'
-  return <><p className='stage-label boundary-label'>Session boundary</p><h2 className='boundary-title'>You’ve reached a stopping point.</h2><div className='boundary-message'><strong>{reason}</strong><span>{nextStep}</span></div><div className='cta-row'><button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button><button className='secondary boundary-end' onClick={onEnd} disabled={busy}>End session</button></div></>
+function BoundaryStateView({
+  timeBoundary,
+  topicBoundary,
+  batchCompleted,
+  conceptCompleted,
+  onContinue,
+  onEnd,
+  busy,
+}: {
+  timeBoundary: boolean
+  topicBoundary: boolean
+  batchCompleted: boolean
+  conceptCompleted: boolean
+  onContinue: () => void
+  onEnd: () => void
+  busy: boolean
+}) {
+  if (conceptCompleted && !timeBoundary && !batchCompleted) {
+    return (
+      <>
+        <p className='stage-label boundary-label'>Concept completed</p>
+        <h2 className='boundary-title'>Today’s concept completed.</h2>
+        <div className='boundary-message'>
+          <strong>You’ve completed this concept. More is ready in today’s mission.</strong>
+          <span>Continue when you’re ready for the next concept.</span>
+        </div>
+        <div className='cta-row'>
+          <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
+        </div>
+      </>
+    )
+  }
+
+  const reasons = [
+    timeBoundary ? 'Your planned study time for this session has been reached.' : null,
+    topicBoundary ? 'You’ve reached the end of this topic.' : null,
+  ].filter(Boolean)
+  const reason = reasons.length ? reasons.join(' ') : batchCompleted ? 'You’ve completed everything planned for today.' : 'More eligible work is available in today’s scheduled scope.'
+  const nextStep = batchCompleted
+    ? 'You can continue if you want to build more progress. It’s optional.'
+    : 'There’s still eligible work in today’s schedule. Continue to move to the next concept.'
+
+  return (
+    <>
+      <p className='stage-label boundary-label'>{batchCompleted ? 'Today’s goal complete' : 'Session boundary'}</p>
+      <h2 className='boundary-title'>{batchCompleted ? 'You’ve completed today’s goal.' : 'You’ve reached a stopping point.'}</h2>
+      <div className='boundary-message'><strong>{reason}</strong><span>{nextStep}</span></div>
+      <div className='cta-row'>
+        <button className='primary' onClick={onContinue} disabled={busy}>{busy ? 'Loading…' : 'Continue'} <span>→</span></button>
+        <button className='secondary boundary-end' onClick={onEnd} disabled={busy}>End session</button>
+      </div>
+    </>
+  )
 }
 
 function formatTime(seconds: number) { const minutes = Math.floor(seconds / 60); const secs = seconds % 60; return String(minutes).padStart(2,'0') + ':' + String(secs).padStart(2,'0') }
