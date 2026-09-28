@@ -16,8 +16,24 @@ export default function MissionReading({
   return (
     <>
       <p className='stage-label'>Reading this concept</p>
-      <h2>{conceptName}</h2>
-      <p className='reading-subtitle'>Stay with this concept.</p>
+      <div
+        style={{
+          display: 'inline-block',
+          maxWidth: '100%',
+          marginTop: 8,
+          padding: '7px 11px',
+          borderRadius: 10,
+          background: 'rgba(245, 194, 66, 0.12)',
+          border: '1px solid rgba(245, 194, 66, 0.28)',
+          color: '#F5C242',
+          fontSize: 14,
+          fontWeight: 600,
+          lineHeight: 1.35,
+          overflowWrap: 'anywhere',
+        }}
+      >
+        {conceptName}
+      </div>
       <div className='timer'>{formatTime(seconds)}</div>
       <div className='progress'><span style={{ width: progress + '%' }} /></div>
       <div className='reading-info'>
