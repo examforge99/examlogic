@@ -3,10 +3,12 @@
 export default function MissionReading({
   seconds,
   estimatedMinutes,
+  conceptName,
   onDone,
 }: {
   seconds: number
   estimatedMinutes: number
+  conceptName: string
   onDone: () => void
 }) {
   const progress = Math.max(0, Math.min(100, (seconds / (estimatedMinutes * 60)) * 100))
@@ -14,7 +16,8 @@ export default function MissionReading({
   return (
     <>
       <p className='stage-label'>Reading this concept</p>
-      <h2>Stay with the concept.</h2>
+      <h2>{conceptName}</h2>
+      <p className='reading-subtitle'>Stay with this concept.</p>
       <div className='timer'>{formatTime(seconds)}</div>
       <div className='progress'><span style={{ width: progress + '%' }} /></div>
       <div className='reading-info'>
