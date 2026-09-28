@@ -141,6 +141,7 @@ export default function NBASessionPrototype() {
                 <div className="topic-visual" aria-hidden="true"><span className="orbit" /><span className="core" /><span className="spark" /></div>
               </div>
               <button className="primary" onClick={primaryAction}>{copy.cta} <span>→</span></button>
+            </>
           )}
 
         </article>
