@@ -165,7 +165,7 @@ export default function NBASessionPrototype() {
           background:
             radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
             #071426;
-          color:#E8F0F7;
+          color:var(--color-text-primary);
           font-family:Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -187,16 +187,15 @@ export default function NBASessionPrototype() {
           letter-spacing:-.025em;
         }
 
-        .context { color:rgba(232,240,247,.42); font-size:11px; }
+        .context { color:var(--color-text-secondary); font-size:11px; }
 
         .nba-card {
           position:relative;
           overflow:hidden;
           padding:21px;
-          border:1px solid rgba(63,183,255,.24);
+          border:1px solid var(--color-border);
           border-radius:20px;
-          background:
-            linear-gradient(145deg, rgba(14,43,73,.99), rgba(17,55,91,.99) 62%, rgba(20,65,105,.99));
+          background:var(--color-surface);
           box-shadow:
             inset 0 1px 0 rgba(255,255,255,.07),
             0 22px 55px rgba(0,0,0,.22);
@@ -209,7 +208,7 @@ export default function NBASessionPrototype() {
           left:10%;
           right:10%;
           height:1px;
-          background:linear-gradient(90deg, transparent, rgba(63,183,255,.78), transparent);
+          background:linear-gradient(90deg, transparent, rgba(63,183,255,.28), transparent);
         }
 
         .card-topline {
@@ -222,7 +221,7 @@ export default function NBASessionPrototype() {
 
         .eyebrow {
           margin:0;
-          color:#3FB7FF;
+          color:var(--color-primary);
           font-size:10px;
           font-weight:800;
           letter-spacing:.15em;
@@ -241,7 +240,7 @@ export default function NBASessionPrototype() {
 
         h1, h2 {
           margin:0;
-          font-family:var(--font-geist-sans), Inter, sans-serif;
+          font-family:var(--font-inter), system-ui, -apple-system, sans-serif;
           font-weight:700;
           letter-spacing:-.045em;
           line-height:1.04;
@@ -298,7 +297,7 @@ export default function NBASessionPrototype() {
           border:1px solid rgba(63,183,255,.60);
           border-radius:12px;
           background:transparent;
-          color:#C5E9FF;
+          color:var(--color-primary);
           font:800 13px Inter, "Segoe UI", system-ui, sans-serif;
           cursor:pointer;
         }
@@ -386,15 +385,15 @@ export default function NBASessionPrototype() {
           width:min(100% - 28px, 620px);
           margin-top:14px;
           padding:16px 17px;
-          border:1px solid rgba(37,214,162,.28);
+          border:1px solid var(--color-border);
           border-radius:16px;
-          background:rgba(14,43,73,.99);
+          background:var(--color-surface);
           box-shadow:0 18px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
         }
         .transition-kicker {
           display:block;
           margin-bottom:5px;
-          color:#25D6A2;
+          color:var(--color-primary);
           font-size:9px;
           font-weight:800;
           letter-spacing:.14em;
