@@ -72,12 +72,6 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function tomorrow(date: string) {
-  const next = new Date(`${date}T00:00:00.000Z`);
-  next.setUTCDate(next.getUTCDate() + 1);
-  return next.toISOString().slice(0, 10);
-}
-
 function monthStart(d: string) {
   return `${d.slice(0, 7)}-01`;
 }
