@@ -303,7 +303,7 @@ export default function TodayMission() {
         <div className='card-topline'>
           <span className='identity-tag nba-tag'>Today’s Mission</span>
           <div className='subject-picker' ref={subjectPickerRef}>
-            <button className='identity-tag subject-tag subject-trigger' disabled={stage !== 'ready'} onClick={() => setSubjectOpen((value) => !value)} aria-expanded={subjectOpen}>{subjectLabel}<ChevronDown size={14} className={subjectOpen ? 'chevron-open' : ''} /></button>
+            <button className='identity-tag subject-tag subject-trigger' disabled={stage !== 'ready' || Boolean(currentMission && ['reading', 'recommended', 'next-action'].includes(stage))} onClick={() => setSubjectOpen((value) => !value)} aria-expanded={subjectOpen}>{subjectLabel}<ChevronDown size={14} className={subjectOpen ? 'chevron-open' : ''} /></button>
             {subjectOpen && <div className='subject-menu'>{subjects.map((subject) => <button key={subject.subject_id} className={subject.subject_id === selectedSubjectId ? 'subject-option active' : 'subject-option'} onClick={() => selectSubject(subject.subject_id)}>{subject.subject_name ?? subject.subject_id}</button>)}</div>}
           </div>
         </div>
