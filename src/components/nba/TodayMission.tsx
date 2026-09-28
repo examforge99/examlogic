@@ -191,7 +191,24 @@ export default function TodayMission() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ concept_window_id: currentMission.concept_window_id, action_type: currentMission.action_type, time_spent_seconds: readingStartedAt.current ? Math.max(0, Math.floor((Date.now() - readingStartedAt.current) / 1000)) : 0 }),
       })
-      const result = await response.json() as CompletionResult & { error?: string }
+      const contentType = response.headers.get('content-type') ?? ''
+      const raw = await response.text()
+      let result: CompletionResult & { error?: string }
+
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          response.status === 404
+            ? 'The NBA completion endpoint is not available on this deployment.'
+            : `The NBA completion service returned an unexpected response (HTTP ${response.status}).`,
+        )
+      }
+
+      try {
+        result = JSON.parse(raw) as CompletionResult & { error?: string }
+      } catch {
+        throw new Error('The NBA completion service returned invalid JSON.')
+      }
+
       if (!response.ok) throw new Error(result.error ?? 'Failed to complete this mission.')
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); setBoundaryResult(result)
       readingStartedAt.current = null
