@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const conceptWindowId = body?.concept_window_id;
     const actionType = body?.action_type;
+    const timeSpentSeconds = Number.isFinite(body?.time_spent_seconds) ? Math.max(0, Math.floor(body.time_spent_seconds)) : 0;
 
     if (!conceptWindowId || !actionType) {
       return NextResponse.json(
@@ -51,10 +52,15 @@ export async function POST(request: Request) {
     if (logError) throw logError;
     if (!log) return NextResponse.json({ error: 'NBA mission not found in the active batch.' }, { status: 404 });
 
-    if (log.status !== 'completed') {
+    if (log.status === 'completed') {
+      if (timeSpentSeconds > 0) {
+        const { error: timeError } = await db.from('nba_log').update({ time_spent_seconds: timeSpentSeconds }).eq('id', log.id).eq('user_id', userId);
+        if (timeError) throw timeError;
+      }
+    } else {
       const { error: completeError } = await db
         .from('nba_log')
-        .update({ status: 'completed', completed_at: new Date().toISOString() })
+        .update({ status: 'completed', completed_at: new Date().toISOString(), time_spent_seconds: timeSpentSeconds })
         .eq('id', log.id)
         .eq('user_id', userId)
         .eq('batch_id', batch.id);
