@@ -72,6 +72,7 @@ export default function TodayMission() {
   }, [missions, completedIds, selectedSubjectId])
 
   const selectedSubject = subjects.find((subject) => subject.subject_id === selectedSubjectId)
+  const selectedSubjectComplete = stage === 'ready' && Boolean(selectedSubjectId) && !currentMission
   const copy = currentMission ? actionCopy[currentMission.action_type] : actionCopy.READ
 
   useEffect(() => { void loadBatch() }, [])
@@ -273,6 +274,7 @@ export default function TodayMission() {
           : stage === 'recommended' ? <RecommendedState onContinue={startReading} onReady={finishReading} />
           : stage === 'next-action' && currentMission ? <NextActionState conceptName={currentMission.concept_name} onAction={() => void completeMission()} busy={busy} />
           : stage === 'boundary' ? <BoundaryStateView timeBoundary={currentMission?.time_boundary_reached ?? false} topicBoundary={currentMission?.topic_concept_boundary_reached ?? false} batchCompleted={boundaryResult?.batch_completed ?? false} onContinue={() => void continueFromBoundary()} onEnd={() => setStage('complete')} busy={busy} />
+          : selectedSubjectComplete ? <SubjectCompleteState subjectName={selectedSubject?.subject_name ?? 'This subject'} onChooseAnother={() => setSubjectOpen(true)} />
           : currentMission ? <>
               <div className='recommendation-row'><span className='recommendation-badge'><span className='pulse-dot' />{currentMission.topic_name ?? currentMission.concept_name}</span></div>
               <div className='recommendation-body'><div><span className='eyebrow'>{copy.lead}</span><h1 className='concept-title'>{currentMission.action_type === 'READ' ? 'Read ' : ''}{currentMission.concept_name}</h1><p className='detail'>{currentMission.concept_description ?? copy.detail}</p><div className='meta'><span className='meta-time'><Clock3 size={13} strokeWidth={2} />{currentMission.estimated_minutes} min</span><span>{copy.secondaryMetric}</span></div></div></div>
@@ -530,6 +532,8 @@ function MissionShell({ children }: { children: ReactNode }) {
           margin-bottom:0;
         }
 
+        .subject-complete-state .secondary { margin-top:22px; }
+
         .boundary {
           margin-top:18px;
           padding:10px 11px;
@@ -701,6 +705,17 @@ function MissionShell({ children }: { children: ReactNode }) {
 }
 
 function MissionCard({ children }: { children: React.ReactNode }) { return <article className='mission-card' aria-label='Today’s Mission'>{children}</article> }
+
+function SubjectCompleteState({ subjectName, onChooseAnother }: { subjectName: string; onChooseAnother: () => void }) {
+  return (
+    <div className='subject-complete-state'>
+      <p className='stage-label'>Subject complete</p>
+      <h2>No more concepts in this batch.</h2>
+      <p className='support'>{subjectName} has no remaining concept in today’s current mission batch. Choose another scheduled subject to continue.</p>
+      <button className='secondary' onClick={onChooseAnother}>Choose another subject</button>
+    </div>
+  )
+}
 
 function RecommendedState({ onContinue, onReady }: { onContinue: () => void; onReady: () => void }) {
   return <><p className='stage-label'>Recommended time reached</p><h2>You can keep reading.</h2><p className='support'>You’ve reached the recommended reading window. Continue if you need more time, or move on when you’re ready.</p><div className='boundary'>Recommended window reached • Extra reading continues without changing the recommendation.</div><div className='cta-row'><button className='primary' onClick={onContinue}>Continue Reading <span>→</span></button><button className='text-button' onClick={onReady}>I’m Ready →</button></div></>
