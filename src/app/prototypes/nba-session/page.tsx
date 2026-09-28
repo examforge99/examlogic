@@ -135,7 +135,7 @@ export default function NBASessionPrototype() {
                   <h1>{copy.title}</h1>
                   <p className="detail">{copy.reason}</p>
                   <div className="meta">
-                    <span className="meta-time"><Clock3 size={13} strokeWidth={2} />{copy.metric}</span>
+                    <span className="meta-time"><Clock3 size={13} strokeWidth={2} color="#25D6A2" />{copy.metric}</span>
                     <span>{copy.secondaryMetric}</span>
                   </div>
                 </div>
