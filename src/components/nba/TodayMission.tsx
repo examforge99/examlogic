@@ -195,7 +195,7 @@ export default function TodayMission() {
       if (!response.ok) throw new Error(result.error ?? 'Failed to complete this mission.')
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); setBoundaryResult(result)
       readingStartedAt.current = null
-      if (result.batch_completed || currentMission.time_boundary_reached || currentMission.topic_concept_boundary_reached) setStage('boundary')
+      if (result.batch_completed) setStage('boundary')
       else advanceWithinBatch(done)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete this mission.')
