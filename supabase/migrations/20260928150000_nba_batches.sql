@@ -28,3 +28,5 @@ create unique index if not exists nba_log_batch_concept_action_uidx
 
 create index if not exists nba_log_user_date_status_idx
   on public.nba_log (user_id, fired_at, status);
+
+alter table public.nba_batches enable row level security;
