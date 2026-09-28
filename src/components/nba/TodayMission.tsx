@@ -133,10 +133,38 @@ export default function TodayMission() {
 
     setApiLoading(true)
     try {
-      const response = await fetch('/api/nba/fire', { method: 'POST', cache: 'no-store' })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data?.error ?? 'Failed to load today’s mission.')
-      const next = (data ?? []) as Mission[]
+      const response = await fetch('/api/nba/fire', {
+        method: 'POST',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      })
+      const contentType = response.headers.get('content-type') ?? ''
+      const raw = await response.text()
+      let data: unknown = null
+
+      if (contentType.includes('application/json')) {
+        try {
+          data = JSON.parse(raw)
+        } catch {
+          throw new Error('The NBA service returned invalid JSON.')
+        }
+      } else {
+        throw new Error(
+          response.status === 404
+            ? 'The NBA endpoint is not available on this deployment.'
+            : `The NBA service returned an unexpected response (HTTP ${response.status}).`,
+        )
+      }
+
+      if (!response.ok) {
+        const message =
+          typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string'
+            ? data.error
+            : 'Failed to load today’s mission.'
+        throw new Error(message)
+      }
+
+      const next = (Array.isArray(data) ? data : []) as Mission[]
       writeCachedBatch(next)
       showBatch(next)
     } catch (err) {
