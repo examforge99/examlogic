@@ -10,7 +10,7 @@ export default function DashboardPage() {
     <div style={{ backgroundColor: '#071426' }} className="min-h-screen">
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial="V" />
 
-      <main className="px-4 pt-2" style={{ paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}>
+      <main className="px-4 pt-2" style={{ marginBottom: '120px' }}>
         <TodayMission />
         <RecentActivity />
       </main>
