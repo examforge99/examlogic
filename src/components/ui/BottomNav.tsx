@@ -79,11 +79,10 @@ export default function BottomNav() {
           alignItems: 'flex-start',
           justifyContent: 'space-around',
           paddingTop: '12px',
-          paddingBottom: '12px',
           background: '#0d1f35ee',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          marginBottom: '0',
+          paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
           paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         }}
         className="bottom-nav"
