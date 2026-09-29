@@ -68,20 +68,27 @@ export default function RecentActivityPrototype() {
         .recent-activity-prototype {
           min-height: 100vh;
           margin: 0;
-          padding: 24px 14px 50px;
+          padding: clamp(18px, 4vw, 32px) clamp(12px, 3vw, 24px) clamp(40px, 6vw, 64px);
           background: radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%), #071426;
           color: var(--color-text-primary);
           -webkit-font-smoothing: antialiased;
         }
 
-        .prototype-shell { width: min(100%, 620px); margin: 0 auto; padding-top: 5vh; }
+        .prototype-shell {
+          width: 100%;
+          max-width: 620px;
+          margin-inline: auto;
+          padding-top: clamp(16px, 5vh, 48px);
+        }
 
         .activity-card {
           position: relative;
           overflow: hidden;
-          padding: 21px;
+          width: 100%;
+          box-sizing: border-box;
+          padding: clamp(18px, 3.5vw, 24px);
           border: 1px solid var(--color-border);
-          border-radius: 14px;
+          border-radius: clamp(12px, 2vw, 16px);
           background: var(--color-surface);
           box-shadow: var(--shadow-card);
         }
@@ -102,11 +109,17 @@ export default function RecentActivityPrototype() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 18px;
+          gap: clamp(10px, 3vw, 16px);
+          margin-bottom: clamp(14px, 3vw, 20px);
         }
 
-        h1 { margin: 0; color: #F1F6FA; font-size: 20px; font-weight: 700; letter-spacing: -.035em; }
+        h1 {
+          margin: 0;
+          color: #F1F6FA;
+          font-size: clamp(18px, 3vw, 21px);
+          font-weight: 700;
+          letter-spacing: -.035em;
+        }
 
         .see-all {
           border: 0;
@@ -114,20 +127,33 @@ export default function RecentActivityPrototype() {
           background: transparent;
           color: var(--color-primary);
           font: inherit;
-          font-size: 11px;
+          font-size: clamp(10px, 2vw, 11px);
           font-weight: 600;
           cursor: pointer;
         }
 
-        .activity-list { position: relative; z-index: 1; border-top: 1px solid rgba(232,240,247,.07); }
-        .activity-row { position: relative; display: flex; padding: 16px 0; }
-        .activity-content { min-width: 0; width: 100%; }
+        .activity-list {
+          position: relative;
+          z-index: 1;
+          border-top: 1px solid rgba(232,240,247,.07);
+        }
+
+        .activity-row {
+          position: relative;
+          display: flex;
+          padding-block: clamp(13px, 2.5vw, 17px);
+        }
+
+        .activity-content {
+          min-width: 0;
+          width: 100%;
+        }
 
         .activity-topline {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 12px;
+          gap: clamp(8px, 2.5vw, 14px);
         }
 
         .activity-identity {
@@ -135,18 +161,24 @@ export default function RecentActivityPrototype() {
           min-width: 0;
           align-items: center;
           flex-wrap: wrap;
-          gap: 7px;
+          gap: clamp(5px, 1.5vw, 8px);
         }
 
-        .mode { color: #F0F5F9; font-size: 12px; font-weight: 700; letter-spacing: -.012em; }
+        .mode {
+          min-width: 0;
+          color: #F0F5F9;
+          font-size: clamp(11px, 2.2vw, 12px);
+          font-weight: 700;
+          letter-spacing: -.012em;
+        }
 
         .action-tag {
-          padding: 4px 7px;
+          padding: clamp(3px, 1vw, 4px) clamp(6px, 1.5vw, 7px);
           border: 1px solid rgba(63,183,255,.18);
           border-radius: 6px;
           background: rgba(63,183,255,.07);
           color: #9EDAFF;
-          font-size: 9px;
+          font-size: clamp(8px, 1.8vw, 9px);
           font-weight: 700;
           line-height: 1;
         }
@@ -157,29 +189,42 @@ export default function RecentActivityPrototype() {
           align-items: center;
           gap: 5px;
           color: rgba(232,240,247,.62);
-          font-size: 11px;
+          font-size: clamp(10px, 2vw, 11px);
           font-weight: 700;
           font-variant-numeric: tabular-nums;
           white-space: nowrap;
         }
 
-        .duration svg { color: var(--color-accent); }
+        .duration svg {
+          color: var(--color-accent);
+          width: clamp(12px, 2.5vw, 13px);
+          height: clamp(12px, 2.5vw, 13px);
+        }
 
         .activity-main {
           display: flex;
           min-width: 0;
           align-items: baseline;
           gap: 5px;
-          margin-top: 7px;
+          margin-top: clamp(5px, 1.5vw, 7px);
           color: rgba(232,240,247,.62);
-          font-size: 11px;
+          font-size: clamp(10px, 2vw, 11px);
           line-height: 1.45;
         }
 
-        .subject { color: #AFC5D6; font-weight: 600; }
-        .separator { color: rgba(232,240,247,.23); }
+        .subject {
+          flex: 0 0 auto;
+          color: #AFC5D6;
+          font-weight: 600;
+        }
+
+        .separator {
+          flex: 0 0 auto;
+          color: rgba(232,240,247,.23);
+        }
 
         .topic {
+          min-width: 0;
           overflow: hidden;
           color: #D9E5ED;
           font-weight: 600;
@@ -187,7 +232,12 @@ export default function RecentActivityPrototype() {
           white-space: nowrap;
         }
 
-        .timestamp { margin: 4px 0 0; color: rgba(232,240,247,.34); font-size: 10px; line-height: 1.4; }
+        .timestamp {
+          margin: 4px 0 0;
+          color: rgba(232,240,247,.34);
+          font-size: clamp(9px, 1.8vw, 10px);
+          line-height: 1.4;
+        }
 
         .row-divider {
           position: absolute;
@@ -198,15 +248,13 @@ export default function RecentActivityPrototype() {
           background: rgba(232,240,247,.055);
         }
 
-        .activity-row:last-child .row-divider { display: none; }
-        button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+        .activity-row:last-child .row-divider {
+          display: none;
+        }
 
-        @media (max-width: 520px) {
-          .recent-activity-prototype { padding: 18px 12px 40px; }
-          .prototype-shell { padding-top: 2vh; }
-          .activity-card { padding: 18px; border-radius: 14px; }
-          .activity-row { padding: 15px 0; }
-          .duration { margin-top: 1px; }
+        button:focus-visible {
+          outline: 2px solid var(--color-primary);
+          outline-offset: 3px;
         }
       `}</style>
     </main>
