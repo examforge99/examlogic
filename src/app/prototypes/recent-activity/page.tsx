@@ -1,7 +1,10 @@
 // src/app/prototypes/recent-activity/page.tsx
 'use client'
 
+import { Inter } from 'next/font/google'
 import { Check, Clock3 } from 'lucide-react'
+
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type Activity = {
   mode: string
@@ -14,38 +17,10 @@ type Activity = {
 }
 
 const activities: Activity[] = [
-  {
-    mode: "Today's Mission",
-    action: 'Read',
-    subject: 'Physics',
-    topic: 'Motion',
-    duration: '18 min',
-    timestamp: 'Today, 2:32 PM',
-    studyPlan: true,
-  },
-  {
-    mode: "Today's Mission",
-    action: 'Recall',
-    subject: 'Chemistry',
-    topic: 'Chemical Equilibrium',
-    duration: '12 min',
-    timestamp: 'Today, 1:18 PM',
-    studyPlan: true,
-  },
-  {
-    mode: 'Campaign',
-    subject: 'Physics',
-    topic: 'Projectile Motion',
-    duration: '24 min',
-    timestamp: 'Yesterday, 6:41 PM',
-  },
-  {
-    mode: 'Quick Fire',
-    subject: 'Mathematics',
-    topic: 'Algebra',
-    duration: '8 min',
-    timestamp: 'Sep 27, 11:42 AM',
-  },
+  { mode: "Today's Mission", action: 'Read', subject: 'Physics', topic: 'Motion', duration: '18 min', timestamp: 'Today, 2:32 PM', studyPlan: true },
+  { mode: "Today's Mission", action: 'Recall', subject: 'Chemistry', topic: 'Chemical Equilibrium', duration: '12 min', timestamp: 'Today, 1:18 PM', studyPlan: true },
+  { mode: 'Campaign', subject: 'Physics', topic: 'Projectile Motion', duration: '24 min', timestamp: 'Yesterday, 6:41 PM' },
+  { mode: 'Quick Fire', subject: 'Mathematics', topic: 'Algebra', duration: '8 min', timestamp: 'Sep 27, 11:42 AM' },
 ]
 
 export default function RecentActivityPrototype() {
@@ -55,9 +30,7 @@ export default function RecentActivityPrototype() {
         <article className="activity-card" aria-label="Recent activity">
           <header className="card-header">
             <h1>Recent activity</h1>
-            <button className="see-all" type="button">
-              See all
-            </button>
+            <button className="see-all" type="button">See all</button>
           </header>
 
           <div className="activity-list">
@@ -71,9 +44,7 @@ export default function RecentActivityPrototype() {
                   <div className="activity-topline">
                     <div className="activity-identity">
                       <span className="mode">{activity.mode}</span>
-                      {activity.studyPlan && (
-                        <span className="study-tag">Study Plan</span>
-                      )}
+                      {activity.studyPlan && <span className="study-tag">Study Plan</span>}
                     </div>
 
                     <span className="duration">
@@ -97,9 +68,7 @@ export default function RecentActivityPrototype() {
                   <p className="timestamp">{activity.timestamp}</p>
                 </div>
 
-                {index < activities.length - 1 && (
-                  <div className="row-divider" aria-hidden="true" />
-                )}
+                {index < activities.length - 1 && <div className="row-divider" aria-hidden="true" />}
               </div>
             ))}
           </div>
@@ -114,26 +83,21 @@ export default function RecentActivityPrototype() {
           background:
             radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
             #071426;
-          color: #E8F0F7;
-          font-family: Inter, "Segoe UI", system-ui, sans-serif;
+          color: var(--color-text-primary);
+          font-family: ${inter.style.fontFamily};
+          -webkit-font-smoothing: antialiased;
         }
 
-        .prototype-shell {
-          width: min(100%, 620px);
-          margin: 0 auto;
-          padding-top: 5vh;
-        }
+        .prototype-shell { width: min(100%, 620px); margin: 0 auto; padding-top: 5vh; }
 
         .activity-card {
           position: relative;
           overflow: hidden;
           padding: 21px;
-          border: 1px solid rgba(92,125,170,.32);
+          border: 1px solid var(--color-border);
           border-radius: 14px;
-          background: #0D1B2E;
-          box-shadow:
-            0 18px 45px rgba(0,0,0,.22),
-            inset 0 1px 0 rgba(255,255,255,.045);
+          background: var(--color-surface);
+          box-shadow: var(--shadow-card);
         }
 
         .activity-card::before {
@@ -159,6 +123,7 @@ export default function RecentActivityPrototype() {
         h1 {
           margin: 0;
           color: #F1F6FA;
+          font-family: ${inter.style.fontFamily};
           font-size: 20px;
           font-weight: 700;
           letter-spacing: -.035em;
@@ -168,23 +133,13 @@ export default function RecentActivityPrototype() {
           border: 0;
           padding: 4px 0;
           background: transparent;
-          color: #3FB7FF;
-          font: 600 11px Inter, "Segoe UI", system-ui, sans-serif;
+          color: var(--color-primary);
+          font: 600 11px ${inter.style.fontFamily}, system-ui, sans-serif;
           cursor: pointer;
         }
 
-        .activity-list {
-          position: relative;
-          z-index: 1;
-          border-top: 1px solid rgba(232,240,247,.07);
-        }
-
-        .activity-row {
-          position: relative;
-          display: flex;
-          gap: 11px;
-          padding: 16px 0;
-        }
+        .activity-list { position: relative; z-index: 1; border-top: 1px solid rgba(232,240,247,.07); }
+        .activity-row { position: relative; display: flex; gap: 11px; padding: 16px 0; }
 
         .activity-check {
           flex: 0 0 24px;
@@ -197,20 +152,11 @@ export default function RecentActivityPrototype() {
           border: 1px solid rgba(37,214,162,.25);
           border-radius: 7px;
           background: rgba(37,214,162,.07);
-          color: #54DDB7;
+          color: var(--color-accent);
         }
 
-        .activity-content {
-          min-width: 0;
-          flex: 1;
-        }
-
-        .activity-topline {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-        }
+        .activity-content { min-width: 0; flex: 1; }
+        .activity-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
         .activity-identity {
           display: flex;
@@ -222,6 +168,7 @@ export default function RecentActivityPrototype() {
 
         .mode {
           color: #F0F5F9;
+          font-family: ${inter.style.fontFamily};
           font-size: 12px;
           font-weight: 700;
           letter-spacing: -.012em;
@@ -250,9 +197,7 @@ export default function RecentActivityPrototype() {
           white-space: nowrap;
         }
 
-        .duration svg {
-          color: #25D6A2;
-        }
+        .duration svg { color: var(--color-accent); }
 
         .activity-main {
           display: flex;
@@ -266,29 +211,10 @@ export default function RecentActivityPrototype() {
           line-height: 1.45;
         }
 
-        .activity-main .action {
-          color: #9EDAFF;
-          font-weight: 650;
-        }
-
-        .activity-main .topic {
-          overflow: hidden;
-          color: #D9E5ED;
-          font-weight: 600;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .separator {
-          color: rgba(232,240,247,.23);
-        }
-
-        .timestamp {
-          margin: 4px 0 0;
-          color: rgba(232,240,247,.34);
-          font-size: 10px;
-          line-height: 1.4;
-        }
+        .activity-main .action { color: #9EDAFF; font-weight: 650; }
+        .activity-main .topic { overflow: hidden; color: #D9E5ED; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+        .separator { color: rgba(232,240,247,.23); }
+        .timestamp { margin: 4px 0 0; color: rgba(232,240,247,.34); font-size: 10px; line-height: 1.4; }
 
         .row-divider {
           position: absolute;
@@ -299,41 +225,17 @@ export default function RecentActivityPrototype() {
           background: rgba(232,240,247,.055);
         }
 
-        .activity-row:last-child .row-divider {
-          display: none;
-        }
+        .activity-row:last-child .row-divider { display: none; }
 
-        button:focus-visible {
-          outline: 2px solid #3FB7FF;
-          outline-offset: 3px;
-        }
+        button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 
         @media (max-width: 520px) {
-          .recent-activity-prototype {
-            padding: 18px 12px 40px;
-          }
-
-          .prototype-shell {
-            padding-top: 2vh;
-          }
-
-          .activity-card {
-            padding: 18px;
-            border-radius: 14px;
-          }
-
-          .activity-row {
-            gap: 9px;
-            padding: 15px 0;
-          }
-
-          .duration {
-            margin-top: 1px;
-          }
-
-          .row-divider {
-            left: 33px;
-          }
+          .recent-activity-prototype { padding: 18px 12px 40px; }
+          .prototype-shell { padding-top: 2vh; }
+          .activity-card { padding: 18px; border-radius: 14px; }
+          .activity-row { gap: 9px; padding: 15px 0; }
+          .duration { margin-top: 1px; }
+          .row-divider { left: 33px; }
         }
       `}</style>
     </main>
