@@ -11,7 +11,11 @@ function formatDuration(seconds: number) {
 }
 
 function formatTimestamp(value: string) {
-  return new Intl.DateTimeFormat('en-NG', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
+  return new Intl.DateTimeFormat('en-NG', {
+    timeZone: 'Africa/Lagos',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value))
 }
 
 export async function GET() {
