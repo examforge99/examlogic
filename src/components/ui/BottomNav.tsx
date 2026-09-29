@@ -79,6 +79,8 @@ export default function BottomNav() {
           alignItems: 'flex-start',
           justifyContent: 'space-around',
           paddingTop: '12px',
+          boxSizing: 'border-box',
+          minHeight: '76px',
           background: '#0d1f35ee',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
