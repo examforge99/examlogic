@@ -83,7 +83,6 @@ export default function BottomNav() {
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
-          paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         }}
         className="bottom-nav"
       >
