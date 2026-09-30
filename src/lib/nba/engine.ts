@@ -2,6 +2,7 @@ import { resolveActionType, ACTION_MULTIPLIERS } from './actions';
 import { checkBoundaries } from './boundaries';
 import { getPhase } from './phase';
 import { createClient } from '@supabase/supabase-js';
+import { generateMonthlyTimetable } from '@/lib/timetable/generator';
 import type { ActionType, NBAOutput, Phase, BoundaryState } from './types';
 
 function getNBAClient() {
@@ -196,7 +197,11 @@ export async function fireNBA(user_id: string): Promise<NBAFireResult> {
     .maybeSingle();
 
   if (ttError) throw ttError;
-  if (!tt) return { reason: 'no_timetable', missions: [] };
+
+  // NBA is the sole owner of automatic monthly timetable generation.
+  // If the current month's timetable does not exist, create it before
+  // reading today's scheduled subjects.
+  const timetableId = tt?.id ?? (await generateMonthlyTimetable(user_id, date.slice(0, 7))).timetable_id;
 
   const { data: day, error: dayError } = await db
     .from('timetable_days')
