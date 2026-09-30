@@ -411,3 +411,32 @@ select {
     font-size: 28px;
   }
 }
+
+
+.auth-google:active:not(:disabled) {
+  transform: scale(.985);
+}
+
+.auth-google-loading {
+  cursor: wait;
+  border-color: rgba(63,183,255,.28);
+  background: #0F1F34;
+}
+
+.auth-google-loading .auth-google-icon {
+  opacity: .8;
+}
+
+.auth-spinner {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  border: 2px solid rgba(232,240,247,.25);
+  border-top-color: #3FB7FF;
+  border-radius: 50%;
+  animation: auth-spin .7s linear infinite;
+}
+
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}
