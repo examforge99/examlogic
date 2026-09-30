@@ -333,11 +333,11 @@ select {
   opacity: .65;
 }
 
-.auth-google-mark {
-  font-family: Arial, sans-serif;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1;
+.auth-google-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: block;
 }
 
 .auth-bottom {
