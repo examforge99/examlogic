@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignIn, useAuth } from '@clerk/nextjs'
+import { useSignIn } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 
@@ -37,7 +37,6 @@ function messageFromError(error: any) {
 
 export default function LoginPage() {
   const { signIn } = useSignIn()
-  const { setActive } = useAuth()
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'forgot'>('login')
   const [email, setEmail] = useState('')
@@ -58,7 +57,7 @@ export default function LoginPage() {
     try {
       const result = await signIn.create({ identifier: email, password })
       if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
+        await signIn.finalize()
         router.push('/dashboard')
       } else {
         setError('Additional verification is required. Please continue your sign-in from the verification prompt.')
