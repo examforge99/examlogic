@@ -3,6 +3,7 @@ import type { NBAOutput } from '@/lib/nba/types';
 
 const schedule: NBAOutput[] = [
   {
+    batch_id: 'prototype-batch',
     subject_id: 'physics',
     topic_id: 'measurement',
     concept_window_id: 'measurement-physical-quantities',
@@ -21,6 +22,7 @@ const schedule: NBAOutput[] = [
     next_transition: null,
   },
   {
+    batch_id: 'prototype-batch',
     subject_id: 'physics',
     topic_id: 'measurement',
     concept_window_id: 'measurement-dimensions',
@@ -39,6 +41,7 @@ const schedule: NBAOutput[] = [
     next_transition: null,
   },
   {
+    batch_id: 'prototype-batch',
     subject_id: 'chemistry',
     topic_id: 'atomic-structure',
     concept_window_id: 'atomic-structure-electrons',
