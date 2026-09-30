@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { KeyboardEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { ChevronDown, Clock3 } from 'lucide-react'
 import MissionLoading from './MissionLoading'
 import MissionEmpty, { type MissionReason } from './MissionEmpty'
@@ -110,8 +110,8 @@ export default function TodayMission() {
   useEffect(() => { if (stage === 'reading' && seconds === 0) setStage('recommended') }, [seconds, stage])
   useEffect(() => {
     if (!subjectOpen) return
-    const outside = (event: PointerEvent) => { if (event.target instanceof Node && !pickerRef.current?.contains(event.target)) closeSubjectMenu() }
-    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); closeSubjectMenu() } }
+    const outside = (event: globalThis.PointerEvent) => { if (event.target instanceof Node && !pickerRef.current?.contains(event.target)) closeSubjectMenu() }
+    const escape = (event: globalThis.KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); closeSubjectMenu() } }
     document.addEventListener('pointerdown', outside)
     document.addEventListener('keydown', escape)
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
@@ -128,11 +128,11 @@ export default function TodayMission() {
     setSubjectOpen(true)
     window.setTimeout(() => optionRefs.current[index]?.focus(), 0)
   }
-  function triggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+  function triggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
     if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (!subjectOpen) openSubjectMenu() }
     if (event.key === 'Escape' && subjectOpen) { event.preventDefault(); closeSubjectMenu() }
   }
-  function optionKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+  function optionKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
     let next: number | null = null
     if (event.key === 'ArrowDown') next = (index + 1) % subjects.length
     if (event.key === 'ArrowUp') next = (index - 1 + subjects.length) % subjects.length
