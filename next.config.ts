@@ -13,7 +13,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://img.clerk.com",
   "font-src 'self' data:",
-  "worker-src 'self' blob:',
+  "worker-src 'self' blob:",
   "frame-src 'self' https://challenges.cloudflare.com https://*.protect.clerk.com",
   "connect-src 'self' https://*.protect.clerk.com:* https://*.clerk.com https://*.clerk.accounts.dev" + (clerkFrontendApi ? ` ${clerkFrontendApi}` : '') + (supabaseUrl ? ` ${supabaseUrl} wss:` : ''),
 ].join('; ')
