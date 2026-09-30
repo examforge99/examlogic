@@ -16,13 +16,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+    const batchId = body?.batch_id;
     const conceptWindowId = body?.concept_window_id;
     const actionType = body?.action_type;
     const timeSpentSeconds = Number.isFinite(body?.time_spent_seconds) ? Math.max(0, Math.floor(body.time_spent_seconds)) : 0;
 
-    if (!conceptWindowId || !actionType) {
+    if (!batchId || !conceptWindowId || !actionType) {
       return NextResponse.json(
-        { error: 'concept_window_id and action_type are required.' },
+        { error: 'batch_id, concept_window_id and action_type are required.' },
         { status: 400 },
       );
     }
@@ -33,8 +34,7 @@ export async function POST(request: Request) {
       .select('id,status')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .order('batch_number', { ascending: false })
-      .limit(1)
+      .eq('id', batchId)
       .maybeSingle();
 
     if (batchError) throw batchError;
