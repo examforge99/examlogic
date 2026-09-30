@@ -130,7 +130,7 @@ async function returnBatch(
 
   return ((data ?? []) as NbaLog[])
     .filter(log => log.concept_window_id && conceptById.has(log.concept_window_id))
-    .map(log => toOutput(log, conceptById.get(log.concept_window_id!)!, topicNameById, phase, subjectNameById.get(log.subject_id)));
+    .map(log => toOutput(log, conceptById.get(log.concept_window_id!)!, topicNameById, phase, subjectNameById.get(log.subject_id), batch.id));
 }
 
 function toOutput(
@@ -139,6 +139,7 @@ function toOutput(
   topicNameById: Map<string, string>,
   phase: Phase,
   subjectName?: string,
+  batchId: string,
 ): NBAOutput {
   const estimated_minutes = estimatedMinutes(concept, log.action_type);
   const boundary = log.boundary_state ?? {
@@ -149,6 +150,7 @@ function toOutput(
   };
 
   return {
+    batch_id: batchId,
     subject_id: log.subject_id,
     subject_name: subjectName,
     topic_id: log.topic_id ?? concept.topic_id,
@@ -396,6 +398,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
       };
 
       const output: NBAOutput = {
+        batch_id: '',
         subject_id: subjectId,
         subject_name: subjectNameById.get(subjectId) ?? undefined,
         topic_id: topic.id,
@@ -450,6 +453,8 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     if (racedBatch) return returnBatch(db, racedBatch, conceptById, phase, subjectNameById, topicNameById);
     throw batchError;
   }
+
+  for (const output of schedule) output.batch_id = batch.id;
 
   const rows = schedule.map(output => ({
     user_id,
