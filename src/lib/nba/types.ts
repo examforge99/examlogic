@@ -12,6 +12,7 @@ export interface BoundaryState {
 }
 
 export interface NBAOutput {
+  batch_id: string;
   subject_name?: string;
   subject_id: string;
   topic_id: string;
