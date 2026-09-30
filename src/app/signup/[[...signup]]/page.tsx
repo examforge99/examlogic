@@ -45,7 +45,7 @@ export default function SignUpPage() {
     try {
       const { error: createError } = await signUp.password({ emailAddress: email, password })
       if (createError) throw createError
-      const { error: verificationError } = await signUp.emailAddressVerification.sendCode()
+      const { error: verificationError } = await signUp.verifications.sendEmailCode()
       if (verificationError) throw verificationError
       setPendingVerification(true)
     } catch (err) {
@@ -61,7 +61,7 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      const { error: verifyError } = await signUp.emailAddressVerification.verifyCode({ code })
+      const { error: verifyError } = await signUp.verifications.verifyEmailCode({ code })
       if (verifyError) throw verifyError
       if (signUp.status === 'complete') {
         await signUp.finalize()
