@@ -55,8 +55,9 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await signIn.create({ identifier: email, password })
-      if (result.status === 'complete') {
+      const { error: createError } = await signIn.create({ identifier: email, password })
+      if (createError) throw createError
+      if (signIn.status === 'complete') {
         await signIn.finalize()
         router.push('/dashboard')
       } else {
@@ -73,7 +74,10 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await signIn.create({ strategy: 'reset_password_email_code', identifier: email })
+      const { error: createError } = await signIn.create({ identifier: email })
+      if (createError) throw createError
+      const { error: resetError } = await signIn.resetPasswordEmailCode.sendCode()
+      if (resetError) throw resetError
       setResetSent(true)
     } catch (err) {
       setError('We couldn’t send a reset code. Check the email and try again.')
@@ -86,9 +90,12 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await signIn.attemptFirstFactor({ strategy: 'reset_password_email_code', code, password: newPassword })
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
+      const { error: verifyError } = await signIn.resetPasswordEmailCode.verifyCode({ code })
+      if (verifyError) throw verifyError
+      const { error: passwordError } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPassword })
+      if (passwordError) throw passwordError
+      if (signIn.status === 'complete') {
+        await signIn.finalize()
         router.push('/dashboard')
       } else {
         setError('Password reset is not complete yet. Please check the code and try again.')
@@ -101,7 +108,7 @@ export default function LoginPage() {
   async function google() {
     if (loading) return
     setError('')
-    await signIn.authenticateWithRedirect({ strategy: 'oauth_google', redirectUrl: '/login/sso-callback', redirectUrlComplete: '/dashboard' })
+    await signIn.sso({ strategy: 'oauth_google', redirectCallbackUrl: '/login/sso-callback', redirectUrl: '/dashboard' })
   }
 
   if (mode === 'forgot') return <main style={styles.page}><div style={styles.shell}>
