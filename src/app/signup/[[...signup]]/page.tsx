@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignUp, useAuth } from '@clerk/nextjs'
+import { useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 const styles = {
@@ -29,7 +29,6 @@ function messageFromError(error: any) {
 
 export default function SignUpPage() {
   const { signUp } = useSignUp()
-  const { setActive } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,8 +43,10 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      await signUp.create({ emailAddress: email, password })
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      const { error: createError } = await signUp.password({ emailAddress: email, password })
+      if (createError) throw createError
+      const { error: verificationError } = await signUp.emailAddressVerification.sendCode()
+      if (verificationError) throw verificationError
       setPendingVerification(true)
     } catch (err) {
       setError(messageFromError(err))
@@ -60,9 +61,10 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code })
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
+      const { error: verifyError } = await signUp.emailAddressVerification.verifyCode({ code })
+      if (verifyError) throw verifyError
+      if (signUp.status === 'complete') {
+        await signUp.finalize()
         router.push('/onboarding')
       } else {
         setError('Verification is not complete yet. Please check the code and try again.')
@@ -77,11 +79,7 @@ export default function SignUpPage() {
   async function google() {
     if (loading) return
     setError('')
-    await signUp.authenticateWithRedirect({
-      strategy: 'oauth_google',
-      redirectUrl: '/signup/sso-callback',
-      redirectUrlComplete: '/onboarding',
-    })
+    await signUp.sso({ strategy: 'oauth_google', redirectCallbackUrl: '/signup/sso-callback', redirectUrl: '/onboarding' })
   }
 
   return <main style={styles.page}><div style={styles.shell}>
