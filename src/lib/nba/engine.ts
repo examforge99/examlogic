@@ -206,7 +206,7 @@ export async function fireNBA(user_id: string): Promise<NBAFireResult> {
   const { data: day, error: dayError } = await db
     .from('timetable_days')
     .select('id,date,day_type,scheduled_subject_ids')
-    .eq('timetable_id', tt.id)
+    .eq('timetable_id', timetableId)
     .eq('date', date)
     .maybeSingle<Day>();
 
