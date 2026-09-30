@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-geist-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-space-grotesk: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme {
@@ -70,7 +69,7 @@ body {
 
 body {
   color: var(--color-text-primary);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -108,12 +107,307 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
 }
 
 input,
 textarea,
 select {
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   outline: none;
+}
+
+/* Auth */
+.auth-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(560px 360px at 50% 8%, rgba(63, 183, 255, 0.07), transparent 68%),
+    radial-gradient(520px 320px at 50% 100%, rgba(37, 214, 162, 0.045), transparent 72%),
+    var(--color-background);
+  color: #E8F0F7;
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), transparent 28%, transparent 72%, rgba(255,255,255,0.01));
+}
+
+.auth-shell {
+  width: 100%;
+  max-width: 410px;
+}
+
+.auth-brand {
+  margin: 0 0 42px;
+  color: #E8F0F7;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.auth-brand-accent {
+  color: #25D6A2;
+}
+
+.auth-heading {
+  margin: 0;
+  color: #E8F0F7;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.auth-sub {
+  margin: 10px 0 28px;
+  color: #9AAABD;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-field {
+  margin-bottom: 17px;
+}
+
+.auth-label {
+  display: block;
+  margin: 0 0 7px;
+  color: #C7D3DF;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.auth-input {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 10px;
+  outline: none;
+  background: #0D1B2E;
+  color: #E8F0F7;
+  font-family: var(--font-body);
+  font-size: 14px;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.auth-input::placeholder {
+  color: #718399;
+}
+
+.auth-input:focus {
+  border-color: rgba(63,183,255,.48);
+  box-shadow: 0 0 0 3px rgba(63,183,255,.08);
+  background: #0E1D31;
+}
+
+.auth-password-wrap {
+  position: relative;
+}
+
+.auth-input-password {
+  padding-right: 46px;
+}
+
+.auth-eye {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  width: 32px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7F91A6;
+  cursor: pointer;
+}
+
+.auth-eye:hover {
+  color: #C7D3DF;
+}
+
+.auth-forgot {
+  display: block;
+  margin: -5px 0 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3FB7FF;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.auth-forgot:hover,
+.auth-link:hover {
+  color: #69C7FF;
+}
+
+.auth-primary {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: #25D6A2;
+  color: #06141F;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+
+.auth-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.auth-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.auth-primary:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: #718399;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.auth-divider-line {
+  height: 1px;
+  flex: 1;
+  background: rgba(255,255,255,.08);
+}
+
+.auth-google {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  background: #0D1B2E;
+  color: #E8F0F7;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease;
+}
+
+.auth-google:hover:not(:disabled) {
+  border-color: rgba(255,255,255,.18);
+  background: #0F1F34;
+}
+
+.auth-google:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.auth-google-mark {
+  font-family: Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.auth-bottom {
+  margin-top: 26px;
+  color: #8999AB;
+  font-family: var(--font-body);
+  font-size: 13px;
+  text-align: center;
+}
+
+.auth-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3FB7FF;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-error {
+  margin: 0 0 16px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255,90,90,.20);
+  border-radius: 9px;
+  background: rgba(255,90,90,.07);
+  color: #FFB4B4;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.auth-verify {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: #0D1B2E;
+}
+
+.auth-verify .auth-primary {
+  margin-top: 12px;
+}
+
+.auth-back {
+  display: block;
+  margin: 22px auto 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8999AB;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.auth-back:hover {
+  color: #C7D3DF;
+}
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 24px 20px;
+  }
+
+  .auth-brand {
+    margin-bottom: 34px;
+  }
+
+  .auth-heading {
+    font-size: 28px;
+  }
 }
