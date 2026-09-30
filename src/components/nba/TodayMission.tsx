@@ -12,6 +12,7 @@ import MissionReading from './MissionReading'
 type Action = 'READ' | 'RECALL' | 'PRACTICE' | 'REVIEW' | 'DRILL' | 'RELEARN'
 
 type Mission = {
+  batch_id: string
   subject_id: string
   subject_name?: string
   topic_id: string
@@ -206,7 +207,7 @@ export default function TodayMission() {
       const response = await fetch('/api/nba/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ concept_window_id: currentMission.concept_window_id, action_type: currentMission.action_type, time_spent_seconds: readingStartedAt.current ? Math.max(0, Math.floor((Date.now() - readingStartedAt.current) / 1000)) : 0 }),
+        body: JSON.stringify({ batch_id: currentMission.batch_id, concept_window_id: currentMission.concept_window_id, action_type: currentMission.action_type, time_spent_seconds: readingStartedAt.current ? Math.max(0, Math.floor((Date.now() - readingStartedAt.current) / 1000)) : 0 }),
       })
       const contentType = response.headers.get('content-type') ?? ''
       const raw = await response.text()
