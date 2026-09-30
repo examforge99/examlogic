@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignUp } from '@clerk/nextjs'
+import { useSignUp, useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 const styles = {
@@ -28,7 +28,8 @@ function messageFromError(error: any) {
 }
 
 export default function SignUpPage() {
-  const { isLoaded, signUp, setActive } = useSignUp()
+  const { signUp } = useSignUp()
+  const { setActive } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,7 +40,7 @@ export default function SignUpPage() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     setLoading(true)
     try {
@@ -55,7 +56,7 @@ export default function SignUpPage() {
 
   async function verify(event: React.FormEvent) {
     event.preventDefault()
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     setLoading(true)
     try {
@@ -74,7 +75,7 @@ export default function SignUpPage() {
   }
 
   async function google() {
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     await signUp.authenticateWithRedirect({
       strategy: 'oauth_google',
@@ -91,7 +92,7 @@ export default function SignUpPage() {
     {!pendingVerification ? <form onSubmit={submit}>
       <div style={styles.field}><label style={styles.label} htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={styles.input} required /></div>
       <div style={styles.field}><label style={styles.label} htmlFor="password">Password</label><input id="password" type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} style={styles.input} required /></div>
-      <button type="submit" disabled={!isLoaded || loading} style={{ ...styles.primary, opacity: !isLoaded || loading ? .65 : 1 }}>{loading ? 'Creating account…' : 'Create account'}</button>
+      <button type="submit" disabled={loading} style={{ ...styles.primary, opacity: loading ? .65 : 1 }}>{loading ? 'Creating account…' : 'Create account'}</button>
     </form> : <form onSubmit={verify}>
       <div style={styles.verify}><label style={styles.label} htmlFor="code">Verification code</label><input id="code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} style={styles.input} required /><button type="submit" disabled={loading} style={{ ...styles.primary, marginTop: 12 }}>{loading ? 'Verifying…' : 'Verify email'}</button></div>
     </form>}
