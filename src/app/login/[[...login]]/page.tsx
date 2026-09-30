@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignIn } from '@clerk/nextjs'
+import { useSignIn, useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 
@@ -36,7 +36,8 @@ function messageFromError(error: any) {
 }
 
 export default function LoginPage() {
-  const { signIn, setActive } = useSignIn()
+  const { signIn } = useSignIn()
+  const { setActive } = useAuth()
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'forgot'>('login')
   const [email, setEmail] = useState('')
