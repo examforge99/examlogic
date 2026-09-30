@@ -55,6 +55,10 @@ type NbaBatch = {
   status: 'active' | 'completed';
 };
 
+export type NBAFireReason = 'no_timetable' | 'no_exam_date' | 'rest_day' | 'no_hours' | 'no_content' | 'all_done' | 'ok';
+
+export type NBAFireResult = { reason: NBAFireReason; missions: NBAOutput[] };
+
 type NbaLog = {
   id?: string;
   batch_id: string;
@@ -171,7 +175,7 @@ function toOutput(
   };
 }
 
-export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
+export async function fireNBA(user_id: string): Promise<NBAFireResult> {
   const db = getNBAClient();
   const date = today();
 
@@ -182,7 +186,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     .maybeSingle();
 
   if (userError) throw userError;
-  if (!user?.exam_date) return [];
+  if (!user?.exam_date) return { reason: 'no_exam_date', missions: [] };
 
   const { data: tt, error: ttError } = await db
     .from('monthly_timetable')
@@ -192,7 +196,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     .maybeSingle();
 
   if (ttError) throw ttError;
-  if (!tt) return [];
+  if (!tt) return { reason: 'no_timetable', missions: [] };
 
   const { data: day, error: dayError } = await db
     .from('timetable_days')
@@ -202,10 +206,10 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     .maybeSingle<Day>();
 
   if (dayError) throw dayError;
-  if (!day || day.day_type !== 'practice') return [];
+  if (!day || day.day_type !== 'practice') return { reason: 'rest_day', missions: [] };
 
   const subjectIds = day.scheduled_subject_ids ?? [];
-  if (!subjectIds.length) return [];
+  if (!subjectIds.length) return { reason: 'rest_day', missions: [] };
 
   const { data: subjectRows, error: subjectsError } = await db
     .from('subjects')
@@ -228,7 +232,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
   const topicRows = (topics ?? []) as unknown as Topic[];
   const topicNameById = new Map(topicRows.map(topic => [topic.id, topic.name]));
-  if (!topicRows.length) return [];
+  if (!topicRows.length) return { reason: 'no_content', missions: [] };
 
   const topicIds = topicRows.map(x => x.id);
 
@@ -251,7 +255,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
   if (attemptsError) throw attemptsError;
 
   const conceptRows = (concepts ?? []) as Concept[];
-  if (!conceptRows.length) return [];
+  if (!conceptRows.length) return { reason: 'no_content', missions: [] };
 
   const conceptIds = conceptRows.map(concept => concept.id);
 
@@ -293,7 +297,8 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
   const conceptById = new Map(conceptRows.map(concept => [concept.id, concept]));
 
   if (activeBatch) {
-    return returnBatch(db, activeBatch, conceptById, phase, subjectNameById, topicNameById);
+    const missions = await returnBatch(db, activeBatch, conceptById, phase, subjectNameById, topicNameById);
+    return missions.length ? { reason: 'ok', missions } : { reason: 'all_done', missions: [] };
   }
 
   const completedConcepts = new Set(
@@ -303,7 +308,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
   );
 
   const totalMinutes = user.daily_hours == null ? 0 : Number(user.daily_hours) * 60;
-  if (totalMinutes <= 0) return [];
+  if (totalMinutes <= 0) return { reason: 'no_hours', missions: [] };
 
   const fairShare = totalMinutes / subjectIds.length;
   const usedBySubject = new Map<string, number>(
@@ -424,7 +429,7 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     }
   }
 
-  if (!schedule.length) return [];
+  if (!schedule.length) return { reason: 'all_done', missions: [] };
 
   const { data: latestBatch, error: latestBatchError } = await db
     .from('nba_batches')
@@ -450,7 +455,10 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
 
   if (batchError) {
     const racedBatch = await getActiveBatch(db, user_id, date);
-    if (racedBatch) return returnBatch(db, racedBatch, conceptById, phase, subjectNameById, topicNameById);
+    if (racedBatch) {
+      const missions = await returnBatch(db, racedBatch, conceptById, phase, subjectNameById, topicNameById);
+      return missions.length ? { reason: 'ok', missions } : { reason: 'all_done', missions: [] };
+    }
     throw batchError;
   }
 
@@ -480,5 +488,5 @@ export async function fireNBA(user_id: string): Promise<NBAOutput[]> {
     throw logError;
   }
 
-  return schedule;
+  return { reason: 'ok', missions: schedule };
 }
