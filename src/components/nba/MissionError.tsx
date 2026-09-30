@@ -1,12 +1,28 @@
 'use client'
 
-export default function MissionError({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+const styles = {
+  card: { minHeight: 320, padding: 21, border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
+  kicker: { margin: '0 0 8px', color: 'rgba(232,240,247,.72)', fontSize: 13, lineHeight: 1.4 } as const,
+  title: { margin: 0, color: '#F1F6FA', fontSize: 26, lineHeight: 1.15, letterSpacing: '-.025em' } as const,
+  support: { margin: '13px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 13, lineHeight: 1.6 } as const,
+  button: { width: '100%', minHeight: 50, marginTop: 23, border: '1px solid #3FB7FF', borderRadius: 12, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
+}
+
+export default function MissionError({ error, onRetry, busy = false }: { error: string | null; onRetry: () => void; busy?: boolean }) {
   return (
-    <div className='nba-card'>
-      <p className='stage-label'>Today’s Mission</p>
-      <h2>We couldn’t load the mission.</h2>
-      <p className='support mission-error'>{error}</p>
-      <button className='primary' onClick={onRetry}>Try Again <span>→</span></button>
+    <div style={styles.card} role='alert'>
+      <p style={styles.kicker}>Today’s Mission</p>
+      <h2 style={styles.title}>We couldn’t load today’s mission.</h2>
+      <p style={styles.support}>{error ?? 'Something went wrong. Please try again.'}</p>
+      <button style={styles.button} onClick={onRetry} disabled={busy} aria-busy={busy}>
+        {busy ? 'Retrying…' : 'Try Again'} <span aria-hidden='true'>→</span>
+      </button>
+      <style>{`
+        button:disabled { opacity: .55; cursor: not-allowed; }
+        button:focus-visible { outline: 3px solid rgba(63,183,255,.55); outline-offset: 2px; }
+        button:active:not(:disabled) { transform: translateY(1px); }
+        @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+      `}</style>
     </div>
   )
 }
