@@ -173,13 +173,26 @@ export async function generateMonthlyTimetable(
     .from('monthly_timetable')
     .select('id')
     .eq('user_id', userId)
-    .limit(1)
+    .eq('month', requestedKey)
     .maybeSingle();
 
   if (existingError) throw existingError;
 
   if (existing) {
-    throw new Error('A timetable already exists for this student. A new timetable cannot be generated.');
+    const { data: existingDays, error: existingDaysError } = await supabase
+      .from('timetable_days')
+      .select('date,day_type,scheduled_subject_ids')
+      .eq('timetable_id', existing.id)
+      .order('date', { ascending: true });
+
+    if (existingDaysError) throw existingDaysError;
+
+    return {
+      timetable_id: existing.id,
+      month: requestedKey,
+      phase,
+      days: (existingDays ?? []) as TimetableDay[],
+    };
   }
 
   const { data: created, error: createError } = await supabase
@@ -188,7 +201,37 @@ export async function generateMonthlyTimetable(
     .select('id')
     .single();
 
-  if (createError) throw createError;
+  if (createError) {
+    // A concurrent request may have created this month's timetable first.
+    if (createError.code === '23505') {
+      const { data: concurrent, error: concurrentError } = await supabase
+        .from('monthly_timetable')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('month', requestedKey)
+        .single();
+
+      if (concurrentError) throw concurrentError;
+
+      const { data: concurrentDays, error: concurrentDaysError } = await supabase
+        .from('timetable_days')
+        .select('date,day_type,scheduled_subject_ids')
+        .eq('timetable_id', concurrent.id)
+        .order('date', { ascending: true });
+
+      if (concurrentDaysError) throw concurrentDaysError;
+
+      return {
+        timetable_id: concurrent.id,
+        month: requestedKey,
+        phase,
+        days: (concurrentDays ?? []) as TimetableDay[],
+      };
+    }
+
+    throw createError;
+  }
+
   const timetableId = created.id;
 
   const { error: insertDaysError } = await supabase
