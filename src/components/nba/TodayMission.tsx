@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import { ChevronDown, Clock3 } from 'lucide-react'
 import MissionLoading from './MissionLoading'
 import MissionEmpty, { type MissionReason } from './MissionEmpty'
@@ -127,7 +128,7 @@ export default function TodayMission() {
     setSubjectOpen(true)
     window.setTimeout(() => optionRefs.current[index]?.focus(), 0)
   }
-  function triggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+  function triggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (!subjectOpen) openSubjectMenu() }
     if (event.key === 'Escape' && subjectOpen) { event.preventDefault(); closeSubjectMenu() }
   }
