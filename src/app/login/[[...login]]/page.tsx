@@ -36,7 +36,7 @@ function messageFromError(error: any) {
 }
 
 export default function LoginPage() {
-  const { isLoaded, signIn, setActive } = useSignIn()
+  const { signIn, setActive } = useSignIn()
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'forgot'>('login')
   const [email, setEmail] = useState('')
@@ -51,7 +51,7 @@ export default function LoginPage() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     setLoading(true)
     try {
@@ -69,7 +69,7 @@ export default function LoginPage() {
 
   async function sendReset(event: React.FormEvent) {
     event.preventDefault()
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     setLoading(true)
     try {
@@ -82,7 +82,7 @@ export default function LoginPage() {
 
   async function resetPassword(event: React.FormEvent) {
     event.preventDefault()
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     setLoading(true)
     try {
@@ -99,7 +99,7 @@ export default function LoginPage() {
   }
 
   async function google() {
-    if (!isLoaded || loading) return
+    if (loading) return
     setError('')
     await signIn.authenticateWithRedirect({ strategy: 'oauth_google', redirectUrl: '/login/sso-callback', redirectUrlComplete: '/dashboard' })
   }
@@ -111,11 +111,11 @@ export default function LoginPage() {
     {error && <div role="alert" style={styles.error}>{error}</div>}
     {!resetSent ? <form onSubmit={sendReset}>
       <div style={styles.field}><label style={styles.label} htmlFor="reset-email">Email</label><input id="reset-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={styles.input} required /></div>
-      <button type="submit" disabled={!isLoaded || loading} style={{ ...styles.primary, opacity: !isLoaded || loading ? .65 : 1 }}>{loading ? 'Sending code…' : 'Send reset code'}</button>
+      <button type="submit" disabled={loading} style={{ ...styles.primary, opacity: loading ? .65 : 1 }}>{loading ? 'Sending code…' : 'Send reset code'}</button>
     </form> : <form onSubmit={resetPassword}>
       <div style={styles.field}><label style={styles.label} htmlFor="reset-code">Verification code</label><input id="reset-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} style={styles.input} required /></div>
       <div style={styles.field}><label style={styles.label} htmlFor="new-password">New password</label><div style={styles.passwordWrap}><input id="new-password" type={showNewPassword ? 'text' : 'password'} autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={{ ...styles.input, ...styles.passwordInput }} required /><button type="button" aria-label={showNewPassword ? 'Hide password' : 'Show password'} style={styles.eye} onClick={() => setShowNewPassword(v => !v)}>{showNewPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></div>
-      <button type="submit" disabled={!isLoaded || loading} style={{ ...styles.primary, opacity: !isLoaded || loading ? .65 : 1 }}>{loading ? 'Updating password…' : 'Set new password'}</button>
+      <button type="submit" disabled={loading} style={{ ...styles.primary, opacity: loading ? .65 : 1 }}>{loading ? 'Updating password…' : 'Set new password'}</button>
     </form>}
     <button type="button" style={styles.back} onClick={() => { setMode('login'); setResetSent(false); setCode(''); setNewPassword(''); setError('') }}>← Back to sign in</button>
   </div></main>
@@ -129,7 +129,7 @@ export default function LoginPage() {
       <div style={styles.field}><label style={styles.label} htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={styles.input} required /></div>
       <div style={styles.field}><label style={styles.label} htmlFor="password">Password</label><div style={styles.passwordWrap}><input id="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} style={{ ...styles.input, ...styles.passwordInput }} required /><button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} style={styles.eye} onClick={() => setShowPassword(v => !v)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></div>
       <button type="button" style={styles.forgot} onClick={() => { setMode('forgot'); setError('') }}>Forgot password?</button>
-      <button type="submit" disabled={!isLoaded || loading} style={{ ...styles.primary, opacity: !isLoaded || loading ? .65 : 1 }}>{loading ? 'Signing in…' : 'Sign in'}</button>
+      <button type="submit" disabled={loading} style={{ ...styles.primary, opacity: loading ? .65 : 1 }}>{loading ? 'Signing in…' : 'Sign in'}</button>
     </form>
     <div style={styles.divider}><span style={styles.line} /><span>OR</span><span style={styles.line} /></div>
     <button type="button" style={styles.google} disabled={loading} onClick={google}><span style={styles.googleMark}>G</span>Continue with Google</button>
