@@ -12,7 +12,7 @@ function getDB() {
 
 export async function POST(request: Request) {
   const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
 
   try {
     const body = await request.json();
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     if (!batchId || !conceptWindowId || !actionType) {
       return NextResponse.json(
-        { error: 'batch_id, concept_window_id and action_type are required.' },
+        { error: 'INVALID_PAYLOAD' },
         { status: 400 },
       );
     }
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (batchError) throw batchError;
-    if (!batch) return NextResponse.json({ error: 'No active NBA batch.' }, { status: 404 });
+    if (!batch) return NextResponse.json({ error: 'MISSION_SESSION_NOT_FOUND' }, { status: 404 });
 
     const { data: log, error: logError } = await db
       .from('nba_log')
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (logError) throw logError;
-    if (!log) return NextResponse.json({ error: 'NBA mission not found in the active batch.' }, { status: 404 });
+    if (!log) return NextResponse.json({ error: 'MISSION_NOT_FOUND' }, { status: 404 });
 
     if (log.status === 'completed') {
       if (timeSpentSeconds > 0) {
@@ -88,6 +88,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ completed: true, batch_completed: batchCompleted }, { status: 200 });
   } catch (error) {
     console.error('[NBA] Failed to complete mission:', error);
-    return NextResponse.json({ error: 'Failed to complete NBA mission.' }, { status: 500 });
+    return NextResponse.json({ error: 'SERVICE_UNAVAILABLE' }, { status: 500 });
   }
 }
