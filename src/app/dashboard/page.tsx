@@ -4,6 +4,7 @@ import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
 import TodayMission from '@/components/nba/TodayMission'
 import RecentActivity from '@/components/RecentActivity'
+import TodaySchedule from '@/components/timetable/TodaySchedule'
 
 const styles = {
   page: { minHeight: '100vh', backgroundColor: '#071426' } as const,
@@ -16,6 +17,7 @@ export default function DashboardPage() {
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
       <main style={styles.main}>
         <TodayMission />
+        <TodaySchedule />
         <RecentActivity />
       </main>
       <BottomNav />
