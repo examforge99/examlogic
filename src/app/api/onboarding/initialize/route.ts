@@ -1,8 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-import { generateMonthlyTimetable } from '@/lib/timetable/generator';
-
 const DAYS = new Set(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
 const REQUIRED_SUBJECT_COUNT = 4;
 const REQUIRED_ENGLISH_SLUG = 'use-of-english';
@@ -89,19 +87,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Use of English is required.' }, { status: 400 });
     }
 
-    const { data: existing, error: existingError } = await db
-      .from('monthly_timetable')
-      .select('id')
-      .eq('user_id', userId)
-      .limit(1)
-      .maybeSingle();
-
-    if (existingError) throw existingError;
-
-    if (existing) {
-      return NextResponse.json({ error: 'Your timetable has already been created.' }, { status: 409 });
-    }
-
     const { data: updatedUser, error: updateError } = await db
       .from('users')
       .update({
@@ -117,10 +102,6 @@ export async function POST(request: Request) {
     if (updateError) throw updateError;
     if (!updatedUser) throw new Error('Unable to save your onboarding profile.');
 
-    // The timetable generator reads the persisted profile. Only generate after
-    // the onboarding data has been successfully written to the database.
-    const timetable = await generateMonthlyTimetable(userId);
-
     return NextResponse.json({
       onboarding: {
         exam_date: examDate,
@@ -128,7 +109,6 @@ export async function POST(request: Request) {
         daily_hours: dailyHours,
         subject_ids: uniqueSubjectIds,
       },
-      timetable,
     }, { status: 201 });
   } catch (error) {
     console.error('[Onboarding] Failed to initialize student:', error);
