@@ -32,11 +32,13 @@ export default function AuthPage() {
     setGoogleLoading(true)
 
     try {
-      await signIn.sso({
+      const { error } = await signIn.sso({
         strategy: 'oauth_google',
-        redirectCallbackUrl: '/login/sso-callback',
+        redirectCallbackUrl: '/auth/sso-callback',
         redirectUrl: '/dashboard',
       })
+
+      if (error) throw error
     } catch (err) {
       setGoogleLoading(false)
       setError(err instanceof Error ? err.message : 'We couldn’t connect to Google. Please try again.')
