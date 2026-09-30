@@ -29,7 +29,7 @@ export async function GET() {
     if (nbaResult.error) throw nbaResult.error
     if (sessionResult.error) throw sessionResult.error
     const usedSeconds = (nbaResult.data ?? []).reduce((sum, row) => sum + (row.time_spent_seconds ?? 0), 0) + (sessionResult.data ?? []).reduce((sum, row) => sum + (row.total_time_seconds ?? 0), 0)
-    const subjectIds = day?.scheduled_subject_ids ?? []
+    const subjectIds: string[] = Array.isArray(day?.scheduled_subject_ids) ? day.scheduled_subject_ids.filter((id): id is string => typeof id === 'string') : []
     const { data: subjects, error: subjectsError } = await db.from('subjects').select('id,name').in('id', subjectIds)
     if (subjectsError) throw subjectsError
     const subjectMap = new Map((subjects ?? []).map(subject => [subject.id, subject.name]))
