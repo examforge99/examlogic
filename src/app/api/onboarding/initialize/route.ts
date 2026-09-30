@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { generateMonthlyTimetable } from '@/lib/timetable/generator';
 
 const DAYS = new Set(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
 const REQUIRED_SUBJECT_COUNT = 4;
@@ -102,12 +103,20 @@ export async function POST(request: Request) {
     if (updateError) throw updateError;
     if (!updatedUser) throw new Error('Unable to save your onboarding profile.');
 
+    // Onboarding is the only initial timetable-generation path.
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const timetable = await generateMonthlyTimetable(userId, currentMonth);
+
     return NextResponse.json({
       onboarding: {
         exam_date: examDate,
         study_days: uniqueDays,
         daily_hours: dailyHours,
         subject_ids: uniqueSubjectIds,
+      },
+      timetable: {
+        id: timetable.timetable_id,
+        month: timetable.month,
       },
     }, { status: 201 });
   } catch (error) {
