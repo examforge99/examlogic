@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
+import { inter, spaceGrotesk } from './fonts'
 
 export const metadata: Metadata = {
   title: 'ExamLogic',
@@ -14,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className={`${inter.variable} ${spaceGrotesk.variable}`}>
         <ClerkProvider>
           {children}
         </ClerkProvider>
