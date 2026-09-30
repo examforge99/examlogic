@@ -55,7 +55,7 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const { error: createError } = await signIn.create({ identifier: email, password })
+      const { error: createError } = await signIn.password({ identifier: email, password })
       if (createError) throw createError
       if (signIn.status === 'complete') {
         await signIn.finalize()
