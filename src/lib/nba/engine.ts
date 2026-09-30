@@ -138,7 +138,7 @@ function toOutput(
   concept: Concept,
   topicNameById: Map<string, string>,
   phase: Phase,
-  subjectName?: string,
+  subjectName: string | undefined,
   batchId: string,
 ): NBAOutput {
   const estimated_minutes = estimatedMinutes(concept, log.action_type);
