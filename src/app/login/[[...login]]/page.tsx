@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
