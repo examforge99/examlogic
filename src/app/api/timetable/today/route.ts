@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generateMonthlyTimetable } from '@/lib/timetable/generator'
 
 function utcDate() { return new Date().toISOString().slice(0, 10) }
 function monthStart(date: string) { return date.slice(0, 7) + '-01' }
@@ -14,11 +13,10 @@ export async function GET() {
     const db = createClient()
     const date = utcDate()
     const month = monthStart(date)
-    let timetableId: string
-    const { data: existing, error: existingError } = await db.from('monthly_timetable').select('id').eq('user_id', userId).eq('month', month).maybeSingle()
-    if (existingError) throw existingError
-    if (existing) timetableId = existing.id
-    else { const generated = await generateMonthlyTimetable(userId, month.slice(0, 7)); timetableId = generated.timetable_id }
+    const { data: timetable, error: timetableError } = await db.from('monthly_timetable').select('id').eq('user_id', userId).eq('month', month).maybeSingle()
+    if (timetableError) throw timetableError
+    if (!timetable) return NextResponse.json({ error: 'TIMETABLE_NOT_READY' }, { status: 409 })
+    const timetableId = timetable.id
     const { data: day, error: dayError } = await db.from('timetable_days').select('date,day_type,scheduled_subject_ids').eq('timetable_id', timetableId).eq('date', date).maybeSingle()
     if (dayError) throw dayError
     const { data: user, error: userError } = await db.from('users').select('daily_hours').eq('id', userId).single()
