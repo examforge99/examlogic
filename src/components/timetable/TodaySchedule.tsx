@@ -47,10 +47,10 @@ export default function TodaySchedule() {
     let active = true
     fetch('/api/timetable/today', { cache: 'no-store', headers: { Accept: 'application/json' } })
       .then(response => response.ok ? response.json() : Promise.reject(new Error('Failed to load')))
-      .then(result => { if (active) setData(result as TodayScheduleData) })
-      .catch(() => { if (active) setData(null) })
+      .then(result => { if (active) { setData(result as TodayScheduleData); setLoading(false) } })
+      .catch(() => { if (active) { setLoading(false); if (!initialData) setData(null) } })
     return () => { active = false }
-  }, [])
+  }, [initialData])
 
   const planned = data?.planned_seconds ?? 0
   const remaining = data?.remaining_seconds ?? 0
@@ -65,7 +65,14 @@ export default function TodaySchedule() {
         </button>
       </div>
 
-      {data?.day_type === 'practice' ? (
+      {loading ? (
+        <div aria-busy='true' style={{ paddingTop: 18 }}>
+          <div style={{ width: '34%', height: 9, borderRadius: 5, background: 'rgba(232,240,247,.08)' }} />
+          <div style={{ width: '72%', height: 12, marginTop: 12, borderRadius: 5, background: 'rgba(232,240,247,.07)' }} />
+          <div style={{ height: 8, marginTop: 17, borderRadius: 999, background: 'rgba(232,240,247,.07)' }} />
+          <div style={{ width: '48%', height: 10, marginTop: 10, borderRadius: 5, background: 'rgba(232,240,247,.06)' }} />
+        </div>
+      ) : data?.day_type === 'practice' ? (
         <>
           <p style={styles.date}>{formatDate(data.date)}</p>
           <p style={styles.subjects}>{data.subjects.length ? data.subjects.join(' · ') : 'No subjects scheduled'}</p>
