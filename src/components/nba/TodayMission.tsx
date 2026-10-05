@@ -87,8 +87,6 @@ export default function TodayMission({ initialMissions, deferFetch = false }: { 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const readingStartedAt = useRef<number | null>(null)
-  const cacheKey = useMemo(() => `examlogic:nba:${new Date().toISOString().slice(0, 10)}`, [])
-
   const subjects = useMemo(() => {
     const seen = new Set<string>()
     return missions.filter(m => !seen.has(m.subject_id) && (seen.add(m.subject_id), true))
@@ -150,11 +148,6 @@ export default function TodayMission({ initialMissions, deferFetch = false }: { 
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectSubject(subjects[index].subject_id) }
     if (event.key === 'Escape') { event.preventDefault(); closeSubjectMenu() }
   }
-  function readCache(): Mission[] | null {
-    try { const raw = window.localStorage.getItem(cacheKey); if (!raw) return null; const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed as Mission[] : null } catch { return null }
-  }
-  function writeCache(next: Mission[]) { try { window.localStorage.setItem(cacheKey, JSON.stringify(next)) } catch {} }
-  function clearCache() { try { window.localStorage.removeItem(cacheKey) } catch {} }
   function applyResponse(data: FireResponse) {
     setMissions(data.missions); setCompletedIds(new Set()); setBoundaryResult(null)
     if (data.reason === 'ok' && data.missions.length) {
@@ -167,10 +160,7 @@ export default function TodayMission({ initialMissions, deferFetch = false }: { 
   async function loadMissions() {
     if (apiLoading) return
     setError(null)
-    const cached = readCache()
-    if (cached?.length) {
-      setMissions(cached); setSelectedSubjectId(current => cached.some(m => m.subject_id === current) ? current : cached[0].subject_id); setStage('ready')
-    } else setStage('loading')
+    setStage('loading')
     setApiLoading(true)
     try {
       const response = await fetch('/api/nba/fire', { method: 'POST', cache: 'no-store', headers: { Accept: 'application/json' } })
@@ -187,7 +177,6 @@ export default function TodayMission({ initialMissions, deferFetch = false }: { 
         console.error('[TodayMission] Invalid response shape'); throw new Error('INVALID_RESPONSE')
       }
       const result = data as FireResponse
-      if (result.reason === 'ok' && result.missions.length) writeCache(result.missions); else clearCache()
       applyResponse(result)
     } catch (e) {
       const code = e instanceof Error ? e.message : 'UNKNOWN'
