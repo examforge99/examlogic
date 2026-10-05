@@ -41,7 +41,7 @@ export default function DashboardPage() {
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
       <main style={styles.main}>
         <section style={styles.missionSection} aria-label="Today's focus">
-          <TodayMission initialMissions={snapshot?.missions} />
+          <TodayMission initialMissions={snapshot?.missions} deferFetch />
         </section>
 
         <div style={styles.supportStack}>
