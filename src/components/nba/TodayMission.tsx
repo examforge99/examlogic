@@ -9,7 +9,7 @@ import MissionError from './MissionError'
 import MissionReading from './MissionReading'
 
 type Action = 'READ' | 'RECALL' | 'PRACTICE' | 'REVIEW' | 'DRILL' | 'RELEARN'
-type Mission = {
+export type Mission = {
   batch_id: string
   subject_id: string
   subject_name?: string
