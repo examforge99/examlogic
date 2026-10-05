@@ -30,12 +30,81 @@ const styles = {
   missionSection: { width: '100%' } as const,
   supportStack: {
     display: 'grid',
-    gap: 28,
-    marginTop: 28,
+    gap: 22,
+    marginTop: 22,
   } as const,
 }
 
 export default function DashboardPage() {
+  const { user, isLoaded } = useUser()
+  const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null)
+  const cacheKey = useMemo(
+    () => user?.id ? `examlogic:dashboard:${user.id}` : null,
+    [user?.id]
+  )
+
+  const loadDashboard = useCallback(async () => {
+    if (!cacheKey) return
+
+    const headers = { Accept: 'application/json' }
+    const results = await Promise.allSettled([
+      fetch('/api/nba/fire', { method: 'POST', cache: 'no-store', headers })
+        .then(async response => {
+          if (!response.ok) throw new Error('mission')
+          return response.json()
+        }),
+      fetch('/api/recent-activity', { cache: 'no-store', headers })
+        .then(async response => {
+          if (!response.ok) throw new Error('activity')
+          return response.json()
+        }),
+      fetch('/api/timetable/today', { cache: 'no-store', headers })
+        .then(async response => {
+          if (!response.ok) throw new Error('schedule')
+          return response.json()
+        }),
+    ])
+
+    setSnapshot(current => ({
+      missions:
+        results[0].status === 'fulfilled' && Array.isArray(results[0].value?.missions)
+          ? results[0].value.missions
+          : current?.missions ?? [],
+      activities:
+        results[1].status === 'fulfilled' && Array.isArray(results[1].value?.activities)
+          ? results[1].value.activities
+          : current?.activities ?? [],
+      schedule:
+        results[2].status === 'fulfilled'
+          ? results[2].value
+          : current?.schedule ?? null,
+      savedAt: Date.now(),
+    }))
+  }, [cacheKey])
+
+  useEffect(() => {
+    if (!isLoaded || !cacheKey) return
+
+    try {
+      const raw = localStorage.getItem(cacheKey)
+      if (raw) {
+        const cached = JSON.parse(raw) as DashboardSnapshot
+        if (cached && Date.now() - cached.savedAt < SNAPSHOT_TTL) {
+          setSnapshot(cached)
+        }
+      }
+    } catch {}
+
+    void loadDashboard()
+  }, [isLoaded, cacheKey, loadDashboard])
+
+  useEffect(() => {
+    if (!cacheKey || !snapshot) return
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(snapshot))
+    } catch {}
+  }, [cacheKey, snapshot])
+
   return (
     <div style={styles.page}>
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
@@ -45,8 +114,8 @@ export default function DashboardPage() {
         </section>
 
         <div style={styles.supportStack}>
-          <TodaySchedule />
-          <RecentActivity />
+          <TodaySchedule initialData={snapshot?.schedule} deferFetch />
+          <RecentActivity activities={snapshot?.activities} deferFetch />
         </div>
       </main>
       <BottomNav />
