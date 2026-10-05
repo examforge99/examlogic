@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], weight: ['500', '600', '700'] })
 
@@ -133,7 +132,7 @@ export default function BottomNav() {
                 </div>
                 <span
                   style={{
-                    fontFamily: inter.style.fontFamily,
+                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                     fontSize: '10px',
                     fontWeight: 600,
                     color: '#25d6a2',
@@ -174,7 +173,7 @@ export default function BottomNav() {
 
               <span
                 style={{
-                  fontFamily: inter.style.fontFamily,
+                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   fontSize: '10px',
                   color: isActive ? '#25d6a2' : '#4d6a87',
                   fontWeight: isActive ? 700 : 500,
