@@ -11,117 +11,27 @@ import PracticeModeCard from '@/components/analytics/PracticeModeCard'
 
 export default function AnalyticsPage() {
   return (
-    <div
-      style={{ backgroundColor: '#071426' }}
-      className="min-h-screen"
-    >
-      <TopBar
-        title="Analytics"
-        subtitle="Track your progress"
-        showBack={false}
-        showNotif={true}
-        showAvatar={true}
-        avatarInitial="V"
-      />
-
-      <main className="w-full px-0 pt-3 pb-28 flex flex-col gap-3">
-
-        {/* Stat row */}
-        <div className="px-0 grid grid-cols-4 gap-2">
-          <StatCard
-            value="1,248"
-            label="Total Qs"
-            valueColor="#3FB7FF"
-            iconBg="#3FB7FF15"
-            icon={
-              <svg
-                width={12}
-                height={12}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#3FB7FF"
-                strokeWidth={2}
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            }
-          />
-
-          <StatCard
-            value="75"
-            suffix="%"
-            label="Avg Accuracy"
-            valueColor="#25d6a2"
-            iconBg="#25d6a215"
-            icon={
-              <svg
-                width={12}
-                height={12}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#25d6a2"
-                strokeWidth={2}
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            }
-          />
-
-          <StatCard
-            value="12"
-            suffix="d"
-            label="Streak"
-            valueColor="#ff8c55"
-            iconBg="#ff8c5515"
-            icon={
-              <svg
-                width={12}
-                height={12}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#ff8c55"
-                strokeWidth={2}
-              >
-                <path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-6-8-6-14z" />
-              </svg>
-            }
-          />
-
-          <StatCard
-            value="43"
-            suffix="h"
-            label="Study Time"
-            valueColor="#a78bfa"
-            iconBg="#a78bfa15"
-            icon={
-              <svg
-                width={12}
-                height={12}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#a78bfa"
-                strokeWidth={2}
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            }
-          />
-        </div>
-
-        {/* Analytics cards */}
+    <div style={{ minHeight: '100vh', backgroundColor: '#071426' }}>
+      <TopBar title="Analytics" subtitle="Track your progress" showBack={false} showNotif={true} showAvatar={true} avatarInitial="V" />
+      <main style={{ width: '100%', maxWidth: 620, margin: '0 auto', padding: '18px 16px 120px', boxSizing: 'border-box' }}>
+        <section aria-labelledby="analytics-heading" style={{ marginBottom: 24 }}>
+          <h1 id="analytics-heading" style={{ margin: 0, color: '#E8F0F7', fontFamily: 'Space Grotesk, Inter, sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-.035em' }}>Your learning performance</h1>
+          <p style={{ margin: '5px 0 0', color: 'rgba(232,240,247,.48)', fontFamily: 'Inter,sans-serif', fontSize: 12, lineHeight: 1.5 }}>See what is improving, where you are struggling, and how you have been preparing.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 18 }}>
+            <StatCard value="1,248" label="Questions" valueColor="#3FB7FF" iconBg="transparent" icon={<span style={{ color: '#3FB7FF' }}>↗</span>} className="analytics-stat" />
+            <StatCard value="43" suffix="h" label="Study time" valueColor="#A78BFA" iconBg="transparent" icon={<span style={{ color: '#A78BFA' }}>◷</span>} className="analytics-stat" />
+            <StatCard value="12" suffix="d" label="Current streak" valueColor="#FF8C55" iconBg="transparent" icon={<span style={{ color: '#FF8C55' }}>↗</span>} className="analytics-stat" />
+          </div>
+        </section>
         <AccuracyTrendChart />
-
-        <HeatMap />
-
-        <DifficultyPerformanceCard />
-
-        <PracticeModeCard />
-
+        <div style={{ display: 'grid', gap: 30, marginTop: 30 }}>
+          <HeatMap />
+          <DifficultyPerformanceCard />
+          <PracticeModeCard />
+        </div>
       </main>
-
       <BottomNav />
+      <style>{'.analytics-stat>div:first-child{display:none!important}.analytics-stat{min-width:0}.analytics-stat span{white-space:normal}'}</style>
     </div>
   )
 }

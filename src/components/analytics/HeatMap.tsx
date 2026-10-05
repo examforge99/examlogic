@@ -196,7 +196,7 @@ export default function HeatMap({
         {/* Header */}
 <div className="flex items-center justify-between mb-[10px]">
   <span
-    className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
+    id="consistency-title" className="text-[16px] font-bold text-[#e8f0f7] tracking-[-0.025em]"
     style={{ fontFamily: inter.style.fontFamily }}
   >
          Consistency
@@ -223,7 +223,7 @@ export default function HeatMap({
         {/* Streak row */}
         
         <div
-  style={{display: 'flex', gap: '5px', marginTop: '14px',  marginBottom: '10px',
+  style={{display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '8px', marginTop: '14px', marginBottom: '16px',
   }}
 >
   {[
@@ -239,7 +239,7 @@ export default function HeatMap({
   ].map((s) => (
     <div
   key={s.label}
-  style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#112236', border: '1px solid #1a3a5c',  borderRadius: '8px', padding: '6px 9px', minWidth: 0,  }}
+  style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'transparent', border: '0', borderTop: '1px solid rgba(232,240,247,.08)', borderRadius: '0', padding: '9px 4px 0', minWidth: 0,  }}
 >
       <span
         style={{  fontSize: '13px', lineHeight: 1,  flexShrink: 0,

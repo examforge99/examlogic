@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { createLegacySupabaseClient } from "@/lib/supabase"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -11,6 +13,8 @@ export async function GET(request: Request) {
       { status: 400 }
     )
   }
+
+  const supabase = createLegacySupabaseClient()
 
   const { data, error } = await supabase
     .from("topics")
