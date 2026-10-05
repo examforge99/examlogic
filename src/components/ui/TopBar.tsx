@@ -127,6 +127,35 @@ export default function TopBar({
               </p>
             )}
           </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <p
+              style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                lineHeight: 1,
+                fontFamily: 'var(--font-inter), Inter, sans-serif',
+                margin: 0,
+              }}
+            >
+              <span style={{ color: '#e8f4ff' }}>Exam</span>
+              <span style={{ color: '#25d6a2' }}>Logic</span>
+            </p>
+            {subtitle && (
+              <p
+                style={{
+                  fontSize: '11px',
+                  color: '#4d6a87',
+                  fontFamily: inter.style.fontFamily,
+                  margin: 0,
+                  marginTop: '2px',
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
         )}
       </div>
 
