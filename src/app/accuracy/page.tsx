@@ -2,9 +2,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Inter } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type TimeRange = '7' | '30' | '90'
 
@@ -151,7 +149,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
       <div className="flex items-center justify-between gap-2 mb-[10px]">
         <span
           className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
-          style={{ fontFamily: inter.style.fontFamily }}
+          style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
         >
           Accuracy Trend
         </span>
@@ -160,7 +158,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
   onChange={(e) => setRange(e.target.value as TimeRange)}
   className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] text-[11px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
   style={{
-    fontFamily: inter.style.fontFamily,
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
     padding: '4px 28px 4px 10px',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
@@ -183,13 +181,13 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
         </span>
         <span
           className="text-[11px] text-[#4d6a87]"
-          style={{ fontFamily: inter.style.fontFamily }}
+          style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
         >
           avg accuracy
         </span>
         <span
   className={`text-[11px] font-semibold rounded-full ${d.deltaUp ? 'text-[#25d6a2] bg-[#25d6a215]' : 'text-[#ff6b6b] bg-[#ff6b6b15]'}`}
-  style={{ fontFamily: inter.style.fontFamily, padding: '4px 10px' }}
+  style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', padding: '4px 10px' }}
 >
           {d.delta}
         </span>
@@ -204,7 +202,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
             <span
               key={l}
               className="text-[8px] font-medium text-[#2a4a6a] text-right leading-none"
-              style={{ fontFamily: inter.style.fontFamily }}
+              style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
             >
               {l}
             </span>
@@ -275,7 +273,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
             {tooltip && (
               <div
                 className="absolute pointer-events-none z-10 bg-[#112236] border border-[#1a3a5c] rounded-[7px] px-2 py-1 text-[10px] font-semibold text-[#e8f4ff] whitespace-nowrap -translate-x-1/2"
-                style={{ left: tooltip.x, top: tooltip.y, fontFamily: inter.style.fontFamily }}
+                style={{ left: tooltip.x, top: tooltip.y, fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
               >
                 {tooltip.text}
               </div>
@@ -296,13 +294,13 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
                 >
                   <span
                     className="text-[8px] font-semibold text-[#4d6a87] whitespace-nowrap"
-                    style={{ fontFamily: inter.style.fontFamily }}
+                    style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
                   >
                     {p.main}
                   </span>
                   <span
                     className="text-[7px] text-[#2a4a6a] whitespace-nowrap"
-                    style={{ fontFamily: inter.style.fontFamily }}
+                    style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
                   >
                     {p.sub}
                   </span>
@@ -316,7 +314,7 @@ export default function AccuracyTrendChart({ data = defaultData }: AccuracyTrend
       {/* Scroll hint */}
       {maxPan > 0 && (
         <div className="flex items-center justify-end gap-1 mt-1">
-          <span className="text-[8px] text-[#2a4a6a]" style={{ fontFamily: inter.style.fontFamily }}>
+          <span className="text-[8px] text-[#2a4a6a]" style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}>
             drag to scroll
           </span>
           <svg width={9} height={9} viewBox="0 0 24 24" fill="none" stroke="#2a4a6a" strokeWidth={2}>
