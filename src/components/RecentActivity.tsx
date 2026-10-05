@@ -4,12 +4,12 @@ import { Clock3, RotateCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export type RecentActivityItem = { id: string; topic: string; subject: string; mode: string; action?: 'Read' | 'Recall' | 'Practice'; duration: string; timestamp: string }
-type RecentActivityProps = { activities?: RecentActivityItem[]; onSeeAll?: () => void; deferFetch?: boolean }
+type RecentActivityProps = { activities?: RecentActivityItem[]; onSeeAll?: () => void; deferFetch?: boolean; initialError?: boolean }
 type ActivityState = 'loading' | 'success' | 'empty' | 'error'
 
-export default function RecentActivity({ activities: initialActivities, onSeeAll, deferFetch = false }: RecentActivityProps) {
+export default function RecentActivity({ activities: initialActivities, onSeeAll, deferFetch = false, initialError = false }: RecentActivityProps) {
   const [activities, setActivities] = useState<RecentActivityItem[]>(initialActivities ?? [])
-  const [state, setState] = useState<ActivityState>(initialActivities ? (initialActivities.length ? 'success' : 'empty') : 'loading')
+  const [state, setState] = useState<ActivityState>(initialError ? 'error' : initialActivities ? (initialActivities.length ? 'success' : 'empty') : 'loading')
 
   async function loadActivities() {
     setState('loading')
@@ -26,6 +26,7 @@ export default function RecentActivity({ activities: initialActivities, onSeeAll
   }
 
   useEffect(() => {
+    if (initialError) { setState('error'); return }
     if (initialActivities) {
       setActivities(initialActivities)
       setState(initialActivities.length ? 'success' : 'empty')
