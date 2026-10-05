@@ -2,11 +2,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter } from 'next/font/google'
 import ProgressBar from '@/components/ui/ProgressBar'
 import Divider from '@/components/ui/Divider'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type TimeRange = '7' | '30' | '90'
 
@@ -93,7 +91,7 @@ export default function DifficultyPerformanceCard({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '14px', }}>
         <span
           id="difficulty-title" className="text-[16px] font-bold text-[#e8f0f7] tracking-[-0.025em]"
-          style={{ fontFamily: inter.style.fontFamily }}
+          style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
         >
           Difficulty Performance
         </span>
@@ -102,7 +100,7 @@ export default function DifficultyPerformanceCard({
   onChange={(e) => setRange(e.target.value as TimeRange)}
   className="appearance-none"
   style={{
-    fontFamily: inter.style.fontFamily,
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
     backgroundColor: '#112236',
     border: '1px solid #1a3a5c',
     borderRadius: '8px',
@@ -141,7 +139,7 @@ export default function DifficultyPerformanceCard({
                 </span>
                 <span
                   className="text-[8px] font-medium text-[#4d6a87] whitespace-nowrap"
-                  style={{ fontFamily: inter.style.fontFamily }}
+                  style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
                 >
                   {level.label}
                 </span>
@@ -181,7 +179,7 @@ export default function DifficultyPerformanceCard({
 >
         <span
           className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#4d6a87]"
-          style={{ fontFamily: inter.style.fontFamily }}
+          style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
         >
           Your Current Level
         </span>
@@ -194,7 +192,7 @@ export default function DifficultyPerformanceCard({
           />
           <span
             className="text-[10px] font-bold text-[#25d6a2]"
-            style={{ fontFamily: inter.style.fontFamily }}
+            style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
           >
             Level {d.currentLevel} · {currentLevelLabel}
           </span>
@@ -212,14 +210,14 @@ export default function DifficultyPerformanceCard({
           </span>
           <span
             className="text-[11px] font-medium text-[#4d6a87]"
-            style={{ fontFamily: inter.style.fontFamily }}
+            style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
           >
             / {d.nextLevelPoints.toLocaleString()} pts
           </span>
         </div>
         <span
           className="text-[10px] font-semibold text-[#3FB7FF]"
-          style={{ fontFamily: inter.style.fontFamily }}
+          style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
         >
           {ptsToNext.toLocaleString()} pts to Level {d.currentLevel + 1}
         </span>
@@ -237,7 +235,7 @@ export default function DifficultyPerformanceCard({
       {/* Caption */}
       <p
         className="text-[10px] text-[#4d6a87]"
-        style={{ fontFamily: inter.style.fontFamily }}
+        style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
       >
         Answer more{' '}
         <span className="text-[#25d6a2] font-semibold">
