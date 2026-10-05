@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { ArrowRight, Clock3, BookOpen, CalendarDays } from 'lucide-react'
+import { ArrowRight, CalendarDays } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
 import TodayMission, { type Mission } from '@/components/nba/TodayMission'
@@ -131,14 +131,7 @@ export default function DashboardPage() {
   const remaining = schedule?.remaining_seconds ?? 0
   const progress = planned > 0 ? Math.max(0, Math.min(100, ((planned - remaining) / planned) * 100)) : 0
 
-  const topicRows = useMemo(() => {
-    const seen = new Set<string>()
-    return (data?.missions ?? []).filter(m => {
-      if (seen.has(m.subject_id)) return false
-      seen.add(m.subject_id)
-      return true
-    }).slice(0, 4)
-  }, [data?.missions])
+
 
   return (
     <div style={styles.page}>
@@ -204,31 +197,6 @@ export default function DashboardPage() {
             )}
           </section>
 
-          <section style={styles.card} aria-labelledby="subjects-topics-title">
-            <div style={styles.cardHeader}>
-              <div>
-                <h2 id="subjects-topics-title" style={styles.cardTitle}>Subjects & topics</h2>
-                <p style={styles.muted}>What your current study focus contains.</p>
-              </div>
-              <button type="button" style={styles.link} onClick={() => { window.location.href = '/subjects' }}>
-                Subjects <ArrowRight size={13} />
-              </button>
-            </div>
-
-            <div style={{ marginTop: 8 }}>
-              {topicRows.length ? topicRows.map((mission, index) => (
-                <div key={mission.subject_id} style={{ ...styles.row, borderBottom: index === topicRows.length - 1 ? '0' : styles.row.borderBottom }}>
-                  <div style={styles.rowMain}>
-                    <p style={styles.rowTitle}>{mission.subject_name ?? mission.subject_id}</p>
-                    <p style={styles.rowMeta}>{mission.topic_name ?? mission.concept_name}</p>
-                  </div>
-                  <div style={styles.iconBox}><BookOpen size={15} aria-hidden="true" /></div>
-                </div>
-              )) : (
-                <p style={{ ...styles.muted, marginTop: 16 }}>Your current subjects and topics will appear here.</p>
-              )}
-            </div>
-          </section>
 
           <RecentActivity activities={data?.activities} deferFetch />
         </div>
