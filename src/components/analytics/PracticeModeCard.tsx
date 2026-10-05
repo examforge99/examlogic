@@ -2,474 +2,51 @@
 
 import { useState } from 'react'
 import { Inter } from 'next/font/google'
-import Divider from '@/components/ui/Divider'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type TimeRange = '7' | '30' | 'all'
-
-interface ModeStats {
-  sessions: number
-  accuracy: number
-  bestScore: string
-}
-
-interface ModeData {
-  name: string
-  icon: string
-  color: string
-  iconBg: string
-  stats: Record<TimeRange, ModeStats>
-}
+interface ModeStats { sessions: number; accuracy: number; bestScore: string }
+interface ModeData { name: string; color: string; stats: Record<TimeRange, ModeStats> }
 
 const modes: ModeData[] = [
-  {
-    name: 'Quick Fire',
-    icon: '⚡',
-    color: '#facc15',
-    iconBg: 'rgba(250,204,21,0.15)',
-    stats: {
-      '7':   { sessions: 8,  accuracy: 74, bestScore: '18/20'   },
-      '30':  { sessions: 28, accuracy: 76, bestScore: '18/20'   },
-      'all': { sessions: 54, accuracy: 72, bestScore: '19/20'   },
-    },
-  },
-  {
-    name: 'Campaign',
-    icon: '🎯',
-    color: '#25d6a2',
-    iconBg: 'rgba(37,214,162,0.15)',
-    stats: {
-      '7':   { sessions: 4,  accuracy: 70, bestScore: '65%'     },
-      '30':  { sessions: 16, accuracy: 72, bestScore: '68%'     },
-      'all': { sessions: 30, accuracy: 69, bestScore: '71%'     },
-    },
-  },
-  {
-    name: 'JAMB Simulation',
-    icon: '📋',
-    color: '#3FB7FF',
-    iconBg: 'rgba(63,183,255,0.15)',
-    stats: {
-      '7':   { sessions: 2,  accuracy: 66, bestScore: '264/400' },
-      '30':  { sessions: 6,  accuracy: 68, bestScore: '276/400' },
-      'all': { sessions: 11, accuracy: 65, bestScore: '276/400' },
-    },
-  },
-  {
-    name: 'Sudden Death',
-    icon: '💀',
-    color: '#ef4444',
-    iconBg: 'rgba(239,68,68,0.15)',
-    stats: {
-      '7':   { sessions: 3,  accuracy: 59, bestScore: '10/20'   },
-      '30':  { sessions: 9,  accuracy: 61, bestScore: '12/20'   },
-      'all': { sessions: 17, accuracy: 58, bestScore: '13/20'   },
-    },
-  },
+  { name: 'Quick Fire', color: '#facc15', stats: { '7': { sessions: 8, accuracy: 74, bestScore: '18/20' }, '30': { sessions: 28, accuracy: 76, bestScore: '18/20' }, all: { sessions: 54, accuracy: 72, bestScore: '19/20' } } },
+  { name: 'Campaign', color: '#25d6a2', stats: { '7': { sessions: 4, accuracy: 70, bestScore: '65%' }, '30': { sessions: 16, accuracy: 72, bestScore: '68%' }, all: { sessions: 30, accuracy: 69, bestScore: '71%' } } },
+  { name: 'JAMB Simulation', color: '#3FB7FF', stats: { '7': { sessions: 2, accuracy: 66, bestScore: '264/400' }, '30': { sessions: 6, accuracy: 68, bestScore: '276/400' }, all: { sessions: 11, accuracy: 65, bestScore: '276/400' } } },
+  { name: 'Sudden Death', color: '#ef4444', stats: { '7': { sessions: 3, accuracy: 59, bestScore: '10/20' }, '30': { sessions: 9, accuracy: 61, bestScore: '12/20' }, all: { sessions: 17, accuracy: 58, bestScore: '13/20' } } },
 ]
 
-export default function PracticeModeCard({ className = '' }: { className?: string }) {
-  const [range, setRange]         = useState<TimeRange>('30')
-  const [reviewing, setReviewing] = useState<ModeData | null>(null)
+export default function PracticeModeCard() {
+  const [range, setRange] = useState<TimeRange>('30')
 
   return (
-    <>
-      <div
-        className={className}
-        style={{
-          margin: '0 14px',
-          backgroundColor: '#0d1f35',
-          border: '1px solid #1a3a5c',
-          borderRadius: '16px',
-          padding: '14px',
-        }}
-      >
-
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth={2}>
-              <path d="M9 11l3 3L22 4"/>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-            </svg>
-            <span
-              style={{
-                fontFamily: inter.style.fontFamily,
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: '#4d6a87',
-              }}
-            >
-              Practice Mode Performance
-            </span>
-          </div>
-
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value as TimeRange)}
-            style={{
-              fontFamily: inter.style.fontFamily,
-              backgroundColor: '#112236',
-              border: '1px solid #1a3a5c',
-              borderRadius: '8px',
-              padding: '4px 28px 4px 10px',
-              fontSize: '10px',
-              fontWeight: 600,
-              color: '#a8c8e8',
-              outline: 'none',
-              cursor: 'pointer',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 6px center',
-            }}
-          >
-            <option value="7">7 Days</option>
-            <option value="30">30 Days</option>
-            <option value="all">All Time</option>
-          </select>
+    <section style={{ width: '100%', color: '#E8F0F7' }} aria-labelledby="practice-modes-title">
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <div>
+          <h2 id="practice-modes-title" style={{ margin: 0, fontFamily: inter.style.fontFamily, fontSize: 16, fontWeight: 700, letterSpacing: '-.025em' }}>Practice modes</h2>
+          <p style={{ margin: '4px 0 0', fontFamily: inter.style.fontFamily, fontSize: 10, color: 'rgba(232,240,247,.42)' }}>Compare how you perform in each mode.</p>
         </div>
-
-        {/* Mode cards grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: '10px',
-            marginBottom: '16px',
-          }}
-        >
-          {modes.map((mode) => {
-            const s = mode.stats[range]
-            return (
-              <div
-                key={mode.name}
-                style={{
-                  backgroundColor: '#112236',
-                  border: '1px solid #1a3a5c',
-                  borderRadius: '12px',
-                  padding: '14px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-
-                {/* Mode header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div
-                    style={{
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '13px',
-                      flexShrink: 0,
-                      background: mode.iconBg,
-                    }}
-                  >
-                    {mode.icon}
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      color: '#e8f4ff',
-                      lineHeight: 1.3,
-                      minWidth: 0,
-                    }}
-                  >
-                    {mode.name}
-                  </span>
-                </div>
-
-                {/* Sessions */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
-                    Sessions
-                  </span>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
-                    {s.sessions}
-                  </span>
-                </div>
-
-                {/* Accuracy */}
-                <div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '26px',
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      color: mode.color,
-                    }}
-                  >
-                    {s.accuracy}%
-                  </span>
-                  <p
-                    style={{
-                      fontFamily: inter.style.fontFamily,
-                      fontSize: '11px',
-                      color: '#4d6a87',
-                      marginTop: '2px',
-                    }}
-                  >
-                    Accuracy
-                  </p>
-                </div>
-
-                <Divider />
-
-                {/* Best score */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
-                    Best Score
-                  </span>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
-                    {s.bestScore}
-                  </span>
-                </div>
-
-                {/* Review button */}
-                <button
-                  onClick={() => setReviewing(mode)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 0',
-                    borderRadius: '8px',
-                    fontFamily: 'var(--font-inter), Inter, sans-serif',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    border: `1px solid ${mode.color}99`,
-                    background: `linear-gradient(135deg, ${mode.color}ee 0%, ${mode.color} 45%, ${mode.color}cc 100%)`,
-                    color: mode.color === '#ef4444' ? '#ffffff' : '#071426',
-                    boxShadow: `
-                      inset 0 1px 0 rgba(255,255,255,0.25),
-                      inset 0 -1px 0 rgba(0,0,0,0.12),
-                      0 3px 10px ${mode.color}25
-                    `,
-                  }}
-                >
-                  Review
-                </button>
-
-              </div>
-            )
-          })}
-        </div>
-
-        <Divider />
-
-        {/* Footer */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingTop: '14px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: inter.style.fontFamily,
-              fontSize: '11px',
-              color: '#475569',
-              lineHeight: 1.4,
-            }}
-          >
-            Tap Review to see session history and missed questions
-          </span>
-          <span style={{ color: '#3FB7FF', fontSize: '16px', flexShrink: 0 }}>›</span>
-        </div>
-
+        <select value={range} onChange={e => setRange(e.target.value as TimeRange)} aria-label="Practice mode period" style={{ fontFamily: inter.style.fontFamily, background: '#112236', border: '1px solid #1a3a5c', borderRadius: 8, padding: '5px 8px', fontSize: 10, fontWeight: 600, color: '#a8c8e8', outline: 'none' }}>
+          <option value="7">7 days</option>
+          <option value="30">30 days</option>
+          <option value="all">All time</option>
+        </select>
       </div>
-
-      {/* Review bottom sheet */}
-      {reviewing && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 200,
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            background: '#07142670',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-          }}
-          onClick={(e) => e.target === e.currentTarget && setReviewing(null)}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '480px',
-              backgroundColor: '#0d1f35',
-              border: '1px solid #1a3a5c',
-              borderRadius: '20px 20px 0 0',
-              padding: '14px 18px 40px',
-              animation: 'slideUp 0.2s ease',
-            }}
-          >
-
-            {/* Handle */}
-            <div
-              style={{
-                width: '32px',
-                height: '3px',
-                backgroundColor: '#1a3a5c',
-                borderRadius: '999px',
-                margin: '0 auto 16px',
-              }}
-            />
-
-            {/* Header */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '16px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px',
-                    background: reviewing.iconBg,
-                  }}
-                >
-                  {reviewing.icon}
-                </div>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-inter), Inter, sans-serif',
-                    fontSize: '17px',
-                    fontWeight: 700,
-                    color: '#e8f4ff',
-                  }}
-                >
-                  {reviewing.name}
-                </span>
+      <div style={{ borderTop: '1px solid rgba(232,240,247,.07)' }}>
+        {modes.map((mode, index) => {
+          const stats = mode.stats[range]
+          return (
+            <div key={mode.name} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto auto', alignItems: 'center', gap: 12, padding: '13px 0', borderBottom: index < modes.length - 1 ? '1px solid rgba(232,240,247,.055)' : '0' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: inter.style.fontFamily, fontSize: 13, fontWeight: 700, color: '#dfeaf1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mode.name}</div>
+                <div style={{ marginTop: 4, fontFamily: inter.style.fontFamily, fontSize: 9, color: 'rgba(232,240,247,.4)' }}>{stats.sessions} sessions · Best {stats.bestScore}</div>
               </div>
-
-              <button
-                onClick={() => setReviewing(null)}
-                style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '7px',
-                  backgroundColor: '#112236',
-                  border: '1px solid #1a3a5c',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#4d6a87',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                }}
-              >
-                ✕
-              </button>
+              <strong style={{ fontFamily: 'Space Grotesk, Inter, sans-serif', fontSize: 18, fontWeight: 700, color: mode.color }}>{stats.accuracy}%</strong>
+              <span aria-hidden="true" style={{ fontSize: 17, color: '#3FB7FF' }}>›</span>
             </div>
-
-            {/* Stats summary */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                gap: '8px',
-                marginBottom: '16px',
-              }}
-            >
-              {[
-                { label: 'Sessions', value: String(reviewing.stats[range].sessions) },
-                { label: 'Accuracy', value: `${reviewing.stats[range].accuracy}%`   },
-                { label: 'Best',     value: reviewing.stats[range].bestScore         },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  style={{
-                    backgroundColor: '#112236',
-                    borderRadius: '10px',
-                    padding: '10px 12px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '18px',
-                      fontWeight: 700,
-                      display: 'block',
-                      lineHeight: 1,
-                      marginBottom: '4px',
-                      color: reviewing.color,
-                    }}
-                  >
-                    {s.value}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: inter.style.fontFamily,
-                      fontSize: '10px',
-                      color: '#4d6a87',
-                    }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <Divider />
-            </div>
-
-            {/* Placeholder for session list */}
-            <p
-              style={{
-                fontFamily: inter.style.fontFamily,
-                fontSize: '12px',
-                color: '#4d6a87',
-                textAlign: 'center',
-                paddingTop: '24px',
-                paddingBottom: '24px',
-              }}
-            >
-              Session history will appear here once data is connected
-            </p>
-
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(24px); opacity: 0; }
-          to   { transform: translateY(0);    opacity: 1; }
-        }
-      `}</style>
-    </>
+          )
+        })}
+      </div>
+    </section>
   )
-            }
+}
