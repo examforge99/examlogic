@@ -8,7 +8,19 @@ import TodaySchedule from '@/components/timetable/TodaySchedule'
 
 const styles = {
   page: { minHeight: '100vh', backgroundColor: '#071426' } as const,
-  main: { padding: '8px 16px 120px' } as const,
+  main: {
+    width: '100%',
+    maxWidth: 620,
+    margin: '0 auto',
+    padding: '12px 16px 120px',
+    boxSizing: 'border-box',
+  } as const,
+  missionSection: { width: '100%' } as const,
+  supportStack: {
+    display: 'grid',
+    gap: 28,
+    marginTop: 28,
+  } as const,
 }
 
 export default function DashboardPage() {
@@ -16,9 +28,14 @@ export default function DashboardPage() {
     <div style={styles.page}>
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
       <main style={styles.main}>
-        <TodayMission />
-        <TodaySchedule />
-        <RecentActivity />
+        <section style={styles.missionSection} aria-label="Today's focus">
+          <TodayMission />
+        </section>
+
+        <div style={styles.supportStack}>
+          <TodaySchedule />
+          <RecentActivity />
+        </div>
       </main>
       <BottomNav />
     </div>
