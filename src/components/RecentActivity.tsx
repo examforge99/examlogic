@@ -25,7 +25,14 @@ export default function RecentActivity({ activities: initialActivities, onSeeAll
     }
   }
 
-  useEffect(() => { if (!initialActivities) void loadActivities() }, [initialActivities])
+  useEffect(() => {
+    if (initialActivities) {
+      setActivities(initialActivities)
+      setState(initialActivities.length ? 'success' : 'empty')
+      return
+    }
+    void loadActivities()
+  }, [initialActivities])
 
   return (
     <section className='recent-activity' aria-labelledby='recent-activity-title'>
