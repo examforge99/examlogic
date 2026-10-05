@@ -69,7 +69,7 @@ const ERROR_COPY: Record<string, string> = {
   UNKNOWN: 'We couldn’t load today’s mission. Please try again.',
 }
 
-export default function TodayMission({ initialMissions, deferFetch = false, onDashboardRefresh }: { initialMissions?: Mission[]; deferFetch?: boolean; onDashboardRefresh?: () => void | Promise<void> }) {
+export default function TodayMission({ initialMissions, deferFetch = false, initialError, onDashboardRefresh }: { initialMissions?: Mission[]; deferFetch?: boolean; initialError?: string | null; onDashboardRefresh?: () => void | Promise<void> }) {
   const [missions, setMissions] = useState<Mission[]>([])
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
@@ -100,6 +100,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, onDa
   const copy = currentMission ? actionCopy[currentMission.action_type] : actionCopy.READ
 
   useEffect(() => {
+    if (initialError) { setError(initialError); setStage('error'); return }
     if (initialMissions?.length) {
       setMissions(initialMissions)
       setSelectedSubjectId(current => initialMissions.some(m => m.subject_id === current) ? current : initialMissions[0].subject_id)
