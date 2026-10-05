@@ -89,6 +89,7 @@ function formatTime(seconds: number) {
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
   const [data, setData] = useState<DashboardData | null>(null)
+  const [apiErrors, setApiErrors] = useState({ mission: false, activity: false, schedule: false })
 
   const firstName = user?.firstName || user?.username || 'there'
   const greeting = useMemo(() => {
@@ -115,6 +116,11 @@ export default function DashboardPage() {
       }),
     ])
 
+    setApiErrors({
+      mission: results[0].status === 'rejected',
+      activity: results[1].status === 'rejected',
+      schedule: results[2].status === 'rejected',
+    })
     setData({
       missions: results[0].status === 'fulfilled' && Array.isArray(results[0].value?.missions) ? results[0].value.missions : [],
       activities: results[1].status === 'fulfilled' && Array.isArray(results[1].value?.activities) ? results[1].value.activities : [],
@@ -146,7 +152,7 @@ export default function DashboardPage() {
 
       <main style={styles.main}>
         <div style={styles.stack}>
-          <TodayMission initialMissions={data?.missions} deferFetch onDashboardRefresh={loadDashboard} />
+          <TodayMission initialMissions={data?.missions} deferFetch initialError={apiErrors.mission ? 'Today’s mission is temporarily unavailable. Please try again.' : null} onDashboardRefresh={loadDashboard} />
 
           <div style={styles.metricGrid}>
             <section style={{ ...styles.card, ...styles.metric, background: colors.elevated }} aria-label="Today's progress">
@@ -179,7 +185,12 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {schedule?.day_type === 'practice' && schedule.subjects.length ? (
+            {apiErrors.schedule ? (
+              <div style={{ paddingTop: 14 }}>
+                <p style={{ ...styles.muted, margin: 0 }}>Today's timetable is temporarily unavailable.</p>
+                <button type="button" style={{ ...styles.link, marginTop: 10 }} onClick={() => void loadDashboard()}>Try again</button>
+              </div>
+            ) : schedule?.day_type === 'practice' && schedule.subjects.length ? (
               <div style={{ marginTop: 8 }}>
                 {schedule.subjects.slice(0, 2).map((subject, index) => (
                   <div key={subject} style={{ ...styles.row, borderBottom: index === Math.min(schedule.subjects.length, 2) - 1 ? '0' : styles.row.borderBottom }}>
@@ -198,7 +209,7 @@ export default function DashboardPage() {
           </section>
 
 
-          <RecentActivity activities={data?.activities} deferFetch />
+          <RecentActivity activities={data?.activities} deferFetch initialError={apiErrors.activity} />
         </div>
       </main>
 
