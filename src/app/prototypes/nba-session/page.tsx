@@ -1,10 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Inter } from 'next/font/google'
 import { Clock3 } from 'lucide-react'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type Stage = 'ready' | 'reading' | 'recommended' | 'next-action'
 
@@ -167,7 +165,7 @@ export default function NBASessionPrototype() {
             radial-gradient(circle at 50% 0%, rgba(63,183,255,.12), transparent 34%),
             #071426;
           color:var(--color-text-primary);
-          font-family:${inter.style.fontFamily};
+          font-family:${'Inter, ui-sans-serif, system-ui, sans-serif'};
         }
 
         .dashboard { width:min(100%, 620px); margin:0 auto; padding-top:5vh; }
@@ -182,7 +180,7 @@ export default function NBASessionPrototype() {
 
         .brand {
           color:#E8F0F7;
-          font-family:${inter.style.fontFamily};
+          font-family:${'Inter, ui-sans-serif, system-ui, sans-serif'};
           font-size:16px;
           font-weight:700;
           letter-spacing:-.025em;
@@ -257,7 +255,7 @@ export default function NBASessionPrototype() {
 
         h1, h2 {
           margin:0;
-          font-family:${inter.style.fontFamily};
+          font-family:${'Inter, ui-sans-serif, system-ui, sans-serif'};
           font-weight:700;
           letter-spacing:-.045em;
           line-height:1.04;
@@ -302,7 +300,7 @@ export default function NBASessionPrototype() {
           border-radius:var(--radius);
           background:linear-gradient(105deg,#2766F3 0%,#1E8CEB 52%,#1ED0A7 100%);
           color:#06182A;
-          font:700 13px ${inter.style.fontFamily}, system-ui, sans-serif;
+          font:700 13px ${'Inter, ui-sans-serif, system-ui, sans-serif'}, system-ui, sans-serif;
           cursor:pointer;
         }
 
