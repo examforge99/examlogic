@@ -1,16 +1,24 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { ArrowRight, Clock3, BookOpen, CalendarDays } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
 import TodayMission from '@/components/nba/TodayMission'
 import RecentActivity from '@/components/RecentActivity'
-import TodaySchedule from '@/components/timetable/TodaySchedule'
 import type { RecentActivityItem } from '@/components/RecentActivity'
 
+type Mission = {
+  subject_id: string
+  subject_name?: string
+  topic_name?: string
+  concept_name: string
+  concept_window_id: string
+}
+
 type DashboardData = {
-  missions: any[]
+  missions: Mission[]
   activities: RecentActivityItem[]
   schedule: {
     date: string
@@ -22,94 +30,218 @@ type DashboardData = {
   } | null
 }
 
+const colors = {
+  bg: '#071426',
+  surface: '#101A2B',
+  elevated: '#182235',
+  primary: '#3FB7FF',
+  accent: '#25D6A2',
+  warning: '#F5C451',
+  text: '#EAF2F8',
+  muted: '#91A3B5',
+  border: 'rgba(234,242,248,.08)',
+} as const
+
 const styles = {
-  page: { minHeight: '100vh', backgroundColor: '#071426' } as const,
+  page: { minHeight: '100vh', background: colors.bg } as const,
   main: {
     width: '100%',
     maxWidth: 620,
     margin: '0 auto',
-    padding: '12px 16px 120px',
+    padding: '18px 16px 120px',
     boxSizing: 'border-box',
   } as const,
-  missionSection: { width: '100%' } as const,
-  supportStack: {
-    display: 'grid',
-    gap: 22,
-    marginTop: 22,
+  stack: { display: 'grid', gap: 14 } as const,
+  card: {
+    width: '100%',
+    boxSizing: 'border-box',
+    border: '1px solid ' + colors.border,
+    borderRadius: 16,
+    background: colors.surface,
+    padding: 18,
   } as const,
+  hero: {
+    minHeight: 300,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  } as const,
+  eyebrow: { margin: 0, color: colors.primary, fontSize: 11, fontWeight: 800, letterSpacing: '.09em', textTransform: 'uppercase' as const } as const,
+  heading: { margin: '7px 0 0', color: colors.text, fontSize: 25, lineHeight: 1.15, fontWeight: 760, letterSpacing: '-.025em' } as const,
+  muted: { margin: '6px 0 0', color: colors.muted, fontSize: 12, lineHeight: 1.5 } as const,
+  metricGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 } as const,
+  metric: { minHeight: 122, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } as const,
+  metricLabel: { margin: 0, color: colors.muted, fontSize: 10, fontWeight: 750, letterSpacing: '.04em', textTransform: 'uppercase' as const } as const,
+  metricValue: { margin: '12px 0 0', color: colors.text, fontSize: 25, lineHeight: 1, fontWeight: 760, letterSpacing: '-.03em' } as const,
+  bar: { height: 6, overflow: 'hidden', borderRadius: 999, background: 'rgba(145,163,181,.12)' } as const,
+  barFill: { height: '100%', borderRadius: 999, background: colors.accent, transition: 'width 400ms ease' } as const,
+  cardHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 } as const,
+  cardTitle: { margin: 0, color: colors.text, fontSize: 15, fontWeight: 760, letterSpacing: '-.015em' } as const,
+  link: { display: 'inline-flex', alignItems: 'center', gap: 5, border: 0, background: 'transparent', color: colors.primary, padding: 0, fontSize: 11, fontWeight: 750, cursor: 'pointer' } as const,
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '13px 0', borderBottom: '1px solid rgba(234,242,248,.055)' } as const,
+  rowMain: { minWidth: 0 } as const,
+  rowTitle: { margin: 0, color: '#DCE7EF', fontSize: 13, fontWeight: 700 } as const,
+  rowMeta: { margin: '4px 0 0', color: colors.muted, fontSize: 10 } as const,
+  iconBox: { width: 32, height: 32, flex: '0 0 auto', display: 'grid', placeItems: 'center', borderRadius: 9, background: colors.elevated, color: colors.primary } as const,
+}
+
+function formatTime(seconds: number) {
+  const minutes = Math.max(0, Math.round(seconds / 60))
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours && mins) return hours + 'h ' + mins + 'm'
+  if (hours) return hours + 'h'
+  return mins + 'm'
 }
 
 export default function DashboardPage() {
-  const { isLoaded } = useUser()
+  const { user, isLoaded } = useUser()
   const [data, setData] = useState<DashboardData | null>(null)
 
-  const loadDashboard = useCallback(async () => {
-    const headers = {
-      Accept: 'application/json',
-      'Cache-Control': 'no-cache, no-store, max-age=0',
-    }
+  const firstName = user?.firstName || user?.username || 'there'
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good morning'
+    if (hour < 18) return 'Good afternoon'
+    return 'Good evening'
+  }, [])
 
+  const loadDashboard = useCallback(async () => {
+    const headers = { Accept: 'application/json', 'Cache-Control': 'no-cache, no-store, max-age=0' }
     const results = await Promise.allSettled([
-      fetch('/api/nba/fire', {
-        method: 'POST',
-        cache: 'no-store',
-        headers,
-      }).then(async response => {
-        if (!response.ok) throw new Error('mission')
-        return response.json()
+      fetch('/api/nba/fire', { method: 'POST', cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('mission')
+        return r.json()
       }),
-      fetch('/api/recent-activity', {
-        cache: 'no-store',
-        headers,
-      }).then(async response => {
-        if (!response.ok) throw new Error('activity')
-        return response.json()
+      fetch('/api/recent-activity', { cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('activity')
+        return r.json()
       }),
-      fetch('/api/timetable/today', {
-        cache: 'no-store',
-        headers,
-      }).then(async response => {
-        if (!response.ok) throw new Error('schedule')
-        return response.json()
+      fetch('/api/timetable/today', { cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('schedule')
+        return r.json()
       }),
     ])
 
     setData({
-      missions:
-        results[0].status === 'fulfilled' &&
-        Array.isArray(results[0].value?.missions)
-          ? results[0].value.missions
-          : [],
-      activities:
-        results[1].status === 'fulfilled' &&
-        Array.isArray(results[1].value?.activities)
-          ? results[1].value.activities
-          : [],
-      schedule:
-        results[2].status === 'fulfilled'
-          ? results[2].value
-          : null,
+      missions: results[0].status === 'fulfilled' && Array.isArray(results[0].value?.missions) ? results[0].value.missions : [],
+      activities: results[1].status === 'fulfilled' && Array.isArray(results[1].value?.activities) ? results[1].value.activities : [],
+      schedule: results[2].status === 'fulfilled' ? results[2].value : null,
     })
   }, [])
 
   useEffect(() => {
-    if (!isLoaded) return
-    void loadDashboard()
+    if (isLoaded) void loadDashboard()
   }, [isLoaded, loadDashboard])
+
+  const schedule = data?.schedule
+  const planned = schedule?.planned_seconds ?? 0
+  const remaining = schedule?.remaining_seconds ?? 0
+  const progress = planned > 0 ? Math.max(0, Math.min(100, ((planned - remaining) / planned) * 100)) : 0
+
+  const topicRows = useMemo(() => {
+    const seen = new Set<string>()
+    return (data?.missions ?? []).filter(m => {
+      if (seen.has(m.subject_id)) return false
+      seen.add(m.subject_id)
+      return true
+    }).slice(0, 4)
+  }, [data?.missions])
 
   return (
     <div style={styles.page}>
-      <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
-      <main style={styles.main}>
-        <section style={styles.missionSection} aria-label="Today's focus">
-          <TodayMission initialMissions={data?.missions} deferFetch />
-        </section>
+      <TopBar
+        showBack={false}
+        showNotif
+        showAvatar
+        avatarInitial={(firstName[0] || 'V').toUpperCase()}
+        title={greeting + ', ' + firstName}
+        subtitle="Here's what matters today."
+      />
 
-        <div style={styles.supportStack}>
-          <TodaySchedule initialData={data?.schedule} deferFetch />
+      <main style={styles.main}>
+        <div style={styles.stack}>
+          <TodayMission initialMissions={data?.missions} deferFetch />
+
+          <div style={styles.metricGrid}>
+            <section style={{ ...styles.card, ...styles.metric, background: colors.elevated }} aria-label="Today's progress">
+              <div>
+                <p style={styles.metricLabel}>Today's progress</p>
+                <p style={styles.metricValue}>{Math.round(progress)}%</p>
+              </div>
+              <div style={styles.bar} aria-label={Math.round(progress) + '% of planned study time completed'}>
+                <div style={{ ...styles.barFill, width: progress + '%' }} />
+              </div>
+            </section>
+
+            <section style={{ ...styles.card, ...styles.metric, background: colors.elevated }} aria-label="Time remaining today">
+              <div>
+                <p style={styles.metricLabel}>Time remaining</p>
+                <p style={styles.metricValue}>{formatTime(remaining)}</p>
+              </div>
+              <p style={{ ...styles.muted, margin: 0 }}>of {formatTime(planned)} planned</p>
+            </section>
+          </div>
+
+          <section style={styles.card} aria-labelledby="today-timetable-title">
+            <div style={styles.cardHeader}>
+              <div>
+                <h2 id="today-timetable-title" style={styles.cardTitle}>Today's timetable</h2>
+                <p style={styles.muted}>A quick look at what is scheduled today.</p>
+              </div>
+              <button type="button" style={styles.link} onClick={() => { window.location.href = '/timetable' }}>
+                Full timetable <ArrowRight size={13} />
+              </button>
+            </div>
+
+            {schedule?.day_type === 'practice' && schedule.subjects.length ? (
+              <div style={{ marginTop: 8 }}>
+                {schedule.subjects.slice(0, 2).map((subject, index) => (
+                  <div key={subject} style={{ ...styles.row, borderBottom: index === Math.min(schedule.subjects.length, 2) - 1 ? '0' : styles.row.borderBottom }}>
+                    <div style={styles.rowMain}>
+                      <p style={styles.rowTitle}>{subject}</p>
+                      <p style={styles.rowMeta}>{index === 0 ? 'Scheduled today' : 'Also scheduled today'}</p>
+                    </div>
+                    <CalendarDays size={16} color={colors.muted} aria-hidden="true" />
+                  </div>
+                ))}
+                {schedule.subjects.length > 2 && <p style={{ ...styles.muted, margin: '11px 0 0' }}>+{schedule.subjects.length - 2} more subjects</p>}
+              </div>
+            ) : (
+              <p style={{ ...styles.muted, marginTop: 16 }}>Rest day · no subjects scheduled.</p>
+            )}
+          </section>
+
+          <section style={styles.card} aria-labelledby="subjects-topics-title">
+            <div style={styles.cardHeader}>
+              <div>
+                <h2 id="subjects-topics-title" style={styles.cardTitle}>Subjects & topics</h2>
+                <p style={styles.muted}>What your current study focus contains.</p>
+              </div>
+              <button type="button" style={styles.link} onClick={() => { window.location.href = '/subjects' }}>
+                Subjects <ArrowRight size={13} />
+              </button>
+            </div>
+
+            <div style={{ marginTop: 8 }}>
+              {topicRows.length ? topicRows.map((mission, index) => (
+                <div key={mission.subject_id} style={{ ...styles.row, borderBottom: index === topicRows.length - 1 ? '0' : styles.row.borderBottom }}>
+                  <div style={styles.rowMain}>
+                    <p style={styles.rowTitle}>{mission.subject_name ?? mission.subject_id}</p>
+                    <p style={styles.rowMeta}>{mission.topic_name ?? mission.concept_name}</p>
+                  </div>
+                  <div style={styles.iconBox}><BookOpen size={15} aria-hidden="true" /></div>
+                </div>
+              )) : (
+                <p style={{ ...styles.muted, marginTop: 16 }}>Your current subjects and topics will appear here.</p>
+              )}
+            </div>
+          </section>
+
           <RecentActivity activities={data?.activities} deferFetch />
         </div>
       </main>
+
       <BottomNav />
     </div>
   )
