@@ -35,23 +35,23 @@ type CompletionResult = { completed: boolean; batch_completed: boolean; subject_
 
 const styles = {
   shell: { width: '100%', minWidth: 0, color: '#E8F0F7' } as const,
-  card: { position: 'relative', width: '100%', minHeight: 320, minWidth: 0, boxSizing: 'border-box', padding: 21, border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
-  top: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 24, minWidth: 0 } as const,
-  tag: { display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '0 11px', boxSizing: 'border-box', border: '1px solid rgba(63,183,255,.34)', borderRadius: 8, background: 'rgba(63,183,255,.06)', color: '#3FB7FF', fontSize: 12, fontWeight: 800, letterSpacing: '.08em' } as const,
-  trigger: { display: 'inline-flex', alignItems: 'center', justifyContent: 'space-between', gap: 7, maxWidth: '100%', minWidth: 0, minHeight: 44, padding: '0 11px', border: '1px solid rgba(255,255,255,.16)', borderRadius: 8, background: 'rgba(255,255,255,.025)', color: '#E8F0F7', fontSize: 12, fontWeight: 750, cursor: 'pointer' } as const,
+  card: { position: 'relative', width: '100%', minHeight: 260, minWidth: 0, boxSizing: 'border-box', padding: 18, border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
+  top: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16, minWidth: 0 } as const,
+  tag: { display: 'inline-flex', alignItems: 'center', minHeight: 36, padding: '0 10px', boxSizing: 'border-box', border: '1px solid rgba(63,183,255,.34)', borderRadius: 8, background: 'rgba(63,183,255,.06)', color: '#3FB7FF', fontSize: 10, fontWeight: 800, letterSpacing: '.08em' } as const,
+  trigger: { display: 'inline-flex', alignItems: 'center', justifyContent: 'space-between', gap: 7, maxWidth: '100%', minWidth: 0, minHeight: 36, padding: '0 10px', border: '1px solid rgba(255,255,255,.16)', borderRadius: 8, background: 'rgba(255,255,255,.025)', color: '#E8F0F7', fontSize: 11, fontWeight: 750, cursor: 'pointer' } as const,
   text: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as const,
-  stage: { margin: 0, color: 'rgba(232,240,247,.72)', fontSize: 13, lineHeight: 1.4 } as const,
-  title: { margin: 0, color: '#F1F6FA', fontSize: 26, lineHeight: 1.18, letterSpacing: '-.025em', fontWeight: 750, overflowWrap: 'anywhere' } as const,
-  support: { margin: '13px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 13, lineHeight: 1.6 } as const,
-  badge: { display: 'inline-flex', alignItems: 'center', gap: 8, maxWidth: '100%', minHeight: 36, boxSizing: 'border-box', padding: '7px 12px', border: '1px solid rgba(240,201,79,.18)', borderRadius: 10, background: 'rgba(127,92,21,.18)', color: '#F0C94F', fontSize: 12, fontWeight: 750 } as const,
-  meta: { display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 18 } as const,
-  metaItem: { display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 30, boxSizing: 'border-box', padding: '6px 9px', border: '1px solid rgba(63,183,255,.20)', borderRadius: 8, background: 'rgba(7,20,38,.24)', color: 'rgba(232,240,247,.68)', fontSize: 12 } as const,
-  primary: { width: '100%', minHeight: 50, marginTop: 23, border: '1px solid #3FB7FF', borderRadius: 12, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
-  secondary: { width: '100%', minHeight: 50, marginTop: 22, border: '1px solid rgba(63,183,255,.60)', borderRadius: 12, background: 'transparent', color: '#3FB7FF', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
-  textButton: { minHeight: 50, border: 0, background: 'transparent', color: '#E8F0F7', fontSize: 13, fontWeight: 750, cursor: 'pointer' } as const,
+  stage: { margin: 0, color: 'rgba(232,240,247,.72)', fontSize: 12, lineHeight: 1.35 } as const,
+  title: { margin: 0, color: '#F1F6FA', fontSize: 21, lineHeight: 1.2, letterSpacing: '-.025em', fontWeight: 750, overflowWrap: 'anywhere' } as const,
+  support: { margin: '10px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 12, lineHeight: 1.5 } as const,
+  badge: { display: 'inline-flex', alignItems: 'center', gap: 8, maxWidth: '100%', minHeight: 30, boxSizing: 'border-box', padding: '5px 10px', border: '1px solid rgba(240,201,79,.18)', borderRadius: 10, background: 'rgba(127,92,21,.18)', color: '#F0C94F', fontSize: 11, fontWeight: 750 } as const,
+  meta: { display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 } as const,
+  metaItem: { display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 28, boxSizing: 'border-box', padding: '5px 8px', border: '1px solid rgba(63,183,255,.20)', borderRadius: 8, background: 'rgba(7,20,38,.24)', color: 'rgba(232,240,247,.68)', fontSize: 11 } as const,
+  primary: { width: '100%', minHeight: 44, marginTop: 16, border: '1px solid #3FB7FF', borderRadius: 12, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 12, fontWeight: 800, cursor: 'pointer' } as const,
+  secondary: { width: '100%', minHeight: 50, marginTop: 16, border: '1px solid rgba(63,183,255,.60)', borderRadius: 12, background: 'transparent', color: '#3FB7FF', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
+  textButton: { minHeight: 50, border: 0, background: 'transparent', color: '#E8F0F7', fontSize: 12, fontWeight: 750, cursor: 'pointer' } as const,
   detail: { margin: '13px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 13, lineHeight: 1.6 } as const,
   eyebrow: { display: 'block', marginBottom: 8, color: 'rgba(232,240,247,.72)', fontSize: 13 } as const,
-  boundary: { marginTop: 16, padding: 12, border: '1px solid rgba(63,183,255,.14)', borderRadius: 10, background: 'rgba(63,183,255,.045)', color: 'rgba(232,240,247,.70)', fontSize: 12, lineHeight: 1.55 } as const,
+  boundary: { marginTop: 12, padding: 10, border: '1px solid rgba(63,183,255,.14)', borderRadius: 10, background: 'rgba(63,183,255,.045)', color: 'rgba(232,240,247,.70)', fontSize: 12, lineHeight: 1.55 } as const,
 }
 
 const actionCopy: Record<Action, { lead: string; detail: string; secondaryMetric: string; cta: string }> = {
@@ -273,7 +273,7 @@ export default function TodayMission({ initialMissions, deferFetch = false }: { 
         ) : currentMission ? (
           <>
             <span style={styles.badge}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F0C94F' }} aria-hidden='true' /><span style={{ ...styles.text, maxWidth: '100%' }}>{currentMission.topic_name ?? currentMission.concept_name}</span></span>
-            <div style={{ marginTop: 20, minWidth: 0 }}>
+            <div style={{ marginTop: 14, minWidth: 0 }}>
               <span style={styles.eyebrow}>{copy.lead}</span>
               <h1 style={styles.title}>{currentMission.action_type === 'READ' ? 'Read ' : ''}{currentMission.concept_name}</h1>
               <p style={styles.detail}>{currentMission.concept_description ?? copy.detail}</p>
