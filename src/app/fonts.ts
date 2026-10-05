@@ -1,15 +1,11 @@
-import { Inter, Space_Grotesk } from 'next/font/google'
-
-export const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+export const inter = {
+  className: 'font-inter',
+  style: { fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
   variable: '--font-inter',
-  display: 'swap',
-})
+}
 
-export const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
+export const spaceGrotesk = {
+  className: 'font-space-grotesk',
+  style: { fontFamily: '"Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif' },
   variable: '--font-space-grotesk',
-  display: 'swap',
-})
+}
