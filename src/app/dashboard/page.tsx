@@ -1,10 +1,22 @@
 'use client'
 
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
 import TodayMission from '@/components/nba/TodayMission'
 import RecentActivity from '@/components/RecentActivity'
 import TodaySchedule from '@/components/timetable/TodaySchedule'
+import type { RecentActivityItem } from '@/components/RecentActivity'
+
+type DashboardSnapshot = {
+  missions: any[]
+  activities: RecentActivityItem[]
+  schedule: { date: string; day_type: 'practice' | 'rest'; subjects: string[]; planned_seconds: number; used_seconds: number; remaining_seconds: number } | null
+  savedAt: number
+}
+
+const SNAPSHOT_TTL = 15 * 60 * 1000
 
 const styles = {
   page: { minHeight: '100vh', backgroundColor: '#071426' } as const,
@@ -29,7 +41,7 @@ export default function DashboardPage() {
       <TopBar showBack={false} showNotif={true} showAvatar={true} avatarInitial='V' />
       <main style={styles.main}>
         <section style={styles.missionSection} aria-label="Today's focus">
-          <TodayMission />
+          <TodayMission initialMissions={snapshot?.missions} />
         </section>
 
         <div style={styles.supportStack}>
