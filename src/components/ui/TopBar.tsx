@@ -2,9 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Inter } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 
 interface TopBarProps {
@@ -118,7 +116,7 @@ export default function TopBar({
                 style={{
                   fontSize: '11px',
                   color: '#4d6a87',
-                  fontFamily: inter.style.fontFamily,
+                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   margin: 0,
                   marginTop: '2px',
                 }}
@@ -147,7 +145,7 @@ export default function TopBar({
                 style={{
                   fontSize: '11px',
                   color: '#4d6a87',
-                  fontFamily: inter.style.fontFamily,
+                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   margin: 0,
                   marginTop: '2px',
                 }}
