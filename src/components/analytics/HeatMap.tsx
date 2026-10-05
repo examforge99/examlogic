@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter } from 'next/font/google'
 import ProgressBar from '@/components/ui/ProgressBar'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -197,7 +195,7 @@ export default function HeatMap({
 <div className="flex items-center justify-between mb-[10px]">
   <span
     id="consistency-title" className="text-[16px] font-bold text-[#e8f0f7] tracking-[-0.025em]"
-    style={{ fontFamily: inter.style.fontFamily }}
+    style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
   >
          Consistency
           </span>
@@ -206,7 +204,7 @@ export default function HeatMap({
   onChange={(e) => setMonthKey(e.target.value as MonthKey)}
   className="appearance-none bg-[#112236] border border-[#1a3a5c] rounded-[8px] text-[11px] font-semibold text-[#a8c8e8] focus:outline-none cursor-pointer"
   style={{
-    fontFamily: inter.style.fontFamily,
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
     padding: '4px 28px 4px 10px',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
@@ -263,7 +261,7 @@ export default function HeatMap({
           {s.sub && (
             <span
               style={{
-                fontFamily: inter.style.fontFamily,  fontSize: '9px',  color: '#4d6a87',  marginLeft: '1px',
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',  fontSize: '9px',  color: '#4d6a87',  marginLeft: '1px',
               }}
             >
               {s.sub}
@@ -273,7 +271,7 @@ export default function HeatMap({
 
         <p
           style={{
-            fontFamily: inter.style.fontFamily,   fontSize: '7px',   fontWeight: 500,   lineHeight: 1,    color: '#4d6a87',   textTransform: 'uppercase',     letterSpacing: '0.04em', margin: '2px 0 0', whiteSpace: 'nowrap',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',   fontSize: '7px',   fontWeight: 500,   lineHeight: 1,    color: '#4d6a87',   textTransform: 'uppercase',     letterSpacing: '0.04em', margin: '2px 0 0', whiteSpace: 'nowrap',
           }}
         >
           {s.label}
@@ -294,7 +292,7 @@ export default function HeatMap({
             <div
               key={w}
               className="text-[7px] font-semibold text-[#2a4a6a] text-center uppercase pb-[2px]"
-              style={{ fontFamily: inter.style.fontFamily }}
+              style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
             >
               W{w + 1}
             </div>
@@ -306,7 +304,7 @@ export default function HeatMap({
               <div
                 key={`label-${d}`}
                 className="text-[7px] font-semibold text-[#2a4a6a] uppercase flex items-center"
-                style={{ fontFamily: inter.style.fontFamily }}
+                style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
               >
                 {day}
               </div>
@@ -334,7 +332,7 @@ export default function HeatMap({
                       cursor: isFuture ? 'default' : 'pointer',
                       border: isToday ? '1px solid #3FB7FF' : '1px solid transparent',
                       boxShadow: isToday ? '0 0 7px #3FB7FF40' : undefined,
-                      fontFamily: inter.style.fontFamily,
+                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                     }}
                   >
                     {date}
@@ -349,7 +347,7 @@ export default function HeatMap({
         <div className="flex items-center justify-end gap-[5px] mt-[7px]">
           <span
             className="text-[8px] text-[#2a4a6a]"
-            style={{ fontFamily: inter.style.fontFamily }}
+            style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
           >
             None
           </span>
@@ -364,7 +362,7 @@ export default function HeatMap({
           </div>
           <span
             className="text-[8px] text-[#2a4a6a]"
-            style={{ fontFamily: inter.style.fontFamily }}
+            style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
           >
             Peak
           </span>
@@ -418,7 +416,7 @@ export default function HeatMap({
   />
 
   <span
-    style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', fontWeight: 700, lineHeight: 1, color: degree.color,
+    style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '11px', fontWeight: 700, lineHeight: 1, color: degree.color,
     }}
   >
     {degree.label}
@@ -441,7 +439,7 @@ export default function HeatMap({
                   </span>
                   <span
                     className="text-[10px] text-[#4d6a87]"
-                    style={{ fontFamily: inter.style.fontFamily }}
+                    style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
                   >
                     {s.label}
                   </span>
@@ -452,7 +450,7 @@ export default function HeatMap({
             {/* Bar */}
             <p
               className="text-[10px] text-[#4d6a87] mb-[5px]"
-              style={{ fontFamily: inter.style.fontFamily }}
+              style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
             >
               {popup.activity.qs > 0
                 ? `${pct}% of your best day (${popup.maxQs} Qs)`
