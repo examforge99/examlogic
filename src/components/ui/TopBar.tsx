@@ -99,7 +99,7 @@ export default function TopBar({
               </p>
             )}
           </div>
-        ) : (
+        ) : title ? (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <p
               style={{
@@ -111,8 +111,7 @@ export default function TopBar({
                 margin: 0,
               }}
             >
-              <span style={{ color: '#e8f4ff' }}>Exam</span>
-              <span style={{ color: '#25d6a2' }}>Logic</span>
+              {title}
             </p>
             {subtitle && (
               <p
