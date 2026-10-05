@@ -40,12 +40,14 @@ function formatDate(date: string) {
   return new Intl.DateTimeFormat('en-NG', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date(date + 'T00:00:00Z'))
 }
 
-export default function TodaySchedule() {
-  const [data, setData] = useState<TodayScheduleData | null>(null)
+export default function TodaySchedule({ initialData, deferFetch = false }: { initialData?: TodayScheduleData | null; deferFetch?: boolean }) {
+  const [data, setData] = useState<TodayScheduleData | null>(initialData ?? null)
+  const [loading, setLoading] = useState(!initialData)
 
   useEffect(() => {
     let active = true
     if (deferFetch) return () => { active = false }
+    setLoading(true)
     fetch('/api/timetable/today', { cache: 'no-store', headers: { Accept: 'application/json' } })
       .then(response => response.ok ? response.json() : Promise.reject(new Error('Failed to load')))
       .then(result => { if (active) { setData(result as TodayScheduleData); setLoading(false) } })
