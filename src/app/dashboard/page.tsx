@@ -146,7 +146,7 @@ export default function DashboardPage() {
 
       <main style={styles.main}>
         <div style={styles.stack}>
-          <TodayMission initialMissions={data?.missions} deferFetch />
+          <TodayMission initialMissions={data?.missions} deferFetch onDashboardRefresh={loadDashboard} />
 
           <div style={styles.metricGrid}>
             <section style={{ ...styles.card, ...styles.metric, background: colors.elevated }} aria-label="Today's progress">
