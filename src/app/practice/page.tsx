@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Inter } from 'next/font/google'
 import Divider from '@/components/ui/Divider'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 type TimeRange = '7' | '30' | 'all'
 
@@ -102,7 +100,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
             </svg>
             <span
               style={{
-                fontFamily: inter.style.fontFamily,
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                 fontSize: '10px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
@@ -118,7 +116,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
             value={range}
             onChange={(e) => setRange(e.target.value as TimeRange)}
             style={{
-              fontFamily: inter.style.fontFamily,
+              fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
               backgroundColor: '#112236',
               border: '1px solid #1a3a5c',
               borderRadius: '8px',
@@ -199,10 +197,10 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
 
                 {/* Sessions */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
+                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '11px', color: '#4d6a87' }}>
                     Sessions
                   </span>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
+                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
                     {s.sessions}
                   </span>
                 </div>
@@ -222,7 +220,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                   </span>
                   <p
                     style={{
-                      fontFamily: inter.style.fontFamily,
+                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                       fontSize: '11px',
                       color: '#4d6a87',
                       marginTop: '2px',
@@ -236,10 +234,10 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
 
                 {/* Best score */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '11px', color: '#4d6a87' }}>
+                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '11px', color: '#4d6a87' }}>
                     Best Score
                   </span>
-                  <span style={{ fontFamily: inter.style.fontFamily, fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
+                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
                     {s.bestScore}
                   </span>
                 </div>
@@ -286,7 +284,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
         >
           <span
             style={{
-              fontFamily: inter.style.fontFamily,
+              fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
               fontSize: '11px',
               color: '#475569',
               lineHeight: 1.4,
@@ -431,7 +429,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
                   </span>
                   <span
                     style={{
-                      fontFamily: inter.style.fontFamily,
+                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                       fontSize: '10px',
                       color: '#4d6a87',
                     }}
@@ -449,7 +447,7 @@ export default function PracticeModeCard({ className = '' }: { className?: strin
             {/* Placeholder for session list */}
             <p
               style={{
-                fontFamily: inter.style.fontFamily,
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                 fontSize: '12px',
                 color: '#4d6a87',
                 textAlign: 'center',
