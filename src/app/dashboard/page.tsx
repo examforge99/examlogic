@@ -5,17 +5,9 @@ import { useUser } from '@clerk/nextjs'
 import { ArrowRight, Clock3, BookOpen, CalendarDays } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
 import BottomNav from '@/components/ui/BottomNav'
-import TodayMission from '@/components/nba/TodayMission'
+import TodayMission, { type Mission } from '@/components/nba/TodayMission'
 import RecentActivity from '@/components/RecentActivity'
 import type { RecentActivityItem } from '@/components/RecentActivity'
-
-type Mission = {
-  subject_id: string
-  subject_name?: string
-  topic_name?: string
-  concept_name: string
-  concept_window_id: string
-}
 
 type DashboardData = {
   missions: Mission[]
