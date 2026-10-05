@@ -92,7 +92,7 @@ export default function DifficultyPerformanceCard({
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',  marginBottom: '14px', }}>
         <span
-          className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#25d6a2]"
+          id="difficulty-title" className="text-[16px] font-bold text-[#e8f0f7] tracking-[-0.025em]"
           style={{ fontFamily: inter.style.fontFamily }}
         >
           Difficulty Performance
@@ -176,7 +176,7 @@ export default function DifficultyPerformanceCard({
       <Divider style={{ marginBottom: '14px' }} />
 
       {/* Current level */}
-      <div style={{ display: 'flex',  alignItems: 'center',  justifyContent: 'space-between', marginBottom: '10px',
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px',
   }}
 >
         <span
