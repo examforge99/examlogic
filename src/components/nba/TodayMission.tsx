@@ -69,7 +69,7 @@ const ERROR_COPY: Record<string, string> = {
   UNKNOWN: 'We couldn’t load today’s mission. Please try again.',
 }
 
-export default function TodayMission() {
+export default function TodayMission({ initialMissions }: { initialMissions?: Mission[] }) {
   const [missions, setMissions] = useState<Mission[]>([])
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
@@ -101,7 +101,15 @@ export default function TodayMission() {
   const selectedSubjectComplete = stage === 'ready' && Boolean(selectedSubjectId) && !currentMission
   const copy = currentMission ? actionCopy[currentMission.action_type] : actionCopy.READ
 
-  useEffect(() => { void loadMissions() }, [])
+  useEffect(() => {
+    if (initialMissions?.length) {
+      setMissions(initialMissions)
+      setSelectedSubjectId(current => initialMissions.some(m => m.subject_id === current) ? current : initialMissions[0].subject_id)
+      setStage('ready')
+      return
+    }
+    void loadMissions()
+  }, [initialMissions])
   useEffect(() => {
     if (stage !== 'reading' || !currentMission) return
     const timer = window.setInterval(() => setSeconds(v => Math.max(0, v - 1)), 1000)
