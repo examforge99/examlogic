@@ -45,12 +45,13 @@ export default function TodaySchedule() {
 
   useEffect(() => {
     let active = true
+    if (deferFetch) return () => { active = false }
     fetch('/api/timetable/today', { cache: 'no-store', headers: { Accept: 'application/json' } })
       .then(response => response.ok ? response.json() : Promise.reject(new Error('Failed to load')))
       .then(result => { if (active) { setData(result as TodayScheduleData); setLoading(false) } })
       .catch(() => { if (active) { setLoading(false); if (!initialData) setData(null) } })
     return () => { active = false }
-  }, [initialData])
+  }, [initialData, deferFetch])
 
   const planned = data?.planned_seconds ?? 0
   const remaining = data?.remaining_seconds ?? 0
