@@ -4,10 +4,10 @@ import { Clock3, RotateCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export type RecentActivityItem = { id: string; topic: string; subject: string; mode: string; action?: 'Read' | 'Recall' | 'Practice'; duration: string; timestamp: string }
-type RecentActivityProps = { activities?: RecentActivityItem[]; onSeeAll?: () => void }
+type RecentActivityProps = { activities?: RecentActivityItem[]; onSeeAll?: () => void; deferFetch?: boolean }
 type ActivityState = 'loading' | 'success' | 'empty' | 'error'
 
-export default function RecentActivity({ activities: initialActivities, onSeeAll }: RecentActivityProps) {
+export default function RecentActivity({ activities: initialActivities, onSeeAll, deferFetch = false }: RecentActivityProps) {
   const [activities, setActivities] = useState<RecentActivityItem[]>(initialActivities ?? [])
   const [state, setState] = useState<ActivityState>(initialActivities ? (initialActivities.length ? 'success' : 'empty') : 'loading')
 
@@ -31,8 +31,8 @@ export default function RecentActivity({ activities: initialActivities, onSeeAll
       setState(initialActivities.length ? 'success' : 'empty')
       return
     }
-    void loadActivities()
-  }, [initialActivities])
+    if (!deferFetch) void loadActivities()
+  }, [initialActivities, deferFetch])
 
   return (
     <section className='recent-activity' aria-labelledby='recent-activity-title'>
