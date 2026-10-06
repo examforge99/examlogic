@@ -14,7 +14,7 @@ const COPY: Record<MissionReason, { title: string; message: string; action: stri
 }
 
 const styles = {
-  card: { minHeight: 260, padding: 18, border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0A0F14', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
+  card: { minHeight: 260, padding: 14, border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0A0F14', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
   kicker: { margin: '0 0 8px', color: 'rgba(232,240,247,.72)', fontSize: 12 } as const,
   title: { margin: 0, color: '#F1F6FA', fontSize: 21, lineHeight: 1.15, letterSpacing: '-.025em' } as const,
   message: { margin: '10px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 12, lineHeight: 1.6 } as const,
