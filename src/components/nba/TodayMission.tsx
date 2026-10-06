@@ -33,34 +33,96 @@ type FireResponse = { reason: MissionReason | 'ok'; missions: Mission[] }
 type Stage = 'loading' | 'ready' | 'reading' | 'recommended' | 'next-action' | 'boundary' | 'empty' | 'error'
 type CompletionResult = { completed: boolean; batch_completed: boolean; subject_completed?: boolean }
 
+const BLUE = '#3FB7FF'
+const TEXT = '#E8F0F7'
+const MUTED = 'rgba(232,240,247,.68)'
+
 const styles = {
-  shell: { width: '100%', minWidth: 0, color: '#E8F0F7' } as const,
-  card: { position: 'relative', width: '100%', minHeight: 220, maxHeight: 320, minWidth: 0, boxSizing: 'border-box', padding: 18, overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E', boxShadow: '0 20px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06)' } as const,
-  top: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 12, minWidth: 0, flexShrink: 0 } as const,
-  tag: { display: 'inline-flex', alignItems: 'center', minHeight: 36, padding: '0 10px', boxSizing: 'border-box', border: '1px solid rgba(63,183,255,.34)', borderRadius: 8, background: 'rgba(63,183,255,.06)', color: '#3FB7FF', fontSize: 10, fontWeight: 800, letterSpacing: '.08em' } as const,
-  trigger: { display: 'inline-flex', alignItems: 'center', justifyContent: 'space-between', gap: 7, maxWidth: '100%', minWidth: 0, minHeight: 36, padding: '0 10px', border: '1px solid rgba(255,255,255,.16)', borderRadius: 8, background: 'rgba(255,255,255,.025)', color: '#E8F0F7', fontSize: 11, fontWeight: 750, cursor: 'pointer' } as const,
+  shell: { width: '100%', minWidth: 0, color: TEXT } as const,
+  card: {
+    position: 'relative',
+    width: '100%',
+    minHeight: 220,
+    maxHeight: 320,
+    minWidth: 0,
+    boxSizing: 'border-box',
+    padding: 18,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    border: '1px solid rgba(255,255,255,.08)',
+    borderRadius: 14,
+    background: '#0D1B2E',
+    boxShadow: '0 20px 40px rgba(0,0,0,.22)',
+  } as const,
+  top: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 16, minWidth: 0, flexShrink: 0 } as const,
+  tag: { display: 'inline-flex', alignItems: 'center', minWidth: 0, color: TEXT, fontSize: 13, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-.01em' } as const,
+  trigger: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 5,
+    maxWidth: '58%',
+    minWidth: 0,
+    minHeight: 32,
+    padding: 0,
+    border: 0,
+    background: 'transparent',
+    color: MUTED,
+    fontSize: 11,
+    fontWeight: 650,
+    cursor: 'pointer',
+  } as const,
   text: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as const,
-  stage: { margin: 0, color: 'rgba(232,240,247,.72)', fontSize: 'clamp(10px, 1.8vw, 12px)', lineHeight: 1.3 } as const,
-  title: { margin: 0, color: '#F1F6FA', fontSize: 'clamp(17px, 3.5vw, 21px)', lineHeight: 1.15, letterSpacing: '-.025em', fontWeight: 750, overflowWrap: 'anywhere' } as const,
-  support: { margin: '7px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 'clamp(10px, 1.8vw, 12px)', lineHeight: 1.35 } as const,
-  badge: { display: 'inline-flex', alignItems: 'center', gap: 8, maxWidth: '100%', minHeight: 30, boxSizing: 'border-box', padding: '5px 10px', border: '1px solid rgba(240,201,79,.18)', borderRadius: 10, background: 'rgba(127,92,21,.18)', color: '#F0C94F', fontSize: 11, fontWeight: 750 } as const,
-  meta: { display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 } as const,
-  metaItem: { display: 'inline-flex', alignItems: 'center', gap: 5, minHeight: 26, boxSizing: 'border-box', padding: '4px 7px', border: '1px solid rgba(63,183,255,.20)', borderRadius: 8, background: 'rgba(7,20,38,.24)', color: 'rgba(232,240,247,.68)', fontSize: 'clamp(9px, 1.7vw, 11px)' } as const,
-  primary: { width: '100%', minHeight: 42, marginTop: 12, border: '1px solid #3FB7FF', borderRadius: 12, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 12, fontWeight: 800, cursor: 'pointer' } as const,
-  secondary: { width: '100%', minHeight: 44, marginTop: 12, border: '1px solid rgba(63,183,255,.60)', borderRadius: 12, background: 'transparent', color: '#3FB7FF', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
-  textButton: { minHeight: 50, border: 0, background: 'transparent', color: '#E8F0F7', fontSize: 12, fontWeight: 750, cursor: 'pointer' } as const,
-  detail: { margin: '9px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 'clamp(10px, 1.9vw, 13px)', lineHeight: 1.4, overflow: 'hidden' } as const,
-  eyebrow: { display: 'block', marginBottom: 8, color: 'rgba(232,240,247,.72)', fontSize: 13 } as const,
-  boundary: { marginTop: 8, padding: 8, border: '1px solid rgba(63,183,255,.14)', borderRadius: 10, background: 'rgba(63,183,255,.045)', color: 'rgba(232,240,247,.70)', fontSize: 12, lineHeight: 1.55 } as const,
+  stage: { margin: 0, color: MUTED, fontSize: 'clamp(10px, 1.8vw, 12px)', lineHeight: 1.3 } as const,
+  title: {
+    margin: 0,
+    color: BLUE,
+    fontSize: 'clamp(18px, 3.8vw, 23px)',
+    lineHeight: 1.12,
+    letterSpacing: '-.025em',
+    fontWeight: 800,
+    overflowWrap: 'anywhere',
+  } as const,
+  support: { margin: '7px 0 0', color: MUTED, fontSize: 'clamp(10px, 1.8vw, 12px)', lineHeight: 1.4 } as const,
+  meta: { display: 'flex', alignItems: 'center', gap: 5, marginTop: 10, color: MUTED, fontSize: 'clamp(9px, 1.7vw, 11px)', lineHeight: 1.3 } as const,
+  primary: {
+    width: '100%',
+    minHeight: 42,
+    marginTop: 'auto',
+    padding: '0 14px',
+    border: 0,
+    borderRadius: 10,
+    background: BLUE,
+    color: '#06182A',
+    fontSize: 12,
+    fontWeight: 800,
+    cursor: 'pointer',
+  } as const,
+  secondary: {
+    width: '100%',
+    minHeight: 42,
+    marginTop: 'auto',
+    border: '1px solid rgba(63,183,255,.48)',
+    borderRadius: 10,
+    background: 'transparent',
+    color: BLUE,
+    fontSize: 12,
+    fontWeight: 800,
+    cursor: 'pointer',
+  } as const,
+  textButton: { minHeight: 44, border: 0, background: 'transparent', color: MUTED, fontSize: 12, fontWeight: 750, cursor: 'pointer' } as const,
+  detail: { margin: '9px 0 0', color: MUTED, fontSize: 'clamp(10px, 1.9vw, 13px)', lineHeight: 1.4, overflow: 'hidden' } as const,
+  boundary: { marginTop: 9, padding: 8, border: '1px solid rgba(255,255,255,.08)', borderRadius: 8, background: 'rgba(255,255,255,.025)', color: MUTED, fontSize: 11, lineHeight: 1.45 } as const,
 }
 
-const actionCopy: Record<Action, { lead: string; detail: string; secondaryMetric: string; cta: string }> = {
-  READ: { lead: 'Start with the concept', detail: 'Key ideas, definitions, and relationships', secondaryMetric: 'Guided reading', cta: 'Start Reading' },
-  RECALL: { lead: 'Test what stuck', detail: 'Show-answer recall on the key ideas', secondaryMetric: 'Recall', cta: 'Start Recall' },
-  PRACTICE: { lead: 'Time to test yourself', detail: 'JAMB-style questions focused on this concept', secondaryMetric: 'Practice', cta: 'Start Practice' },
-  REVIEW: { lead: 'Refresh the concept', detail: 'Focused review of the key ideas', secondaryMetric: 'Review', cta: 'Start Review' },
-  DRILL: { lead: 'Exam is getting close', detail: 'JAMB-style questions focused on this concept', secondaryMetric: 'Drill', cta: 'Start Drill' },
-  RELEARN: { lead: 'Take another look', detail: 'Rebuild the concept from the foundations', secondaryMetric: 'Relearn', cta: 'Start Relearning' },
+const actionCopy: Record<Action, { lead: string; detail: string; cta: string }> = {
+  READ: { lead: 'Start with the concept', detail: 'Key ideas, definitions, and relationships', cta: 'Start Reading' },
+  RECALL: { lead: 'Test what stuck', detail: 'Show-answer recall on the key ideas', cta: 'Start Recall' },
+  PRACTICE: { lead: 'Time to test yourself', detail: 'JAMB-style questions focused on this concept', cta: 'Start Practice' },
+  REVIEW: { lead: 'Refresh the concept', detail: 'Focused review of the key ideas', cta: 'Start Review' },
+  DRILL: { lead: 'Exam is getting close', detail: 'JAMB-style questions focused on this concept', cta: 'Start Drill' },
+  RELEARN: { lead: 'Take another look', detail: 'Rebuild the concept from the foundations', cta: 'Start Relearning' },
 }
 const ERROR_COPY: Record<string, string> = {
   UNAUTHORIZED: 'Please sign in again to load your mission.',
@@ -109,12 +171,15 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
     }
     if (!deferFetch) void loadMissions()
   }, [initialMissions, deferFetch])
+
   useEffect(() => {
     if (stage !== 'reading' || !currentMission) return
     const timer = window.setInterval(() => setSeconds(v => Math.max(0, v - 1)), 1000)
     return () => window.clearInterval(timer)
   }, [stage, currentMission])
+
   useEffect(() => { if (stage === 'reading' && seconds === 0) setStage('recommended') }, [seconds, stage])
+
   useEffect(() => {
     if (!subjectOpen) return
     const outside = (event: globalThis.PointerEvent) => { if (event.target instanceof Node && !pickerRef.current?.contains(event.target)) closeSubjectMenu() }
@@ -177,8 +242,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
       if (typeof data !== 'object' || data === null || !('reason' in data) || !('missions' in data) || !Array.isArray(data.missions)) {
         console.error('[TodayMission] Invalid response shape'); throw new Error('INVALID_RESPONSE')
       }
-      const result = data as FireResponse
-      applyResponse(result)
+      applyResponse(data as FireResponse)
     } catch (e) {
       const code = e instanceof Error ? e.message : 'UNKNOWN'
       console.error('[TodayMission] Load error', e)
@@ -208,7 +272,6 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
       try { result = JSON.parse(raw) as CompletionResult & { error?: string } } catch { throw new Error('INVALID_RESPONSE') }
       if (!response.ok) { const code = result.error ?? 'UNKNOWN'; console.error('[TodayMission] Completion failed', { status: response.status, code }); throw new Error(code) }
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); readingStartedAt.current = null
-      // Refresh all dashboard surfaces after a successful completion. The refresh is intentionally fire-and-forget so the mission UI never waits on secondary dashboard requests.
       void onDashboardRefresh?.()
       const remainingMissionCount = missions.filter(m => !done.has(m.concept_window_id)).length
       const sameSubjectRemaining = missions.some(m => m.subject_id === currentMission.subject_id && !done.has(m.concept_window_id))
@@ -245,16 +308,24 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
           <span style={styles.tag}>Today’s Mission</span>
           <div ref={pickerRef} style={{ position: 'relative', minWidth: 0, maxWidth: '58%' }}>
             <button
-              ref={triggerRef} type='button' style={styles.trigger} disabled={stage !== 'ready' || busy || startBusy}
-              aria-expanded={subjectOpen} aria-haspopup='listbox' aria-controls='today-mission-subject-list' onClick={() => subjectOpen ? closeSubjectMenu() : openSubjectMenu()} onKeyDown={triggerKeyDown} title={subjectLabel}
+              ref={triggerRef}
+              type='button'
+              style={styles.trigger}
+              disabled={stage !== 'ready' || busy || startBusy}
+              aria-expanded={subjectOpen}
+              aria-haspopup='listbox'
+              aria-controls='today-mission-subject-list'
+              onClick={() => subjectOpen ? closeSubjectMenu() : openSubjectMenu()}
+              onKeyDown={triggerKeyDown}
+              title={subjectLabel}
             >
-              <span style={styles.text}>{subjectLabel}</span><ChevronDown size={16} className={subjectOpen ? 'nba-chevron-open' : ''} aria-hidden='true' />
+              <span style={styles.text}>{subjectLabel}</span><ChevronDown size={15} aria-hidden='true' />
             </button>
             {subjectOpen && (
-              <div id='today-mission-subject-list' role='listbox' aria-label='Scheduled subjects' style={{ position: 'absolute', zIndex: 30, right: 0, top: 'calc(100% + 6px)', minWidth: 190, maxWidth: 'calc(100vw - 32px)', padding: 6, border: '1px solid rgba(255,255,255,.12)', borderRadius: 12, background: '#0D1B2E', boxShadow: '0 18px 40px rgba(0,0,0,.35)' }}>
+              <div id='today-mission-subject-list' role='listbox' aria-label='Scheduled subjects' style={{ position: 'absolute', zIndex: 30, right: 0, top: 'calc(100% + 6px)', minWidth: 190, maxWidth: 'calc(100vw - 32px)', padding: 6, border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, background: '#0D1B2E', boxShadow: '0 18px 40px rgba(0,0,0,.35)' }}>
                 {subjects.map((subject, index) => {
                   const selected = subject.subject_id === selectedSubjectId
-                  return <button key={subject.subject_id} ref={node => { optionRefs.current[index] = node }} type='button' role='option' aria-selected={selected} tabIndex={index === highlightedSubject ? 0 : -1} style={{ display: 'block', width: '100%', minHeight: 44, padding: '8px 11px', border: 0, borderRadius: 8, background: selected ? 'rgba(63,183,255,.10)' : 'transparent', color: selected ? '#F1F6FA' : 'rgba(232,240,247,.72)', fontSize: 12, fontWeight: selected ? 750 : 600, textAlign: 'left', cursor: 'pointer' }} onClick={() => selectSubject(subject.subject_id)} onKeyDown={e => optionKeyDown(e, index)}>
+                  return <button key={subject.subject_id} ref={node => { optionRefs.current[index] = node }} type='button' role='option' aria-selected={selected} tabIndex={index === highlightedSubject ? 0 : -1} style={{ display: 'block', width: '100%', minHeight: 44, padding: '8px 11px', border: 0, borderRadius: 8, background: selected ? 'rgba(63,183,255,.10)' : 'transparent', color: selected ? TEXT : MUTED, fontSize: 12, fontWeight: selected ? 750 : 600, textAlign: 'left', cursor: 'pointer' }} onClick={() => selectSubject(subject.subject_id)} onKeyDown={e => optionKeyDown(e, index)}>
                     <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subject.subject_name ?? subject.subject_id}</span>
                   </button>
                 })}
@@ -275,14 +346,18 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
           <SubjectCompleteState subjectName={selectedSubject?.subject_name ?? 'This subject'} onChooseAnother={openSubjectMenu} />
         ) : currentMission ? (
           <>
-            <span style={styles.badge}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F0C94F' }} aria-hidden='true' /><span style={{ ...styles.text, maxWidth: '100%' }}>{currentMission.topic_name ?? currentMission.concept_name}</span></span>
-            <div style={{ marginTop: 14, minWidth: 0 }}>
-              <span style={styles.eyebrow}>{copy.lead}</span>
+            <div style={{ minWidth: 0 }}>
+              <p style={styles.stage}>{copy.lead}</p>
               <h1 style={styles.title}>{currentMission.action_type === 'READ' ? 'Read ' : ''}{currentMission.concept_name}</h1>
               <p style={styles.detail}>{currentMission.concept_description ?? copy.detail}</p>
-              <div style={styles.meta}><span style={styles.metaItem}><Clock3 size={15} color='#25D6A2' aria-hidden='true' />{currentMission.estimated_minutes} min</span><span style={styles.metaItem}>{copy.secondaryMetric}</span></div>
+              <div style={styles.meta}>
+                <Clock3 size={14} aria-hidden='true' />
+                <span>{currentMission.estimated_minutes} min</span>
+              </div>
             </div>
-            <button style={styles.primary} onClick={startReading} disabled={startBusy || busy}>{startBusy ? 'Starting…' : copy.cta} <span aria-hidden='true'>→</span></button>
+            <button style={styles.primary} onClick={startReading} disabled={startBusy || busy}>
+              {startBusy ? 'Starting…' : copy.cta} <span aria-hidden='true'>→</span>
+            </button>
           </>
         ) : null}
       </article>
@@ -292,7 +367,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
         button:not(:disabled):hover { filter: brightness(1.06); }
         button:not(:disabled):active { transform: translateY(1px); }
         .nba-chevron-open { transform: rotate(180deg); }
-        .nba-cta-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
+        .nba-cta-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 18px; }
         @media (min-width: 640px) { .nba-cta-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         @media (prefers-reduced-motion: reduce) { .nba-chevron-open { transition: none; } button { scroll-behavior: auto; } }
       `}</style>
@@ -307,7 +382,7 @@ function RecommendedState({ onContinue, onReady, busy }: { onContinue: () => voi
   return <><p style={styles.stage}>Recommended time reached</p><h2 style={styles.title}>You can keep reading.</h2><p style={styles.support}>You’ve reached the recommended reading window. Continue if you need more time, or move on when you’re ready.</p><div style={styles.boundary}>Recommended window reached · Extra reading continues without changing the recommendation.</div><div className='nba-cta-row'><button style={styles.primary} onClick={onContinue} disabled={busy}>{busy ? 'Continuing…' : 'Continue Reading'} <span aria-hidden='true'>→</span></button><button style={styles.textButton} onClick={onReady} disabled={busy}>{busy ? 'Please wait…' : 'I’m Ready'} <span aria-hidden='true'>→</span></button></div></>
 }
 function NextActionState({ conceptName, onAction, busy }: { conceptName: string; onAction: () => void; busy: boolean }) {
-  return <><p style={styles.stage}>Ready for recall</p><h2 style={styles.title}>Quick recall on {conceptName}</h2><p style={styles.support}>Check what you can retrieve before moving on.</p><div style={styles.meta}><span style={styles.metaItem}>Recall</span><span style={styles.metaItem}>Next in progression</span></div><button style={styles.primary} onClick={onAction} disabled={busy}>{busy ? 'Saving…' : 'Complete Concept'} <span aria-hidden='true'>→</span></button></>
+  return <><p style={styles.stage}>Ready for recall</p><h2 style={styles.title}>Quick recall on {conceptName}</h2><p style={styles.support}>Check what you can retrieve before moving on.</p><div style={styles.meta}><span>Recall</span><span>·</span><span>Next in progression</span></div><button style={styles.primary} onClick={onAction} disabled={busy}>{busy ? 'Saving…' : 'Complete Concept'} <span aria-hidden='true'>→</span></button></>
 }
 function BoundaryStateView({ subjectCompleted, onContinue, busy }: { subjectCompleted: boolean; onContinue: () => void; busy: boolean }) {
   return <><p style={styles.stage}>Subject completed</p><h2 style={styles.title}>You’ve completed this subject.</h2><p style={styles.support}>{subjectCompleted ? 'Continue to another scheduled subject when you’re ready.' : 'More work is available in today’s focus.'}</p><div className='nba-cta-row'><button style={styles.primary} onClick={onContinue} disabled={busy}>{busy ? 'Continuing…' : 'Continue'} <span aria-hidden='true'>→</span></button></div></>
