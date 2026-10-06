@@ -46,7 +46,7 @@ const styles = {
     maxHeight: 420,
     minWidth: 0,
     boxSizing: 'border-box',
-    padding: 18,
+    padding: 14,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
