@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], weight: ['500', '600', '700'] })
 
