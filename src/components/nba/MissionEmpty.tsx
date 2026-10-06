@@ -18,7 +18,7 @@ const styles = {
   kicker: { margin: '0 0 8px', color: 'rgba(232,240,247,.72)', fontSize: 12 } as const,
   title: { margin: 0, color: '#F1F6FA', fontSize: 21, lineHeight: 1.15, letterSpacing: '-.025em' } as const,
   message: { margin: '10px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 12, lineHeight: 1.6 } as const,
-  action: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: 42, marginTop: 22/, border: 0, borderRadius: 10, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 12, fontWeight: 800, textDecoration: 'none' } as const,
+  action: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: 42, marginTop: 22, border: 0, borderRadius: 10, background: '#3FB7FF', color: '#06182A', fontSize: 12, fontWeight: 800, textDecoration: 'none' } as const,
 }
 
 export default function MissionEmpty({ reason, onAction, busy = false }: { reason: MissionReason; onAction: () => void; busy?: boolean }) {
