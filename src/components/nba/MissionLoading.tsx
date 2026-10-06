@@ -3,7 +3,7 @@
 const styles = {
   card: {
     minHeight: 260,
-    padding: 18,
+    padding: 14,
     border: '1px solid rgba(255,255,255,.08)',
     borderRadius: 14,
     background: '#0A0F14',
