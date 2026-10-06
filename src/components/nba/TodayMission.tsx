@@ -46,7 +46,7 @@ const styles = {
     maxHeight: 420,
     minWidth: 0,
     boxSizing: 'border-box',
-    padding: 24,
+    padding: 18,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
@@ -62,7 +62,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 5,
-    maxWidth: '58%',
+    maxWidth: '72%',
     minWidth: 0,
     minHeight: 32,
     padding: 0,
@@ -73,7 +73,7 @@ const styles = {
     fontWeight: 650,
     cursor: 'pointer',
   } as const,
-  text: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as const,
+  text: { minWidth: 0, overflow: 'hidden', textOverflow: 'clip', whiteSpace: 'nowrap' } as const,
   stage: { margin: 0, color: MUTED, fontSize: 'clamp(11px, 1.9vw, 13px)', lineHeight: 1.45 } as const,
   title: {
     margin: 0,
@@ -306,7 +306,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
       <article style={styles.card} aria-label='Today’s Mission'>
         <div style={styles.top}>
           <span style={styles.tag}>Today’s Mission</span>
-          <div ref={pickerRef} style={{ position: 'relative', minWidth: 0, maxWidth: '58%' }}>
+          <div ref={pickerRef} style={{ position: 'relative', minWidth: 0, maxWidth: '72%' }}>
             <button
               ref={triggerRef}
               type='button'
