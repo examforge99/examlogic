@@ -5,7 +5,7 @@ const styles = {
   kicker: { margin: '0 0 8px', color: 'rgba(232,240,247,.72)', fontSize: 12, lineHeight: 1.4 } as const,
   title: { margin: 0, color: '#F1F6FA', fontSize: 21, lineHeight: 1.15, letterSpacing: '-.025em' } as const,
   support: { margin: '10px 0 0', color: 'rgba(232,240,247,.68)', fontSize: 12, lineHeight: 1.6 } as const,
-  button: { width: '100%', minHeight: 42, marginTop: 22/, border: 0, borderRadius: 10, background: 'linear-gradient(105deg,#2766F3,#1E8CEB 52%,#1ED0A7)', color: '#06182A', fontSize: 12, fontWeight: 800, cursor: 'pointer' } as const,
+  button: { width: '100%', minHeight: 42, marginTop: 22, border: 0, borderRadius: 10, background: '#3FB7FF', color: '#06182A', fontSize: 12, fontWeight: 800, cursor: 'pointer' } as const,
 }
 
 export default function MissionError({ error, onRetry, busy = false }: { error: string | null; onRetry: () => void; busy?: boolean }) {
