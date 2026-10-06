@@ -36,6 +36,7 @@ type Concept = {
   topic_name?: string;
   name: string;
   description: string | null;
+  mission_summary: string | null;
   progression_order: number;
   status: string;
   read_minutes: number;
@@ -248,7 +249,7 @@ export async function fireNBA(user_id: string): Promise<NBAFireResult> {
   ] = await Promise.all([
     db.from('user_topic_mastery').select('topic_id,is_complete').eq('user_id', user_id).in('topic_id', topicIds),
     db.from('concept_windows')
-      .select('id,topic_id,name,description,progression_order,status,read_minutes')
+      .select('id,topic_id,name,description,mission_summary,progression_order,status,read_minutes')
       .in('topic_id', topicIds)
       .eq('status', 'active')
       .order('progression_order', { ascending: true }),
@@ -417,6 +418,7 @@ export async function fireNBA(user_id: string): Promise<NBAFireResult> {
         concept_name: concept.name,
         concept_progression_order: concept.progression_order,
         concept_description: concept.description,
+        mission_summary: concept.mission_summary,
         estimated_minutes: estimated,
         action_type: action,
         phase,
