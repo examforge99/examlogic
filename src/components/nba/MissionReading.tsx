@@ -16,12 +16,12 @@ const COPY: Record<Action, { label: string; button: string }> = {
 
 const styles = {
   label: { margin: '0 0 8px', color: 'rgba(232,240,247,.72)', fontSize: 13, lineHeight: 1.4 } as const,
-  concept: { display: 'inline-block', maxWidth: '100%', marginTop: 8, padding: '7px 11px', borderRadius: 10, background: 'rgba(245,194,66,.12)', border: '1px solid rgba(245,194,66,.28)', color: '#F5C242', fontSize: 14, fontWeight: 600, lineHeight: 1.35, overflowWrap: 'anywhere' } as const,
-  timer: { marginTop: 20, color: '#F1F6FA', fontSize: 42, lineHeight: 1, fontWeight: 750, letterSpacing: '-.04em', fontVariantNumeric: 'tabular-nums' } as const,
-  progress: { height: 7, marginTop: 16, overflow: 'hidden', borderRadius: 999, background: 'rgba(255,255,255,.08)' } as const,
-  fill: { height: '100%', borderRadius: 999, background: 'linear-gradient(90deg,#3FB7FF,#25D6A2)' } as const,
-  info: { display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 10, color: 'rgba(232,240,247,.68)', fontSize: 12 } as const,
-  button: { width: '100%', minHeight: 50, marginTop: 22, border: '1px solid rgba(63,183,255,.60)', borderRadius: 12, background: 'transparent', color: '#3FB7FF', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
+  concept: { display: 'block', maxWidth: '100%', marginTop: 10, color: '#3FB7FF', fontSize: 'clamp(20px, 4.2vw, 27px)', fontWeight: 800, lineHeight: 1.18, letterSpacing: '-.025em', overflowWrap: 'anywhere' } as const,
+  timer: { marginTop: 28, color: '#E8F0F7', fontSize: 'clamp(36px, 8vw, 48px)', lineHeight: 1, fontWeight: 750, letterSpacing: '-.04em', fontVariantNumeric: 'tabular-nums' } as const,
+  progress: { height: 6, marginTop: 20, overflow: 'hidden', borderRadius: 999, background: 'rgba(255,255,255,.08)' } as const,
+  fill: { height: '100%', borderRadius: 999, background: '#3FB7FF' } as const,
+  info: { display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 12, color: 'rgba(232,240,247,.68)', fontSize: 12 } as const,
+  button: { width: '100%', minHeight: 42, marginTop: 28, border: 0, borderRadius: 10, background: '#3FB7FF', color: '#06182A', fontSize: 13, fontWeight: 800, cursor: 'pointer' } as const,
 }
 
 export default function MissionReading({
