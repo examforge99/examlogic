@@ -8,6 +8,7 @@ import BottomNav from '@/components/ui/BottomNav'
 import TodayMission, { type Mission } from '@/components/nba/TodayMission'
 import RecentActivity from '@/components/RecentActivity'
 import type { RecentActivityItem } from '@/components/RecentActivity'
+import { COLORS } from '@/lib/design/colors'
 
 type DashboardData = {
   missions: Mission[]
@@ -23,15 +24,15 @@ type DashboardData = {
 }
 
 const colors = {
-  bg: '#071426',
-  surface: '#101A2B',
-  elevated: '#182235',
-  primary: '#3FB7FF',
-  accent: '#25D6A2',
-  warning: '#F5C451',
-  text: '#EAF2F8',
-  muted: '#91A3B5',
-  border: 'rgba(234,242,248,.08)',
+  bg: COLORS.background,
+  surface: COLORS.surface,
+  elevated: COLORS.elevated,
+  primary: COLORS.primary,
+  accent: COLORS.accent,
+  warning: COLORS.status.warning,
+  text: COLORS.text.primary,
+  muted: COLORS.text.muted,
+  border: COLORS.border,
 } as const
 
 const styles = {
@@ -65,14 +66,14 @@ const styles = {
   metric: { minHeight: 122, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } as const,
   metricLabel: { margin: 0, color: colors.muted, fontSize: 10, fontWeight: 750, letterSpacing: '.04em', textTransform: 'uppercase' as const } as const,
   metricValue: { margin: '12px 0 0', color: colors.text, fontSize: 25, lineHeight: 1, fontWeight: 760, letterSpacing: '-.03em' } as const,
-  bar: { height: 6, overflow: 'hidden', borderRadius: 999, background: 'rgba(145,163,181,.12)' } as const,
+  bar: { height: 6, overflow: 'hidden', borderRadius: 999, background: 'rgba(102,116,133,.16)' } as const,
   barFill: { height: '100%', borderRadius: 999, background: colors.accent, transition: 'width 400ms ease' } as const,
   cardHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 } as const,
   cardTitle: { margin: 0, color: colors.text, fontSize: 15, fontWeight: 760, letterSpacing: '-.015em' } as const,
   link: { display: 'inline-flex', alignItems: 'center', gap: 5, border: 0, background: 'transparent', color: colors.primary, padding: 0, fontSize: 11, fontWeight: 750, cursor: 'pointer' } as const,
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '13px 0', borderBottom: '1px solid rgba(234,242,248,.055)' } as const,
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '13px 0', borderBottom: '1px solid ' + colors.border } as const,
   rowMain: { minWidth: 0 } as const,
-  rowTitle: { margin: 0, color: '#DCE7EF', fontSize: 13, fontWeight: 700 } as const,
+  rowTitle: { margin: 0, color: '#344054', fontSize: 13, fontWeight: 700 } as const,
   rowMeta: { margin: '4px 0 0', color: colors.muted, fontSize: 10 } as const,
   iconBox: { width: 32, height: 32, flex: '0 0 auto', display: 'grid', placeItems: 'center', borderRadius: 9, background: colors.elevated, color: colors.primary } as const,
 }
@@ -136,8 +137,6 @@ export default function DashboardPage() {
   const planned = schedule?.planned_seconds ?? 0
   const remaining = schedule?.remaining_seconds ?? 0
   const progress = planned > 0 ? Math.max(0, Math.min(100, ((planned - remaining) / planned) * 100)) : 0
-
-
 
   return (
     <div style={styles.page}>
@@ -207,7 +206,6 @@ export default function DashboardPage() {
               <p style={{ ...styles.muted, marginTop: 16 }}>Rest day · no subjects scheduled.</p>
             )}
           </section>
-
 
           <RecentActivity activities={data?.activities} deferFetch initialError={apiErrors.activity} />
         </div>
