@@ -19,6 +19,7 @@ export type Mission = {
   concept_name: string
   concept_progression_order: number
   concept_description: string | null
+  mission_summary: string | null
   estimated_minutes: number
   action_type: Action
   phase: string
@@ -349,7 +350,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
             <div style={{ minWidth: 0 }}>
               <p style={styles.stage}>{copy.lead}</p>
               <h1 style={styles.title}>{currentMission.action_type === 'READ' ? 'Read ' : ''}{currentMission.concept_name}</h1>
-              <p style={styles.detail}>{currentMission.concept_description ?? copy.detail}</p>
+              <p style={styles.detail}>{currentMission.mission_summary ?? currentMission.concept_description ?? copy.detail}</p>
               <div style={styles.meta}>
                 <Clock3 size={14} aria-hidden='true' />
                 <span>{currentMission.estimated_minutes} min</span>
