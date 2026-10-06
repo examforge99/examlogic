@@ -208,7 +208,9 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
       try { result = JSON.parse(raw) as CompletionResult & { error?: string } } catch { throw new Error('INVALID_RESPONSE') }
       if (!response.ok) { const code = result.error ?? 'UNKNOWN'; console.error('[TodayMission] Completion failed', { status: response.status, code }); throw new Error(code) }
       const done = new Set(completedIds); done.add(currentMission.concept_window_id); setCompletedIds(done); readingStartedAt.current = null
-      // Refresh all dashboard surfaces after a successful completion. The refresh is intentionally fire-and-forget so the mission UI never waits on secondary dashboard requests.\n      void onDashboardRefresh?.()\n      const remainingMissionCount = missions.filter(m => !done.has(m.concept_window_id)).length
+      // Refresh all dashboard surfaces after a successful completion. The refresh is intentionally fire-and-forget so the mission UI never waits on secondary dashboard requests.
+      void onDashboardRefresh?.()
+      const remainingMissionCount = missions.filter(m => !done.has(m.concept_window_id)).length
       const sameSubjectRemaining = missions.some(m => m.subject_id === currentMission.subject_id && !done.has(m.concept_window_id))
       if (result.batch_completed || remainingMissionCount === 0) { setReason('all_done'); setStage('empty') }
       else if (sameSubjectRemaining) setStage('ready')
