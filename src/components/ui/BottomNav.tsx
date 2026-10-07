@@ -2,64 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'], weight: ['500', '600', '700'] })
+import { BarChart3, BookOpen, House, Play, UserRound } from 'lucide-react'
 
 const navItems = [
-  {
-    label: 'Home',
-    href: '/dashboard',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8}>
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Subjects',
-    href: '/subjects',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8}>
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Practice',
-    href: '/practice',
-    center: true,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8}>
-        <polygon points="5 3 19 12 5 21 5 3" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8}>
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Profile',
-    href: '/profile',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8}>
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-  },
+  { label: 'Home', href: '/dashboard', icon: House },
+  { label: 'Subjects', href: '/subjects', icon: BookOpen },
+  { label: 'Practice', href: '/practice', icon: Play, center: true },
+  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { label: 'Profile', href: '/profile', icon: UserRound },
 ]
 
 export default function BottomNav() {
@@ -67,147 +17,30 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          borderTop: '1px solid #D8D9D6',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-around',
-          paddingTop: '12px',
-          boxSizing: 'border-box',
-          minHeight: '76px',
-          background: '#FFFFFFee',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
-        }}
-        className="bottom-nav"
-      >
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-
-          if (item.center) {
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  flex: 1,
-                  padding: '4px 12px',
-                  borderRadius: '12px',
-                  textDecoration: 'none',
-                }}
-              >
-                <div
-                  style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: '-32px',
-                    background: 'linear-gradient(135deg, #3FB7FF, #3FB7FF)',
-                    boxShadow: '0 8px 28px #3FB7FF65',
-                  }}
-                >
-                  <svg
-                    width={22}
-                    height={22}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#E8E8E5"
-                    strokeWidth={2}
-                  >
-                    <polygon points="5 3 19 12 5 21 5 3" />
-                  </svg>
-                </div>
-                <span
-                  style={{
-                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    color: '#3FB7FF',
-                  }}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            )
-          }
+      <nav className="bottom-nav" aria-label="Primary navigation">
+        {navItems.map(({ label, href, icon: Icon, center }) => {
+          const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
 
           return (
             <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                flex: 1,
-                padding: '4px 12px',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                position: 'relative',
-              }}
+              key={href}
+              href={href}
+              className={center ? 'bottom-nav-item bottom-nav-practice' : 'bottom-nav-item'}
+              aria-current={active ? 'page' : undefined}
             >
-              <svg
-                width={22}
-                height={22}
-                viewBox={item.icon.props.viewBox}
-                fill="none"
-                stroke={isActive ? '#3FB7FF' : '#737B83'}
-                strokeWidth={1.8}
-              >
-                {item.icon.props.children}
-              </svg>
-
-              <span
-                style={{
-                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                  fontSize: '10px',
-                  color: isActive ? '#3FB7FF' : '#737B83',
-                  fontWeight: isActive ? 700 : 500,
-                }}
-              >
-                {item.label}
-              </span>
-
-              {isActive && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    bottom: '-12px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '24px',
-                    height: '3px',
-                    borderRadius: '4px 4px 0 0',
-                    backgroundColor: '#3FB7FF',
-                    boxShadow: '0 0 8px #3FB7FF',
-                  }}
-                />
+              {center ? (
+                <span className="bottom-nav-practice-button" aria-hidden="true">
+                  <Icon size={21} strokeWidth={2} />
+                </span>
+              ) : (
+                <Icon size={20} strokeWidth={active ? 2.2 : 1.8} />
               )}
+              <span>{label}</span>
+              {!center && active ? <span className="bottom-nav-active-marker" aria-hidden="true" /> : null}
             </Link>
           )
         })}
       </nav>
-
-      <style>{`
-        @media (min-width: 768px) {
-          .bottom-nav { display: none; }
-        }
-      `}</style>
     </>
   )
 }
