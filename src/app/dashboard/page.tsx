@@ -2,73 +2,71 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { ArrowRight, CalendarDays } from 'lucide-react'
-import TopBar from '@/components/ui/TopBar'
-import BottomNav from '@/components/ui/BottomNav'
+import { ArrowUpRight, BarChart3, BookOpen, CalendarDays, ChevronRight, Clock3, House, Play, UserRound } from 'lucide-react'
+import Link from 'next/link'
 import TodayMission, { type Mission } from '@/components/nba/TodayMission'
-import RecentActivity from '@/components/RecentActivity'
+import RecentActivity, { type RecentActivityItem } from '@/components/RecentActivity'
 
-type DashboardData = {
+type Schedule = {
+  date: string
+  day_type: 'practice' | 'rest'
+  subjects: string[]
+  planned_seconds: number
+  used_seconds: number
+  remaining_seconds: number
+}
+
+type DashboardPayload = {
   missions: Mission[]
-  activities: import('@/components/RecentActivity').RecentActivityItem[]
-  schedule: {
-    date: string
-    day_type: 'practice' | 'rest'
-    subjects: string[]
-    planned_seconds: number
-    used_seconds: number
-    remaining_seconds: number
-  } | null
+  activities: RecentActivityItem[]
+  schedule: Schedule | null
 }
 
-const styles = {
-  page: { minHeight: '100vh', background: 'var(--color-background)' } as const,
-  main: { width: '100%', maxWidth: 680, margin: '0 auto', padding: '24px 16px 112px', boxSizing: 'border-box' } as const,
-  stack: { display: 'grid', gap: 24 } as const,
-  section: { display: 'grid', gap: 12 } as const,
-  eyebrow: { margin: 0, color: 'var(--color-primary)', fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const } as const,
-  heading: { margin: 0, color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1.2, fontWeight: 700, letterSpacing: '-.025em' } as const,
-  muted: { margin: 0, color: 'var(--color-text-muted)', fontSize: 12, lineHeight: 1.5 } as const,
-  surface: { border: '1px solid var(--color-border)', borderRadius: 14, background: 'var(--color-surface)', padding: 16, boxSizing: 'border-box' } as const,
-}
+const nav = [
+  { href: '/dashboard', label: 'Home', icon: House },
+  { href: '/subjects', label: 'Subjects', icon: BookOpen },
+  { href: '/practice', label: 'Practice', icon: Play, featured: true },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/profile', label: 'Profile', icon: UserRound },
+]
 
-function formatTime(seconds: number) {
+function formatDuration(seconds: number) {
   const minutes = Math.max(0, Math.round(seconds / 60))
+  if (minutes < 60) return minutes + ' min'
   const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  if (hours && mins) return hours + 'h ' + mins + 'm'
-  if (hours) return hours + 'h'
-  return mins + 'm'
+  const rest = minutes % 60
+  return rest ? hours + 'h ' + rest + 'm' : hours + 'h'
 }
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [apiErrors, setApiErrors] = useState({ mission: false, activity: false, schedule: false })
+  const [payload, setPayload] = useState<DashboardPayload | null>(null)
+  const [errors, setErrors] = useState({ mission: false, activity: false, schedule: false })
 
-  const firstName = user?.firstName || user?.username || 'there'
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
-  }, [])
-
-  const loadDashboard = useCallback(async () => {
-    const headers = { Accept: 'application/json', 'Cache-Control': 'no-cache, no-store, max-age=0' }
+  const refresh = useCallback(async () => {
+    const headers = { Accept: 'application/json', 'Cache-Control': 'no-store' }
     const results = await Promise.allSettled([
-      fetch('/api/nba/fire', { method: 'POST', cache: 'no-store', headers }).then(async r => { if (!r.ok) throw new Error('mission'); return r.json() }),
-      fetch('/api/recent-activity', { cache: 'no-store', headers }).then(async r => { if (!r.ok) throw new Error('activity'); return r.json() }),
-      fetch('/api/timetable/today', { cache: 'no-store', headers }).then(async r => { if (!r.ok) throw new Error('schedule'); return r.json() }),
+      fetch('/api/nba/fire', { method: 'POST', cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('mission')
+        return r.json()
+      }),
+      fetch('/api/recent-activity', { cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('activity')
+        return r.json()
+      }),
+      fetch('/api/timetable/today', { cache: 'no-store', headers }).then(async r => {
+        if (!r.ok) throw new Error('schedule')
+        return r.json()
+      }),
     ])
 
-    setApiErrors({
+    setErrors({
       mission: results[0].status === 'rejected',
       activity: results[1].status === 'rejected',
       schedule: results[2].status === 'rejected',
     })
 
-    setData({
+    setPayload({
       missions: results[0].status === 'fulfilled' && Array.isArray(results[0].value?.missions) ? results[0].value.missions : [],
       activities: results[1].status === 'fulfilled' && Array.isArray(results[1].value?.activities) ? results[1].value.activities : [],
       schedule: results[2].status === 'fulfilled' ? results[2].value : null,
@@ -76,101 +74,117 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    if (isLoaded) void loadDashboard()
-  }, [isLoaded, loadDashboard])
+    if (isLoaded) void refresh()
+  }, [isLoaded, refresh])
 
-  const schedule = data?.schedule
-  const planned = schedule?.planned_seconds ?? 0
-  const remaining = schedule?.remaining_seconds ?? 0
-  const progress = planned > 0 ? Math.max(0, Math.min(100, ((planned - remaining) / planned) * 100)) : 0
+  const firstName = user?.firstName || user?.username || 'there'
+  const progress = useMemo(() => {
+    const schedule = payload?.schedule
+    if (!schedule?.planned_seconds) return 0
+    return Math.round(Math.max(0, Math.min(100, (schedule.used_seconds / schedule.planned_seconds) * 100)))
+  }, [payload?.schedule])
 
   return (
-    <div style={styles.page}>
-      <TopBar
-        showBack={false}
-        showNotif
-        showAvatar
-        avatarInitial={(firstName[0] || 'V').toUpperCase()}
-        title={greeting + ', ' + firstName}
-        subtitle="Here’s what matters today."
-      />
-
-      <main style={styles.main}>
-        <div style={styles.stack}>
-          <TodayMission
-            initialMissions={data?.missions}
-            deferFetch
-            initialError={apiErrors.mission ? 'Today’s mission is temporarily unavailable. Please try again.' : null}
-            onDashboardRefresh={loadDashboard}
-          />
-
-          <section style={styles.section} aria-labelledby="today-context-title">
-            <div>
-              <p style={styles.eyebrow}>Today</p>
-              <h2 id="today-context-title" style={styles.heading}>Keep the plan in view.</h2>
-              <p style={{ ...styles.muted, marginTop: 4 }}>A little context, without competing with your next action.</p>
-            </div>
-
-            <div className="dashboard-context-grid">
-              <div className="dashboard-stat">
-                <p className="dashboard-stat-label">Progress</p>
-                <p className="dashboard-stat-value">{Math.round(progress)}%</p>
-                <div className="dashboard-progress-track" aria-label={Math.round(progress) + '% of planned study time completed'}>
-                  <span style={{ width: progress + '%' }} />
-                </div>
-              </div>
-              <div className="dashboard-stat">
-                <p className="dashboard-stat-label">Remaining</p>
-                <p className="dashboard-stat-value">{formatTime(remaining)}</p>
-                <p className="dashboard-stat-note">of {formatTime(planned)} planned</p>
-              </div>
-            </div>
-          </section>
-
-          <section style={styles.section} aria-labelledby="today-timetable-title">
-            <div className="dashboard-section-header">
-              <div>
-                <p style={styles.eyebrow}>Schedule</p>
-                <h2 id="today-timetable-title" style={styles.heading}>Today’s timetable</h2>
-              </div>
-              <button className="dashboard-inline-link" type="button" onClick={() => { window.location.href = '/timetable' }}>
-                Full timetable <ArrowRight size={14} />
-              </button>
-            </div>
-
-            <div style={styles.surface}>
-              {apiErrors.schedule ? (
-                <div>
-                  <p style={styles.muted}>Today’s timetable is temporarily unavailable.</p>
-                  <button className="dashboard-inline-link dashboard-retry" type="button" onClick={() => void loadDashboard()}>Try again</button>
-                </div>
-              ) : schedule?.day_type === 'practice' && schedule.subjects.length ? (
-                <div className="dashboard-schedule-list">
-                  {schedule.subjects.slice(0, 3).map((subject, index) => (
-                    <div key={subject} className="dashboard-schedule-row">
-                      <div>
-                        <p className="dashboard-schedule-subject">{subject}</p>
-                        <p className="dashboard-schedule-meta">{index === 0 ? 'Scheduled today' : 'Also scheduled today'}</p>
-                      </div>
-                      <CalendarDays size={16} aria-hidden="true" />
-                    </div>
-                  ))}
-                  {schedule.subjects.length > 3 ? <p className="dashboard-schedule-more">+{schedule.subjects.length - 3} more subjects</p> : null}
-                </div>
-              ) : (
-                <div className="dashboard-rest">
-                  <p className="dashboard-schedule-subject">Rest day</p>
-                  <p className="dashboard-schedule-meta">No subjects are scheduled today.</p>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <RecentActivity activities={data?.activities} deferFetch initialError={apiErrors.activity} />
+    <div className="new-app">
+      <header className="new-header">
+        <div className="new-header-inner">
+          <Link href="/dashboard" className="wordmark" aria-label="ExamLogic home">ExamLogic</Link>
+          <div className="header-right">
+            <span className="header-date">{new Intl.DateTimeFormat('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date())}</span>
+            <Link href="/profile" className="profile-chip" aria-label="Open profile">{firstName.slice(0, 1).toUpperCase()}</Link>
+          </div>
         </div>
+      </header>
+
+      <main className="new-main">
+        <section className="welcome-line">
+          <div>
+            <p className="overline">Your preparation</p>
+            <h1>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {firstName}.</h1>
+          </div>
+          <p className="welcome-note">One place to know what matters now, what is next, and how you are progressing.</p>
+        </section>
+
+        <section className="mission-zone" aria-labelledby="mission-zone-title">
+          <div className="section-kicker">
+            <span>01</span>
+            <h2 id="mission-zone-title">What matters now</h2>
+          </div>
+          <div className="mission-frame">
+            <TodayMission
+              initialMissions={payload?.missions}
+              deferFetch
+              initialError={errors.mission ? 'Today’s mission is temporarily unavailable. Please try again.' : null}
+              onDashboardRefresh={refresh}
+            />
+          </div>
+        </section>
+
+        <section className="context-zone" aria-labelledby="context-title">
+          <div className="section-kicker">
+            <span>02</span>
+            <h2 id="context-title">Keep your bearings</h2>
+          </div>
+          <div className="context-grid">
+            <article className="context-primary">
+              <div className="context-topline"><span>Study time</span><Clock3 size={15} /></div>
+              <strong>{formatDuration(payload?.schedule?.used_seconds ?? 0)}</strong>
+              <p>{progress}% of {formatDuration(payload?.schedule?.planned_seconds ?? 0)} planned today</p>
+              <div className="meter"><span style={{ width: progress + '%' }} /></div>
+            </article>
+            <article className="context-secondary">
+              <div className="context-topline"><span>Still available</span><CalendarDays size={15} /></div>
+              <strong>{formatDuration(payload?.schedule?.remaining_seconds ?? 0)}</strong>
+              <p>{payload?.schedule?.day_type === 'rest' ? 'Today is a rest day.' : 'Remaining from today’s plan.'}</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="schedule-zone" aria-labelledby="schedule-title">
+          <div className="section-heading">
+            <div>
+              <p className="overline">Plan</p>
+              <h2 id="schedule-title">Today’s timetable</h2>
+            </div>
+            <Link href="/timetable" className="text-link">Open timetable <ArrowUpRight size={14} /></Link>
+          </div>
+          <div className="schedule-surface">
+            {errors.schedule ? (
+              <div className="inline-state"><strong>Timetable unavailable</strong><span>We couldn't retrieve today's plan.</span><button type="button" onClick={() => void refresh()}>Try again</button></div>
+            ) : payload?.schedule?.day_type === 'practice' && payload.schedule.subjects.length ? (
+              payload.schedule.subjects.map((subject, index) => (
+                <div className="schedule-row" key={subject}>
+                  <span className="schedule-index">0{index + 1}</span>
+                  <div><strong>{subject}</strong><span>{index === 0 ? 'Primary focus today' : 'Scheduled today'}</span></div>
+                  <ChevronRight size={16} />
+                </div>
+              ))
+            ) : (
+              <div className="rest-state"><strong>Rest day</strong><span>Your timetable has no study subjects scheduled today.</span></div>
+            )}
+          </div>
+        </section>
+
+        <section className="activity-zone" aria-labelledby="activity-title">
+          <div className="section-heading">
+            <div>
+              <p className="overline">History</p>
+              <h2 id="activity-title">Recent activity</h2>
+            </div>
+            <Link href="/analytics" className="text-link">View progress <ArrowUpRight size={14} /></Link>
+          </div>
+          <RecentActivity activities={payload?.activities} deferFetch initialError={errors.activity} />
+        </section>
       </main>
 
-      <BottomNav />
+      <nav className="new-bottom-nav" aria-label="Primary navigation">
+        {nav.map(({ href, label, icon: Icon, featured }) => (
+          <Link key={href} href={href} className={featured ? 'new-nav-item featured' : 'new-nav-item'}>
+            {featured ? <span className="new-nav-feature"><Icon size={19} /></span> : <Icon size={19} />}
+            <span>{label}</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   )
 }
