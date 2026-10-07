@@ -47,7 +47,7 @@ export default function TopBar({
       backgroundColor: 'rgba(7, 20, 38, 0.93)',
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
-      borderBottom: '1px solid #1a3a5c',
+      borderBottom: '1px solid #D8D9D6',
       padding: '10px 24px',
       display: 'flex',
       alignItems: 'center',
@@ -66,8 +66,8 @@ export default function TopBar({
                 width: '34px',
                 height: '34px',
                 borderRadius: '9px',
-                backgroundColor: '#0d1f35',
-                border: '1px solid #1a3a5c',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #D8D9D6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -78,7 +78,7 @@ export default function TopBar({
               onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             >
-              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#4B5560" strokeWidth={2}>
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
@@ -87,7 +87,7 @@ export default function TopBar({
                 style={{
                   fontSize: '17px',
                   fontWeight: 700,
-                  color: '#e8f4ff',
+                  color: '#171A1C',
                   lineHeight: 1,
                   fontFamily: 'var(--font-inter), Inter, sans-serif',
                   margin: 0,
@@ -115,7 +115,7 @@ export default function TopBar({
               <p
                 style={{
                   fontSize: '11px',
-                  color: '#4d6a87',
+                  color: '#737B83',
                   fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   margin: 0,
                   marginTop: '2px',
@@ -137,14 +137,14 @@ export default function TopBar({
                 margin: 0,
               }}
             >
-              <span style={{ color: '#e8f4ff' }}>Exam</span>
+              <span style={{ color: '#171A1C' }}>Exam</span>
               <span style={{ color: '#25d6a2' }}>Logic</span>
             </p>
             {subtitle && (
               <p
                 style={{
                   fontSize: '11px',
-                  color: '#4d6a87',
+                  color: '#737B83',
                   fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   margin: 0,
                   marginTop: '2px',
@@ -169,8 +169,8 @@ export default function TopBar({
                   width: '34px',
                   height: '34px',
                   borderRadius: '9px',
-                  backgroundColor: '#0d1f35',
-                  border: '1px solid #1a3a5c',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #D8D9D6',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -181,7 +181,7 @@ export default function TopBar({
                 onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               >
-                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a8c8e8" strokeWidth={2}>
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#4B5560" strokeWidth={2}>
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                 </svg>
@@ -194,7 +194,7 @@ export default function TopBar({
                     height: '6px',
                     borderRadius: '50%',
                     backgroundColor: '#3FB7FF',
-                    border: '1.5px solid #071426',
+                    border: '1.5px solid #E8E8E5',
                   }} />
                 )}
               </button>
@@ -212,7 +212,7 @@ export default function TopBar({
                   justifyContent: 'center',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: '#071426',
+                  color: '#E8E8E5',
                   cursor: 'pointer',
                   transition: 'opacity 0.15s ease',
                   fontFamily: 'var(--font-inter), Inter, sans-serif',
