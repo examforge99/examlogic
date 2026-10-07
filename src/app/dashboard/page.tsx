@@ -67,7 +67,7 @@ const styles = {
   metricLabel: { margin: 0, color: colors.muted, fontSize: 10, fontWeight: 750, letterSpacing: '.04em', textTransform: 'uppercase' as const } as const,
   metricValue: { margin: '12px 0 0', color: colors.text, fontSize: 25, lineHeight: 1, fontWeight: 760, letterSpacing: '-.03em' } as const,
   bar: { height: 6, overflow: 'hidden', borderRadius: 999, background: 'rgba(102,116,133,.16)' } as const,
-  barFill: { height: '100%', borderRadius: 999, background: colors.accent, transition: 'width 400ms ease' } as const,
+  barFill: { height: '100%', borderRadius: 999, background: colors.primary, transition: 'width 400ms ease' } as const,
   cardHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 } as const,
   cardTitle: { margin: 0, color: colors.text, fontSize: 15, fontWeight: 760, letterSpacing: '-.015em' } as const,
   link: { display: 'inline-flex', alignItems: 'center', gap: 5, border: 0, background: 'transparent', color: colors.primary, padding: 0, fontSize: 11, fontWeight: 750, cursor: 'pointer' } as const,
@@ -75,7 +75,7 @@ const styles = {
   rowMain: { minWidth: 0 } as const,
   rowTitle: { margin: 0, color: '#344054', fontSize: 13, fontWeight: 700 } as const,
   rowMeta: { margin: '4px 0 0', color: colors.muted, fontSize: 10 } as const,
-  iconBox: { width: 32, height: 32, flex: '0 0 auto', display: 'grid', placeItems: 'center', borderRadius: 9, background: colors.elevated, color: colors.primary } as const,
+  iconBox: { width: 32, height: 32, flex: '0 0 auto', display: 'grid', placeItems: 'center', borderRadius: 9, background: 'rgba(63,183,255,.08)', color: colors.primary } as const,
 }
 
 function formatTime(seconds: number) {
