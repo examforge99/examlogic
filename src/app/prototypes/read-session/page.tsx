@@ -14,6 +14,7 @@ const schedule: NBAOutput[] = [
     message: 'Start here — read through Physical Quantities and Units first.',
     concept_description:
       'Physical quantities are properties that can be measured and expressed using a numerical value and a unit. Fundamental quantities such as length, mass, and time form the basis of the SI system, while derived quantities are built from them. Understanding units and dimensions helps you check whether physical equations make sense.',
+    mission_summary: null,
     estimated_minutes: 10,
     time_boundary_reached: false,
     topic_concept_boundary_reached: false,
@@ -33,6 +34,7 @@ const schedule: NBAOutput[] = [
     message: 'Start here — read through Dimensions and Dimensional Analysis first.',
     concept_description:
       'Dimensions describe the physical nature of a quantity in terms of fundamental quantities. Dimensional analysis can be used to test equations, derive relationships, and convert between compatible units.',
+    mission_summary: null,
     estimated_minutes: 8,
     time_boundary_reached: false,
     topic_concept_boundary_reached: true,
@@ -52,6 +54,7 @@ const schedule: NBAOutput[] = [
     message: 'Start here — read through Electronic Structure first.',
     concept_description:
       'The arrangement of electrons in an atom determines many of its chemical properties. Electron shells, subshells, and orbitals provide a framework for understanding atomic structure and periodic trends.',
+    mission_summary: null,
     estimated_minutes: 9,
     time_boundary_reached: false,
     topic_concept_boundary_reached: false,
