@@ -733,3 +733,7 @@ select {
  .new-main{padding-inline:14px}.context-grid{gap:8px}.context-primary,.context-secondary{padding:13px}.context-primary strong,.context-secondary strong{font-size:24px}
  .new-nav-item{font-size:8px}.new-nav-feature{width:31px;height:26px}
 }
+
+.mission-zone .nba-mission-card,.mission-zone article[aria-label="Today’s Mission"]{background:#171a1c!important;border-color:#2d3336!important;color:#f7f7f3!important;box-shadow:0 18px 36px rgba(23,26,28,.14)!important}
+.mission-zone .nba-mission-card button,.mission-zone article[aria-label="Today’s Mission"] button{font-family:var(--font-body)}
+.mission-zone article[aria-label="Today’s Mission"] h1,.mission-zone article[aria-label="Today’s Mission"] h2{font-family:var(--font-display)}
