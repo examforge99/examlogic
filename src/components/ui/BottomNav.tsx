@@ -116,8 +116,8 @@ export default function BottomNav() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginTop: '-32px',
-                    background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
-                    boxShadow: '0 8px 28px #25d6a265',
+                    background: 'linear-gradient(135deg, #3FB7FF, #3FB7FF)',
+                    boxShadow: '0 8px 28px #3FB7FF65',
                   }}
                 >
                   <svg
@@ -136,7 +136,7 @@ export default function BottomNav() {
                     fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                     fontSize: '10px',
                     fontWeight: 600,
-                    color: '#25d6a2',
+                    color: '#3FB7FF',
                   }}
                 >
                   {item.label}
@@ -166,7 +166,7 @@ export default function BottomNav() {
                 height={22}
                 viewBox={item.icon.props.viewBox}
                 fill="none"
-                stroke={isActive ? '#25d6a2' : '#737B83'}
+                stroke={isActive ? '#3FB7FF' : '#737B83'}
                 strokeWidth={1.8}
               >
                 {item.icon.props.children}
@@ -176,7 +176,7 @@ export default function BottomNav() {
                 style={{
                   fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   fontSize: '10px',
-                  color: isActive ? '#25d6a2' : '#737B83',
+                  color: isActive ? '#3FB7FF' : '#737B83',
                   fontWeight: isActive ? 700 : 500,
                 }}
               >
@@ -193,8 +193,8 @@ export default function BottomNav() {
                     width: '24px',
                     height: '3px',
                     borderRadius: '4px 4px 0 0',
-                    backgroundColor: '#25d6a2',
-                    boxShadow: '0 0 8px #25d6a2',
+                    backgroundColor: '#3FB7FF',
+                    boxShadow: '0 0 8px #3FB7FF',
                   }}
                 />
               )}
