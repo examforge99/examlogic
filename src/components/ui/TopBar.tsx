@@ -1,9 +1,8 @@
 'use client'
 
+import { Bell, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
-
 
 interface TopBarProps {
   title?: string
@@ -34,201 +33,44 @@ export default function TopBar({
   useEffect(() => {
     if (!showNotif) return
     fetch('/api/notifications')
-      .then((r) => r.json())
-      .then((data) => setHasNotification(data.hasNotification))
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setHasNotification(Boolean(data?.hasNotification)))
       .catch(() => setHasNotification(false))
   }, [showNotif])
 
   return (
-    <div style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      backgroundColor: 'rgba(7, 20, 38, 0.93)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      borderBottom: '1px solid #D8D9D6',
-      padding: '10px 24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '12px',
-      marginBottom: '8px',
-    }}>
-
-      {/* Left — logo or back button */}
-      <div style={{ flexShrink: 0 }}>
-        {showBack ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button
-              onClick={() => router.back()}
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '9px',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #D8D9D6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'opacity 0.15s ease',
-              }}
-              onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-              onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-            >
-              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#4B5560" strokeWidth={2}>
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
+    <header className="app-topbar">
+      <div className="app-topbar-inner">
+        <div className="app-topbar-leading">
+          {showBack ? (
+            <button className="icon-control" type="button" aria-label="Go back" onClick={() => router.back()}>
+              <ChevronLeft size={18} />
             </button>
-            {title && (
-              <p
-                style={{
-                  fontSize: '17px',
-                  fontWeight: 700,
-                  color: '#171A1C',
-                  lineHeight: 1,
-                  fontFamily: 'var(--font-inter), Inter, sans-serif',
-                  margin: 0,
-                }}
-              >
-                {title}
-              </p>
-            )}
-          </div>
-        ) : title ? (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <p
-              style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                letterSpacing: '-0.025em',
-                lineHeight: 1,
-                fontFamily: 'var(--font-inter), Inter, sans-serif',
-                margin: 0,
-              }}
-            >
-              {title}
-            </p>
-            {subtitle && (
-              <p
-                style={{
-                  fontSize: '11px',
-                  color: '#737B83',
-                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                  margin: 0,
-                  marginTop: '2px',
-                }}
-              >
-                {subtitle}
-              </p>
-            )}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <p
-              style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                letterSpacing: '-0.025em',
-                lineHeight: 1,
-                fontFamily: 'var(--font-inter), Inter, sans-serif',
-                margin: 0,
-              }}
-            >
-              <span style={{ color: '#171A1C' }}>Exam</span>
-              <span style={{ color: '#25d6a2' }}>Logic</span>
-            </p>
-            {subtitle && (
-              <p
-                style={{
-                  fontSize: '11px',
-                  color: '#737B83',
-                  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                  margin: 0,
-                  marginTop: '2px',
-                }}
-              >
-                {subtitle}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+          ) : null}
 
-      {/* Right — notif + avatar or custom element */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div className="app-topbar-copy">
+            <p className="app-topbar-title">{title ?? 'ExamLogic'}</p>
+            {subtitle ? <p className="app-topbar-subtitle">{subtitle}</p> : null}
+          </div>
+        </div>
+
         {rightElement ?? (
-          <>
-            {showNotif && (
-              <button
-                onClick={onNotifClick}
-                style={{
-                  position: 'relative',
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '9px',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #D8D9D6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.15s ease',
-                }}
-                onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-                onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-              >
-                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#4B5560" strokeWidth={2}>
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                {hasNotification && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '5px',
-                    right: '5px',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: '#3FB7FF',
-                    border: '1.5px solid #E8E8E5',
-                  }} />
-                )}
+          <div className="app-topbar-actions">
+            {showNotif ? (
+              <button className="icon-control" type="button" aria-label="Notifications" onClick={onNotifClick}>
+                <Bell size={17} />
+                {hasNotification ? <span className="notification-dot" aria-hidden="true" /> : null}
               </button>
-            )}
+            ) : null}
 
-            {showAvatar && (
-              <button
-                onClick={onAvatarClick}
-                style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '9px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  color: '#E8E8E5',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.15s ease',
-                  fontFamily: 'var(--font-inter), Inter, sans-serif',
-                  background: 'linear-gradient(135deg, #3FB7FF, #25d6a2)',
-                }}
-                onMouseDown={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-                onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-              >
+            {showAvatar ? (
+              <button className="avatar-control" type="button" aria-label="Open profile" onClick={onAvatarClick}>
                 {avatarInitial}
               </button>
-            )}
-          </>
+            ) : null}
+          </div>
         )}
       </div>
-
-    </div>
+    </header>
   )
 }
