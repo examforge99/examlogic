@@ -74,14 +74,14 @@ export default function BottomNav() {
           left: 0,
           right: 0,
           zIndex: 100,
-          borderTop: '1px solid #1a3a5c',
+          borderTop: '1px solid #D8D9D6',
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-around',
           paddingTop: '12px',
           boxSizing: 'border-box',
           minHeight: '76px',
-          background: '#0d1f35ee',
+          background: '#FFFFFFee',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
@@ -125,7 +125,7 @@ export default function BottomNav() {
                     height={22}
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#071426"
+                    stroke="#E8E8E5"
                     strokeWidth={2}
                   >
                     <polygon points="5 3 19 12 5 21 5 3" />
@@ -166,7 +166,7 @@ export default function BottomNav() {
                 height={22}
                 viewBox={item.icon.props.viewBox}
                 fill="none"
-                stroke={isActive ? '#25d6a2' : '#4d6a87'}
+                stroke={isActive ? '#25d6a2' : '#737B83'}
                 strokeWidth={1.8}
               >
                 {item.icon.props.children}
@@ -176,7 +176,7 @@ export default function BottomNav() {
                 style={{
                   fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
                   fontSize: '10px',
-                  color: isActive ? '#25d6a2' : '#4d6a87',
+                  color: isActive ? '#25d6a2' : '#737B83',
                   fontWeight: isActive ? 700 : 500,
                 }}
               >
