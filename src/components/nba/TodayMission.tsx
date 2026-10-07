@@ -36,7 +36,7 @@ type CompletionResult = { completed: boolean; batch_completed: boolean; subject_
 
 const BLUE = '#3FB7FF'
 const TEXT = '#171A1C'
-const MUTED = '#4B5560'
+const MUTED = '#B7BEC2'
 
 const styles = {
   shell: { width: '100%', minWidth: 0, color: TEXT } as const,
@@ -51,13 +51,13 @@ const styles = {
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    border: '1px solid #D8D9D6',
-    borderRadius: 14,
-    background: '#F7F7F3',
-    boxShadow: '0 20px 40px rgba(0,0,0,.22)',
+    border: '1px solid #2D3336',
+    borderRadius: 16,
+    background: '#171A1C',
+    boxShadow: '0 18px 36px rgba(23,26,28,.14)',
   } as const,
   top: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 24, minWidth: 0, flexShrink: 0 } as const,
-  tag: { display: 'inline-flex', alignItems: 'center', minWidth: 0, color: TEXT, fontSize: 14, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-.01em' } as const,
+  tag: { display: 'inline-flex', alignItems: 'center', minWidth: 0, color: '#F7F7F3', fontSize: 14, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-.01em' } as const,
   trigger: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -69,7 +69,7 @@ const styles = {
     padding: 0,
     border: 0,
     background: 'transparent',
-    color: MUTED,
+    color: '#B7BEC2',
     fontSize: 11,
     fontWeight: 650,
     cursor: 'pointer',
@@ -114,7 +114,7 @@ const styles = {
   } as const,
   textButton: { minHeight: 44, border: 0, background: 'transparent', color: MUTED, fontSize: 12, fontWeight: 750, cursor: 'pointer' } as const,
   detail: { margin: '12px 0 0', color: MUTED, fontSize: 'clamp(12px, 2vw, 14px)', lineHeight: 1.55, overflow: 'visible' } as const,
-  boundary: { marginTop: 9, padding: 8, border: '1px solid #D8D9D6', borderRadius: 8, background: '#EEEEEB', color: MUTED, fontSize: 11, lineHeight: 1.45 } as const,
+  boundary: { marginTop: 9, padding: 8, border: '1px solid #343A3D', borderRadius: 8, background: '#262B2E', color: '#B7BEC2', fontSize: 11, lineHeight: 1.45 } as const,
 }
 
 const actionCopy: Record<Action, { lead: string; detail: string; cta: string }> = {
@@ -323,7 +323,7 @@ export default function TodayMission({ initialMissions, deferFetch = false, init
               <span style={styles.text}>{subjectLabel}</span><ChevronDown size={15} aria-hidden='true' />
             </button>
             {subjectOpen && (
-              <div id='today-mission-subject-list' role='listbox' aria-label='Scheduled subjects' style={{ position: 'absolute', zIndex: 30, right: 0, top: 'calc(100% + 6px)', minWidth: 190, maxWidth: 'calc(100vw - 32px)', padding: 6, border: '1px solid #D8D9D6', borderRadius: 10, background: '#FFFFFF', boxShadow: '0 18px 40px rgba(0,0,0,.35)' }}>
+              <div id='today-mission-subject-list' role='listbox' aria-label='Scheduled subjects' style={{ position: 'absolute', zIndex: 30, right: 0, top: 'calc(100% + 6px)', minWidth: 190, maxWidth: 'calc(100vw - 32px)', padding: 6, border: '1px solid #D8D9D6', borderRadius: 10, background: '#FAFAF7', boxShadow: '0 18px 40px rgba(23,26,28,.18)' }}>
                 {subjects.map((subject, index) => {
                   const selected = subject.subject_id === selectedSubjectId
                   return <button key={subject.subject_id} ref={node => { optionRefs.current[index] = node }} type='button' role='option' aria-selected={selected} tabIndex={index === highlightedSubject ? 0 : -1} style={{ display: 'block', width: '100%', minHeight: 44, padding: '8px 11px', border: 0, borderRadius: 8, background: selected ? 'rgba(63,183,255,.10)' : 'transparent', color: selected ? TEXT : MUTED, fontSize: 12, fontWeight: selected ? 750 : 600, textAlign: 'left', cursor: 'pointer' }} onClick={() => selectSubject(subject.subject_id)} onKeyDown={e => optionKeyDown(e, index)}>
