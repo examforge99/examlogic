@@ -165,6 +165,7 @@ function toOutput(
     concept_name: concept.name,
     concept_progression_order: concept.progression_order,
     concept_description: concept.description,
+    mission_summary: null,
     estimated_minutes,
     action_type: log.action_type,
     phase,
