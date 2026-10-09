@@ -110,7 +110,7 @@ export default function CampaignPracticePage() {
           const response = await fetch(`/api/sessions/campaign/${params.id}/submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ answers: payload }),
+            body: JSON.stringify({ answers: payload, force_close: true }),
           })
           const body = await response.json() as Submission
           if (!response.ok) throw new Error(body.error || 'The timed session could not be submitted.')
