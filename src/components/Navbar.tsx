@@ -67,12 +67,7 @@ export default function Navbar({ hasNotification = false }: NavbarProps) {
     {
       icon: <History size={14} />,
       label: "History",
-      action: () => { router.push("/accuracy-history"); setDropdownOpen(false); },
-    },
-    {
-      icon: <Trophy size={14} />,
-      label: "Leaderboard",
-      action: () => { router.push("/leaderboard"); setDropdownOpen(false); },
+      action: () => { router.push("/accuracy"); setDropdownOpen(false); },
     },
     {
       icon: <Settings size={14} />,
