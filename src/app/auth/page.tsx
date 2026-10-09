@@ -96,7 +96,7 @@ export default function AuthPage() {
           if (signUp.status === 'complete') {
             await signUp.finalize({
               navigate: ({ decorateUrl }) => {
-                const url = decorateUrl('/onboarding')
+                const url = decorateUrl('/dashboard')
                 if (url.startsWith('http')) window.location.href = url
                 else router.push(url)
               },
