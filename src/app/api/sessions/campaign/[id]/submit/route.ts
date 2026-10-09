@@ -43,7 +43,7 @@ export async function POST(
     }
 
     const supabase = createClient()
-    const isBulk = answers.length > 1
+    const isBulk = answers.length > 1 || body.force_close === true
 
     // ── Mark each answer server-side ────────────────────────────────
     const results = []
