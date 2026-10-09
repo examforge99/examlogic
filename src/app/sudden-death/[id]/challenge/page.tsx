@@ -132,6 +132,11 @@ export default function SuddenDeathChallengePage() {
     const correct = summary.correct_count ?? summary.correctCount
     const questions = summary.total_questions ?? summary.totalQuestions
     const streak = summary.max_streak ?? summary.maxStreak
+    const stats: { label: string; value: string | number }[] = [
+      { label: 'Correct', value: typeof correct === 'number' ? correct : '—' },
+      { label: 'Questions', value: typeof questions === 'number' ? questions : '—' },
+      { label: 'Best streak', value: typeof streak === 'number' ? streak : '—' },
+    ]
     return (
       <main style={{ minHeight: '100svh', background: C.bg, color: C.text, padding: '28px 16px', display: 'grid', placeItems: 'center' }}>
         <section style={{ width: '100%', maxWidth: 460, padding: 24, borderRadius: 20, border: '1px solid ' + C.border, background: C.surface, textAlign: 'center' }}>
@@ -140,7 +145,7 @@ export default function SuddenDeathChallengePage() {
           <h1 style={{ margin: '9px 0', fontSize: 27, letterSpacing: '-.04em' }}>{finished.timed_out ? 'Time ran out' : 'Run complete'}</h1>
           <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>Your run has been recorded. Review your progress and take another challenge when you’re ready.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 20 }}>
-            {[['Correct', correct ?? '—'], ['Questions', questions ?? '—'], ['Best streak', streak ?? '—']].map(([label, value]) => (
+            {stats.map(({ label, value }) => (
               <div key={label} style={{ padding: 12, borderRadius: 12, background: C.bg, border: '1px solid ' + C.border }}>
                 <strong style={{ display: 'block', fontSize: 18 }}>{String(value)}</strong>
                 <span style={{ display: 'block', marginTop: 4, color: C.muted, fontSize: 10 }}>{label}</span>
