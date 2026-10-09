@@ -14,6 +14,19 @@ const googleIcon = (
   </svg>
 )
 
+function getPostAuthRedirect() {
+  try {
+    const requested = new URLSearchParams(window.location.search).get('redirect_url')
+    if (!requested) return '/dashboard'
+    const destination = new URL(requested, window.location.origin)
+    if (destination.origin !== window.location.origin) return '/dashboard'
+    if (destination.pathname === '/auth' || destination.pathname.startsWith('/auth/')) return '/dashboard'
+    return destination.pathname + destination.search + destination.hash
+  } catch {
+    return '/dashboard'
+  }
+}
+
 export default function AuthPage() {
   const { signIn } = useSignIn()
   const { signUp } = useSignUp()
@@ -35,7 +48,7 @@ export default function AuthPage() {
       const { error } = await signIn.sso({
         strategy: 'oauth_google',
         redirectCallbackUrl: '/auth/sso-callback',
-        redirectUrl: '/dashboard',
+        redirectUrl: getPostAuthRedirect(),
       })
 
       if (error) throw error
@@ -96,7 +109,7 @@ export default function AuthPage() {
           if (signUp.status === 'complete') {
             await signUp.finalize({
               navigate: ({ decorateUrl }) => {
-                const url = decorateUrl('/dashboard')
+                const url = decorateUrl(getPostAuthRedirect())
                 if (url.startsWith('http')) window.location.href = url
                 else router.push(url)
               },
