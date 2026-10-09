@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { ArrowRight, BookOpen, CalendarDays, Check, Clock3, LoaderCircle } from 'lucide-react'
 
 type Subject = { id: string; name: string; slug: string }
@@ -46,7 +46,6 @@ function safeDestination(value: string | null) {
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [data, setData] = useState<OnboardingResponse | null>(null)
   const [examDate, setExamDate] = useState('')
   const [studyDays, setStudyDays] = useState<string[]>(['mon', 'tue', 'wed', 'thu', 'fri'])
@@ -74,7 +73,7 @@ export default function OnboardingPage() {
           setDailyHours(String(current.daily_hours || 2))
           setSubjectIds(current.subject_ids || [])
           if (current.timetable_created && current.exam_date && (current.study_days?.length || 0) >= 5 && (current.subject_ids?.length || 0) === 4 && current.daily_hours) {
-            router.replace(safeDestination(searchParams.get('redirect_url')))
+            router.replace(safeDestination(new URLSearchParams(window.location.search).get('redirect_url')))
           }
         } else {
           const english = body.subjects.find(subject => subject.slug === body.constraints.required_subject_slug)
@@ -86,7 +85,7 @@ export default function OnboardingPage() {
       })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [router, searchParams])
+  }, [router])
 
   const english = data?.subjects.find(subject => subject.slug === data.constraints.required_subject_slug)
   const selectedSubjects = useMemo(() => data?.subjects.filter(subject => subjectIds.includes(subject.id)) ?? [], [data, subjectIds])
