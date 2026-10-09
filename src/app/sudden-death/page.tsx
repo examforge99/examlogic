@@ -37,27 +37,27 @@ export default function SuddenDeathPreflight() {
 
   const rules = [
     {
-      icon: <Zap size={28} color="#F97316" />,
+      icon: <Zap size={28} color=#0876B8 />,
       title: "Start At Your Level",
       description: "You begin exactly where your ability currently stands.",
     },
     {
-      icon: <TrendingUp size={28} color="#F97316" />,
+      icon: <TrendingUp size={28} color=#0876B8 />,
       title: "Climb As You Answer",
       description: "Correct answers push you toward harder, more rewarding questions.",
     },
     {
-      icon: <Flame size={28} color="#F97316" />,
+      icon: <Flame size={28} color=#0876B8 />,
       title: "Build Your Streak",
       description: "Each level asks for a longer streak before you climb again.",
     },
     {
-      icon: <Timer size={28} color="#F97316" />,
+      icon: <Timer size={28} color=#0876B8 />,
       title: "Stay Sharp",
       description: "Every question runs on the clock — harder ones give you more time.",
     },
     {
-      icon: <Trophy size={28} color="#F97316" />,
+      icon: <Trophy size={28} color=#0876B8 />,
       title: "Your Best Run Is Saved",
       description: "Track your peak level and streak on the leaderboard.",
     },
@@ -72,7 +72,7 @@ export default function SuddenDeathPreflight() {
             width: 40,
             height: 40,
             borderRadius: "9999px",
-            background: "rgba(255,255,255,0.05)",
+            background: "#FFFFFF",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -84,7 +84,7 @@ export default function SuddenDeathPreflight() {
         </button>
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Sudden Death</h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+          <p style={{ fontSize: 14, color: "#687782", margin: 0 }}>
             No limit · One chance
           </p>
         </div>
@@ -95,14 +95,14 @@ export default function SuddenDeathPreflight() {
           style={{
             borderRadius: 16,
             padding: 24,
-            border: "1px solid rgba(249,115,22,0.25)",
-            background: "linear-gradient(180deg, #3A1F0F 0%, #080D1F 100%)",
+            border: "1px solid #DCE4E8",
+            background: "#FFFFFF",
           }}
         >
           <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#B45309", margin: "0 0 8px" }}>
             HOW FAR CAN YOU GO?
           </p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 20px", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 14, color: "#4B5963", margin: "0 0 20px", lineHeight: 1.5 }}>
             Every correct answer takes you higher. Every level unlocks a harder
             challenge. This is your moment to find your ceiling.
           </p>
@@ -115,7 +115,7 @@ export default function SuddenDeathPreflight() {
                   <div
                     style={{
                       height: 1,
-                      background: "rgba(255,255,255,0.08)",
+                      background: "#DCE4E8",
                       margin: "18px 0",
                     }}
                   />
@@ -124,13 +124,13 @@ export default function SuddenDeathPreflight() {
             ))}
           </div>
 
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "20px 0 0" }}>
+          <p style={{ fontSize: 14, color: "#687782", margin: "20px 0 0" }}>
             Prove to yourself how far your preparation has taken you.
           </p>
         </div>
 
         {error && (
-          <p style={{ fontSize: 14, color: "#f87171", marginTop: 16, textAlign: "center" }}>
+          <p style={{ fontSize: 14, color: #B42318, marginTop: 16, textAlign: "center" }}>
             {error}
           </p>
         )}
@@ -148,7 +148,7 @@ export default function SuddenDeathPreflight() {
             fontSize: 16,
             color: "#17232C",
             border: "none",
-            background: "linear-gradient(90deg, #F97316 0%, #DC2626 100%)",
+            background: "#0876B8",
             opacity: loading ? 0.6 : 1,
           }}
         >
@@ -173,7 +173,7 @@ function Rule({
       <span style={{ flexShrink: 0 }}>{icon}</span>
       <div>
         <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 4px", color: "#17232C" }}>{title}</p>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
+        <p style={{ fontSize: 14, color: "#687782", margin: 0, lineHeight: 1.4 }}>
           {description}
         </p>
       </div>
