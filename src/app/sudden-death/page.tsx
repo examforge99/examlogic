@@ -27,6 +27,7 @@ export default function SuddenDeathPreflight() {
         return;
       }
 
+      sessionStorage.setItem(`examlogic:sudden-death:${data.session_id}`, JSON.stringify(data));
       router.push(`/sudden-death/${data.session_id}/challenge`);
     } catch {
       setError("Something went wrong. Check your connection and try again.");
