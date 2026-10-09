@@ -782,10 +782,10 @@ function ReviewStep({
                       borderBottom: "1px solid #F7F7F3",
                     }}
                   >
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                    <span style={{ fontSize: 13, color: "#4B5560" }}>
                       {topic?.name}
                     </span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+                    <span style={{ fontSize: 12, color: "#687782" }}>
                       {topicConfig.questionCount} questions
                     </span>
                   </div>
@@ -808,7 +808,7 @@ function ReviewStep({
         }}
       >
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#17232C" }}>
             {totalQuestions}
           </div>
           <div style={{ fontSize: 12, color: "#687782", marginTop: 1 }}>
