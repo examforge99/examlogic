@@ -973,6 +973,7 @@ export default function CampaignPreflight() {
           const query = new URLSearchParams({
             subject_id: config.subjectId,
             topic_ids: config.topics.map(topic => topic.topicId).join(","),
+            ...(config.difficultyOverride !== null ? { difficulty_level: String(config.difficultyOverride) } : {}),
           });
           const res = await fetch(`/api/campaign/availability?${query.toString()}`, { cache: "no-store" });
           const data = await res.json();
@@ -1001,6 +1002,7 @@ export default function CampaignPreflight() {
           subject_id: config.subjectId,
           topic_id: topic.topicId,
           count: topic.questionCount,
+          ...(config.difficultyOverride !== null ? { difficulty_level: config.difficultyOverride } : {}),
         })));
         const isSingleUntimedTopic = requests.length === 1;
         const timeLimitSeconds = isSingleUntimedTopic ? null : Math.max(300, totalQuestions * 60);
