@@ -45,7 +45,6 @@ export async function POST(
 
     const supabase = createClient()
     const isBulk = answers.length > 1
-    const forceClose = body.force_close === true || forceClose
 
     // ── Mark each answer server-side ────────────────────────────────
     const results = []
@@ -73,7 +72,7 @@ export async function POST(
     // Single answer only closes if it was the last unanswered question
     let shouldClose = isBulk || forceClose
 
-    if (!isBulk) {
+    if (!isBulk && !forceClose) {
       const { data: remaining } = await supabase
         .from('exam_session_questions')
         .select('id')
