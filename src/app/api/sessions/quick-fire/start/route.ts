@@ -82,25 +82,16 @@ export async function POST(req: NextRequest) {
 
     // Step 4 — resolve subject slugs to IDs
     // Onboarding stores subject IDs; older profiles may still contain slugs.
-    // Resolve both forms so Quick Fire works for either profile shape.
+    // Resolve both forms without passing slugs into a UUID column filter.
     const selectedSubjects = user.jamb_subjects.filter((value: unknown): value is string =>
       typeof value === 'string'
     )
-    const [subjectsByIdResult, subjectsBySlugResult] = await Promise.all([
-      supabase
-        .from('subjects')
-        .select('id, slug, name')
-        .in('id', selectedSubjects),
-      supabase
-        .from('subjects')
-        .select('id, slug, name')
-        .in('slug', selectedSubjects),
-    ])
-    const subjectError = subjectsByIdResult.error || subjectsBySlugResult.error
-    const subjects = [...new Map(
-      [...(subjectsByIdResult.data ?? []), ...(subjectsBySlugResult.data ?? [])]
-        .map(subject => [subject.id, subject])
-    ).values()]
+    const { data: availableSubjects, error: subjectError } = await supabase
+      .from('subjects')
+      .select('id, slug, name')
+    const subjects = (availableSubjects ?? []).filter(subject =>
+      selectedSubjects.includes(subject.id) || selectedSubjects.includes(subject.slug)
+    )
 
     if (subjectError || subjects.length === 0) {
       return NextResponse.json(
