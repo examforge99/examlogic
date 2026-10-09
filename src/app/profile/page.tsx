@@ -4,22 +4,18 @@
 import { useState } from 'react'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { Activity, Bell, Bookmark, BookOpen, ChevronRight, CircleHelp, Download, FileText, LogOut, MessageSquare, Settings2, Shield, Trash2, UserRound } from 'lucide-react'
+import { Activity, Bookmark, BookOpen, ChevronRight, CircleHelp, FileText, LogOut, UserRound } from 'lucide-react'
 
 const sections = [
-  { title: 'EXAM TOOLS', rows: [
-    { label: 'Past Question Stats', detail: 'Review your question history', icon: Activity, href: '/accuracy' },
-    { label: 'Syllabus Check', detail: 'Keep your preparation aligned', icon: FileText, href: '/syllabus' },
-    { label: 'Study Schedule', detail: 'Your planned study sessions', icon: BookOpen, href: '/timetable' },
-    { label: 'Bookmarked Questions', detail: 'Questions saved for another look', icon: Bookmark, href: '/bookmarks' },
-    { label: 'Download Resources', detail: 'Syllabus and study materials', icon: Download, href: '/resources' },
-    { label: 'Notifications', detail: 'Manage your updates', icon: Bell, href: '/notifications' },
+  { title: 'YOUR PREPARATION', rows: [
+    { label: 'Dashboard', detail: 'Your next action and study time', icon: BookOpen, href: '/dashboard' },
+    { label: 'Practice Modes', detail: 'Choose a way to practise', icon: Bookmark, href: '/practice' },
+    { label: 'Analytics', detail: 'Explore your progress and consistency', icon: Activity, href: '/analytics' },
+    { label: 'Accuracy History', detail: 'Review your question history', icon: FileText, href: '/accuracy' },
   ]},
-  { title: 'ACCOUNT MANAGEMENT', rows: [
-    { label: 'Account', detail: 'Profile and personal details', icon: UserRound, href: '/profile/account' },
-    { label: 'Security', detail: 'Sign-in and account security', icon: Shield, href: '/profile/security' },
-    { label: 'Send Feedback', detail: 'Help us improve ExamLogic', icon: MessageSquare, href: '/feedback' },
-    { label: 'Help & Support', detail: 'Find answers and assistance', icon: CircleHelp, href: '/help' },
+  { title: 'ACCOUNT & SUPPORT', rows: [
+    { label: 'Subscription', detail: 'Review your plan options', icon: UserRound, href: '/subscription' },
+    { label: 'Help & Support', detail: 'Get guidance using ExamLogic', icon: CircleHelp, href: '/help' },
   ]},
 ]
 export default function ProfilePage() {
@@ -31,7 +27,7 @@ export default function ProfilePage() {
 
   const name = user?.fullName || user?.firstName || 'Student'
   const initials = name.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase()
-  async function logout() { setSigningOut(true); await signOut(); router.push('/login') }
+  async function logout() { setSigningOut(true); await signOut(); router.push('/auth') }
 
   return <main style={{ minHeight: '100svh', background: '#071426', color: '#E8F0F7', padding: '28px 16px calc(110px + env(safe-area-inset-bottom))' }}>
     <div style={{ maxWidth: 620, margin: '0 auto' }}>
@@ -59,7 +55,7 @@ export default function ProfilePage() {
         </div>
       </section>)}
 
-      <button onClick={() => router.push('/profile/delete-account')} style={{ width: '100%', marginTop: 22, padding: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 11, border: '1px solid rgba(255,119,119,.2)', color: '#FF8989', fontSize: 12, fontWeight: 700 }}><Trash2 size={15}/> Delete account</button>
+      
       <button disabled={signingOut} onClick={logout} style={{ width: '100%', marginTop: 10, padding: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 11, background: '#162538', color: '#D8E0E8', fontSize: 12, fontWeight: 700, opacity: signingOut ? .6 : 1 }}><LogOut size={15}/>{signingOut ? 'Signing out…' : 'Sign out'}</button>
       <p style={{ marginTop: 22, textAlign: 'center', color: '#53677D', fontSize: 10 }}>ExamLogic · Your preparation, in motion.</p>
     </div>
