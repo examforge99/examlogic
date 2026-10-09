@@ -105,8 +105,8 @@ function StepIndicator({ current }: { current: Step }) {
                     ? "#25d6a2"
                     : active
                     ? "linear-gradient(135deg, #6366F1, #3FB7FF)"
-                    : "rgba(255,255,255,0.08)",
-                  color: done || active ? "#fff" : "rgba(255,255,255,0.3)",
+                    : "rgba(23,35,44,0.09)",
+                  color: done || active ? "#fff" : "#7B858D",
                   flexShrink: 0,
                   transition: "all 0.2s ease",
                 }}
@@ -121,7 +121,7 @@ function StepIndicator({ current }: { current: Step }) {
                     ? "#fff"
                     : done
                     ? "#25d6a2"
-                    : "rgba(255,255,255,0.3)",
+                    : "#7B858D",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -176,19 +176,19 @@ function SessionSummaryBar({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <BookOpen size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: 13, color: "#4B5560" }}>
           {configs.length} subject{configs.length !== 1 ? "s" : ""}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Layers size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: 13, color: "#4B5560" }}>
           {topicsCount} topic{topicsCount !== 1 ? "s" : ""}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Target size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: totalQuestions > 0 ? "#fff" : "rgba(255,255,255,0.5)", fontWeight: totalQuestions > 0 ? 600 : 400 }}>
+        <span style={{ fontSize: 13, color: totalQuestions > 0 ? "#17232C" : "#4B5560", fontWeight: totalQuestions > 0 ? 600 : 400 }}>
           {totalQuestions} question{totalQuestions !== 1 ? "s" : ""}
         </span>
       </div>
@@ -199,7 +199,7 @@ function SessionSummaryBar({
             style={{
               height: 4,
               borderRadius: 2,
-              background: "rgba(255,255,255,0.08)",
+              background: "rgba(23,35,44,0.09)",
               overflow: "hidden",
             }}
           >
@@ -216,7 +216,7 @@ function SessionSummaryBar({
               }}
             />
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 3, textAlign: "right" }}>
+          <div style={{ fontSize: 10, color: "#7B858D", marginTop: 3, textAlign: "right" }}>
             {totalQuestions} / {MAX_TOTAL} max
           </div>
         </div>
@@ -238,7 +238,7 @@ function SubjectStep({
 }) {
   return (
     <div>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", marginBottom: 20 }}>
         Choose which subjects to include. You'll pick specific topics next.
       </p>
       <div style={{ display: "grid", gap: 10 }}>
@@ -251,8 +251,8 @@ function SubjectStep({
               style={{
                 background: isSelected
                   ? "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(63,183,255,0.1))"
-                  : "rgba(255,255,255,0.04)",
-                border: `1px solid ${isSelected ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"}`,
+                  : "#F7F7F3",
+                border: `1px solid ${isSelected ? "rgba(99,102,241,0.5)" : "rgba(23,35,44,0.09)"}`,
                 borderRadius: 12,
                 padding: "14px 16px",
                 cursor: "pointer",
@@ -282,10 +282,10 @@ function SubjectStep({
                   {isSelected && <Check size={11} color="#fff" />}
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#17232C" }}>
                     {subject.name}
                   </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: "#687782", marginTop: 2 }}>
                     {subject.topics.length} topics available
                     {subject.calibratedBand
                       ? ` · Band ${subject.calibratedBand}`
@@ -337,7 +337,7 @@ function TopicStep({
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Select topics and set question counts. Max {MAX_PER_TOPIC} per topic, {MAX_PER_SUBJECT} per subject.
       </p>
 
@@ -350,8 +350,8 @@ function TopicStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               overflow: "hidden",
             }}
@@ -360,17 +360,17 @@ function TopicStep({
             <div
               style={{
                 padding: "12px 16px",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                borderBottom: "1px solid rgba(23,35,44,0.07)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 background: "rgba(99,102,241,0.06)",
               }}
             >
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </div>
-              <div style={{ fontSize: 12, color: subjectAtMax ? "#F97316" : "rgba(255,255,255,0.4)" }}>
+              <div style={{ fontSize: 12, color: subjectAtMax ? "#F97316" : "#687782" }}>
                 {subjectTotal} / {MAX_PER_SUBJECT} questions
               </div>
             </div>
@@ -392,7 +392,7 @@ function TopicStep({
                       display: "flex",
                       alignItems: "center",
                       gap: 12,
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid #F7F7F3",
                     }}
                   >
                     <button
@@ -417,10 +417,10 @@ function TopicStep({
                     </button>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, color: isSelected ? "#fff" : "rgba(255,255,255,0.5)", fontWeight: isSelected ? 500 : 400 }}>
+                      <div style={{ fontSize: 13, color: isSelected ? "#17232C" : "#4B5560", fontWeight: isSelected ? 500 : 400 }}>
                         {topic.name}
                       </div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+                      <div style={{ fontSize: 11, color: "#7B858D", marginTop: 1 }}>
                         {topic.questionCount} available
                       </div>
                     </div>
@@ -436,7 +436,7 @@ function TopicStep({
                             height: 26,
                             borderRadius: "50%",
                             border: "1px solid rgba(255,255,255,0.15)",
-                            background: "rgba(255,255,255,0.05)",
+                            background: "#F7F7F3",
                             color: "#fff",
                             display: "flex",
                             alignItems: "center",
@@ -451,7 +451,7 @@ function TopicStep({
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: count >= MAX_PER_TOPIC ? "#F97316" : "#fff",
+                            color: count >= MAX_PER_TOPIC ? "#B45309" : "#17232C",
                             minWidth: 20,
                             textAlign: "center",
                           }}
@@ -480,7 +480,7 @@ function TopicStep({
                             height: 26,
                             borderRadius: "50%",
                             border: "1px solid rgba(255,255,255,0.15)",
-                            background: "rgba(255,255,255,0.05)",
+                            background: "#F7F7F3",
                             color: "#fff",
                             display: "flex",
                             alignItems: "center",
@@ -527,7 +527,7 @@ function DifficultyStep({
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Set difficulty per subject, or leave it on your calibrated band.
       </p>
 
@@ -540,8 +540,8 @@ function DifficultyStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               padding: 16,
             }}
@@ -554,7 +554,7 @@ function DifficultyStep({
                 marginBottom: 14,
               }}
             >
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </div>
               {isOverriding && (
@@ -562,7 +562,7 @@ function DifficultyStep({
                   onClick={() => onDifficultyChange(subject.id, null)}
                   style={{
                     fontSize: 11,
-                    color: "rgba(255,255,255,0.4)",
+                    color: "#687782",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
@@ -601,13 +601,13 @@ function DifficultyStep({
                       border: `1px solid ${
                         isCurrent
                           ? "rgba(99,102,241,0.6)"
-                          : "rgba(255,255,255,0.08)"
+                          : "rgba(23,35,44,0.09)"
                       }`,
                       background: isCurrent
                         ? "linear-gradient(135deg, rgba(99,102,241,0.4), rgba(63,183,255,0.2))"
                         : isCalibrated
                         ? "rgba(37,214,162,0.08)"
-                        : "rgba(255,255,255,0.03)",
+                        : "#FFFFFF",
                       cursor: "pointer",
                       display: "flex",
                       flexDirection: "column",
@@ -622,7 +622,7 @@ function DifficultyStep({
                       style={{
                         fontSize: 13,
                         fontWeight: isCurrent ? 700 : 400,
-                        color: isCurrent ? "#fff" : "rgba(255,255,255,0.4)",
+                        color: isCurrent ? "#fff" : "#687782",
                       }}
                     >
                       {level}
@@ -648,7 +648,7 @@ function DifficultyStep({
               style={{
                 marginTop: 10,
                 fontSize: 12,
-                color: "rgba(255,255,255,0.4)",
+                color: "#687782",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -698,7 +698,7 @@ function ReviewStep({
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Review your session before starting.
       </p>
 
@@ -729,8 +729,8 @@ function ReviewStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               overflow: "hidden",
             }}
@@ -739,7 +739,7 @@ function ReviewStep({
               style={{
                 padding: "10px 14px",
                 background: "rgba(99,102,241,0.06)",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                borderBottom: "1px solid rgba(23,35,44,0.07)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -762,7 +762,7 @@ function ReviewStep({
                 >
                   {diffLabel}
                 </span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+                <span style={{ fontSize: 12, color: "#687782" }}>
                   {subjectTotal}q
                 </span>
               </div>
@@ -779,7 +779,7 @@ function ReviewStep({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid #F7F7F3",
                     }}
                   >
                     <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
@@ -811,14 +811,14 @@ function ReviewStep({
           <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>
             {totalQuestions}
           </div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: "#687782", marginTop: 1 }}>
             total questions · no time limit
           </div>
         </div>
         <div
           style={{
             fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
+            color: "#687782",
             textAlign: "right",
           }}
         >
@@ -1037,7 +1037,7 @@ export default function CampaignPreflight() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#071426",
+        background: "#F7F7F3",
         fontFamily: "'Inter', system-ui, sans-serif",
         display: "flex",
         flexDirection: "column",
@@ -1070,10 +1070,10 @@ export default function CampaignPreflight() {
             <BookOpen size={18} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#17232C", lineHeight: 1 }}>
               Campaign
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "#687782", marginTop: 3 }}>
               Deliberate practice, your way
             </div>
           </div>
@@ -1098,8 +1098,8 @@ export default function CampaignPreflight() {
         {/* Step content card */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "#FFFFFF",
+            border: "1px solid rgba(23,35,44,0.09)",
             borderRadius: 14,
             padding: 20,
             marginBottom: 16,
@@ -1120,7 +1120,7 @@ export default function CampaignPreflight() {
           </h2>
 
           {subjectsLoading ? (
-            <div role="status" style={{ padding: 18, borderRadius: 12, background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
+            <div role="status" style={{ padding: 18, borderRadius: 12, background: "#F7F7F3", color: "#687782", fontSize: 13 }}>
               Loading your enrolled subjects and available topics…
             </div>
           ) : subjects.length === 0 ? (
@@ -1169,8 +1169,8 @@ export default function CampaignPreflight() {
                 width: 48,
                 height: 48,
                 borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.05)",
+                border: "1px solid #DCE4E8",
+                background: "#F7F7F3",
                 color: "#fff",
                 display: "flex",
                 alignItems: "center",
@@ -1195,7 +1195,7 @@ export default function CampaignPreflight() {
               background:
                 canAdvance && !isLoading
                   ? "linear-gradient(135deg, #3FB7FF, #6366F1)"
-                  : "rgba(255,255,255,0.06)",
+                  : "rgba(23,35,44,0.07)",
               color: canAdvance && !isLoading ? "#fff" : "rgba(255,255,255,0.2)",
               fontSize: 15,
               fontWeight: 700,
