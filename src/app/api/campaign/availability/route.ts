@@ -13,6 +13,12 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const subjectId = searchParams.get("subject_id")
   const topicIdsRaw = searchParams.get("topic_ids")
+  const difficultyRaw = searchParams.get("difficulty_level")
+  const difficultyLevel = difficultyRaw ? Number(difficultyRaw) : null
+
+  if (difficultyLevel !== null && (!Number.isInteger(difficultyLevel) || difficultyLevel < 1 || difficultyLevel > 7)) {
+    return NextResponse.json({ error: "difficulty_level must be between 1 and 7" }, { status: 400 })
+  }
 
   if (!subjectId || !topicIdsRaw) {
     return NextResponse.json(
@@ -83,14 +89,16 @@ export async function GET(request: Request) {
       }
 
       // Total active questions in topic
-      const { count: total } = await supabase
+      let totalQuery = supabase
         .from("questions")
         .select("id", { count: "exact", head: true })
         .eq("topic_id", topicId)
         .eq("is_active", true)
+      if (difficultyLevel !== null) totalQuery = totalQuery.eq("setter_difficulty", difficultyLevel)
+      const { count: total } = await totalQuery
 
       // Questions currently under cooldown for this user
-      const { count: onCooldown } = await supabase
+      let cooldownQuery = supabase
         .from("questions")
         .select("id, user_question_seen!inner(next_eligible_at)", {
           count: "exact",
@@ -100,6 +108,8 @@ export async function GET(request: Request) {
         .eq("is_active", true)
         .eq("user_question_seen.user_id", userId)
         .gt("user_question_seen.next_eligible_at", now)
+      if (difficultyLevel !== null) cooldownQuery = cooldownQuery.eq("setter_difficulty", difficultyLevel)
+      const { count: onCooldown } = await cooldownQuery
 
       const totalCount = total ?? 0
       const cooldownCount = onCooldown ?? 0
