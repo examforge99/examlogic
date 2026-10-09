@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import type { Mission } from '@/components/nba/TodayMission'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import NextMoveSection from '@/components/dashboard/NextMoveSection'
 import ExamCountdown from '@/components/dashboard/ExamCountdown'
@@ -16,6 +17,7 @@ import DashboardNavigation from '@/components/dashboard/DashboardNavigation'
 import { dashboardStyles as css } from '@/components/dashboard/styles'
 
 type DashboardData = {
+  missions: Mission[]
   schedule: TodaySchedule | null
 }
 
