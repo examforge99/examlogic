@@ -1,7 +1,7 @@
 // app/campaign/page.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
@@ -837,11 +837,48 @@ function ReviewStep({
 export default function CampaignPreflight() {
   const router = useRouter();
 
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(true);
   const [step, setStep] = useState<Step>("subjects");
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
   const [configs, setConfigs] = useState<SubjectConfig[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSubjects() {
+      setSubjectsLoading(true);
+      try {
+        const enrolledResponse = await fetch("/api/user/subjects", { cache: "no-store" });
+        const enrolledBody = await enrolledResponse.json();
+        if (!enrolledResponse.ok) throw new Error(enrolledBody.error || "Could not load your subjects.");
+        const enrolled = Array.isArray(enrolledBody.subjects) ? enrolledBody.subjects : [];
+        const loaded = await Promise.all(enrolled.map(async (subject: { id: string; name: string; slug: string }) => {
+          const response = await fetch(`/api/topics?subject_id=${encodeURIComponent(subject.id)}`, { cache: "no-store" });
+          const body = await response.json();
+          if (!response.ok) throw new Error(body.error || `Could not load topics for ${subject.name}.`);
+          const topics = (Array.isArray(body) ? body : []).map((topic: any) => ({
+            id: String(topic.id),
+            name: String(topic.name),
+            slug: String(topic.slug || topic.id),
+            questionCount: Number(topic.question_count || 0),
+          }));
+          return { id: subject.id, name: subject.name, slug: subject.slug, topics, calibratedBand: null };
+        }));
+        if (!cancelled) {
+          setSubjects(loaded.filter(subject => subject.topics.length > 0));
+          setAvailabilityError(loaded.length ? null : "No enrolled subjects were found. Complete subject selection first.");
+        }
+      } catch (error) {
+        if (!cancelled) setAvailabilityError(error instanceof Error ? error.message : "Could not load your subjects.");
+      } finally {
+        if (!cancelled) setSubjectsLoading(false);
+      }
+    }
+    void loadSubjects();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -931,17 +968,21 @@ export default function CampaignPreflight() {
       setIsLoading(true);
       setAvailabilityError(null);
       try {
-        const res = await fetch("/api/campaign/availability", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ configs }),
-        });
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          setAvailabilityError(data.error ?? "Some topics don't have enough questions.");
-          setStep("review");
-          setIsLoading(false);
-          return;
+        for (const config of configs) {
+          if (!config.topics.length) continue;
+          const query = new URLSearchParams({
+            subject_id: config.subjectId,
+            topic_ids: config.topics.map(topic => topic.topicId).join(","),
+          });
+          const res = await fetch(`/api/campaign/availability?${query.toString()}`, { cache: "no-store" });
+          const data = await res.json();
+          if (!res.ok || data.error) throw new Error(data.error ?? "Some topics don't have enough questions.");
+          const availability = Array.isArray(data.availability) ? data.availability : [];
+          const unavailable = config.topics.find(topic => {
+            const found = availability.find((item: any) => item.topic_id === topic.topicId);
+            return !found?.valid || (found?.available_count ?? 0) < topic.questionCount;
+          });
+          if (unavailable) throw new Error("Not enough available questions for " + (subjects.find(subject => subject.id === config.subjectId)?.topics.find(topic => topic.id === unavailable.topicId)?.name || "one of the selected topics") + ". Reduce its question count or choose another topic.");
         }
       } catch {
         setAvailabilityError("Couldn't verify availability. Check your connection.");
@@ -956,18 +997,26 @@ export default function CampaignPreflight() {
       // Start session
       setIsLoading(true);
       try {
+        const requests = configs.flatMap(config => config.topics.map(topic => ({
+          subject_id: config.subjectId,
+          topic_id: topic.topicId,
+          count: topic.questionCount,
+        })));
+        const isSingleUntimedTopic = requests.length === 1;
+        const timeLimitSeconds = isSingleUntimedTopic ? null : Math.max(300, totalQuestions * 60);
         const res = await fetch("/api/sessions/campaign/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ configs }),
+          body: JSON.stringify({ requests, time_limit_seconds: timeLimitSeconds }),
         });
         const data = await res.json();
-        if (!res.ok || !data.sessionId) {
+        if (!res.ok || !data.session_id) {
           setAvailabilityError(data.error ?? "Couldn't start session. Try again.");
           setIsLoading(false);
           return;
         }
-        router.push(`/campaign/${data.sessionId}/practice`);
+        sessionStorage.setItem(`examlogic:campaign:${data.session_id}`, JSON.stringify(data));
+        router.push(`/campaign/${data.session_id}/practice`);
       } catch {
         setAvailabilityError("Couldn't start session. Check your connection.");
         setIsLoading(false);
@@ -1068,16 +1117,24 @@ export default function CampaignPreflight() {
             {step === "review" && "Review session"}
           </h2>
 
-          {step === "subjects" && (
+          {subjectsLoading ? (
+            <div role="status" style={{ padding: 18, borderRadius: 12, background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
+              Loading your enrolled subjects and available topics…
+            </div>
+          ) : subjects.length === 0 ? (
+            <div role="alert" style={{ padding: 18, borderRadius: 12, background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.24)", color: "#F97316", fontSize: 13, lineHeight: 1.6 }}>
+              {availabilityError || "No enrolled subjects with active topics were found. Check your subject selection and try again."}
+            </div>
+          ) : step === "subjects" && (
             <SubjectStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               selected={selectedSubjectIds}
               onToggle={toggleSubject}
             />
           )}
           {step === "topics" && (
             <TopicStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               onTopicToggle={toggleTopic}
               onQuestionCountChange={changeQuestionCount}
@@ -1086,14 +1143,14 @@ export default function CampaignPreflight() {
           )}
           {step === "difficulty" && (
             <DifficultyStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               onDifficultyChange={changeDifficulty}
             />
           )}
           {step === "review" && (
             <ReviewStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               totalQuestions={totalQuestions}
               availabilityError={availabilityError}
