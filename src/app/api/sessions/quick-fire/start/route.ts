@@ -81,12 +81,28 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 4 — resolve subject slugs to IDs
-    const { data: subjects, error: subjectError } = await supabase
-      .from('subjects')
-      .select('id, slug, name')
-      .in('slug', user.jamb_subjects)
+    // Onboarding stores subject IDs; older profiles may still contain slugs.
+    // Resolve both forms so Quick Fire works for either profile shape.
+    const selectedSubjects = user.jamb_subjects.filter((value: unknown): value is string =>
+      typeof value === 'string'
+    )
+    const [subjectsByIdResult, subjectsBySlugResult] = await Promise.all([
+      supabase
+        .from('subjects')
+        .select('id, slug, name')
+        .in('id', selectedSubjects),
+      supabase
+        .from('subjects')
+        .select('id, slug, name')
+        .in('slug', selectedSubjects),
+    ])
+    const subjectError = subjectsByIdResult.error || subjectsBySlugResult.error
+    const subjects = [...new Map(
+      [...(subjectsByIdResult.data ?? []), ...(subjectsBySlugResult.data ?? [])]
+        .map(subject => [subject.id, subject])
+    ).values()]
 
-    if (subjectError || !subjects || subjects.length === 0) {
+    if (subjectError || subjects.length === 0) {
       return NextResponse.json(
         { error: 'Could not resolve user subjects' },
         { status: 500 }
