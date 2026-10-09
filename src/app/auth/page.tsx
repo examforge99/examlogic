@@ -127,7 +127,7 @@ export default function AuthPage() {
       if (signIn.status === 'complete') {
         await signIn.finalize({
           navigate: ({ decorateUrl }) => {
-            const url = decorateUrl('/dashboard')
+            const url = decorateUrl(getPostAuthRedirect())
             if (url.startsWith('http')) window.location.href = url
             else router.push(url)
           },
