@@ -48,59 +48,6 @@ interface SubjectConfig {
 
 type Step = "subjects" | "topics" | "difficulty" | "review";
 
-// ─── Mock data (replace with API fetch) ──────────────────────────────────────
-
-const MOCK_SUBJECTS: Subject[] = [
-  {
-    id: "s1",
-    name: "English Language",
-    slug: "english",
-    calibratedBand: 3,
-    topics: [
-      { id: "t1", name: "Comprehension", slug: "comprehension", questionCount: 120 },
-      { id: "t2", name: "Lexis & Structure", slug: "lexis", questionCount: 95 },
-      { id: "t3", name: "Oral English", slug: "oral", questionCount: 60 },
-      { id: "t4", name: "Summary Writing", slug: "summary", questionCount: 45 },
-    ],
-  },
-  {
-    id: "s2",
-    name: "Mathematics",
-    slug: "mathematics",
-    calibratedBand: 4,
-    topics: [
-      { id: "t5", name: "Algebra", slug: "algebra", questionCount: 110 },
-      { id: "t6", name: "Trigonometry", slug: "trigonometry", questionCount: 75 },
-      { id: "t7", name: "Statistics", slug: "statistics", questionCount: 55 },
-      { id: "t8", name: "Calculus", slug: "calculus", questionCount: 80 },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Physics",
-    slug: "physics",
-    calibratedBand: 2,
-    topics: [
-      { id: "t9", name: "Mechanics", slug: "mechanics", questionCount: 90 },
-      { id: "t10", name: "Waves & Sound", slug: "waves", questionCount: 65 },
-      { id: "t11", name: "Electromagnetism", slug: "electromagnetism", questionCount: 70 },
-      { id: "t12", name: "Modern Physics", slug: "modern", questionCount: 40 },
-    ],
-  },
-  {
-    id: "s4",
-    name: "Chemistry",
-    slug: "chemistry",
-    calibratedBand: null,
-    topics: [
-      { id: "t13", name: "Organic Chemistry", slug: "organic", questionCount: 100 },
-      { id: "t14", name: "Inorganic Chemistry", slug: "inorganic", questionCount: 85 },
-      { id: "t15", name: "Physical Chemistry", slug: "physical", questionCount: 70 },
-      { id: "t16", name: "Stoichiometry", slug: "stoichiometry", questionCount: 50 },
-    ],
-  },
-];
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MAX_PER_TOPIC = 30;
@@ -1091,7 +1038,7 @@ export default function CampaignPreflight() {
           <div style={{ marginBottom: 20 }}>
             <SessionSummaryBar
               configs={configs}
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               totalQuestions={totalQuestions}
             />
           </div>
