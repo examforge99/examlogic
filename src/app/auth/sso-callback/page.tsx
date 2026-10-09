@@ -10,7 +10,7 @@ function getPostAuthRedirect() {
     if (!requested) return '/dashboard'
     const destination = new URL(requested, window.location.origin)
     if (destination.origin !== window.location.origin) return '/dashboard'
-    if (destination.pathname === '/auth' || destination.pathname.startsWith('/auth/')) return '/dashboard'
+    if (destination.pathname === '/auth' || destination.pathname.startsWith('/auth/') || destination.pathname === '/onboarding' || destination.pathname.startsWith('/onboarding/')) return '/dashboard'
     return destination.pathname + destination.search + destination.hash
   } catch {
     return '/dashboard'
