@@ -16,7 +16,7 @@ export default function QuickFirePreflight() {
     setError(null);
 
     try {
-      const res = await fetch("/api/sessions/quickfire/start", {
+      const res = await fetch("/api/sessions/quick-fire/start", {
         method: "POST",
       });
       const data = await res.json();
@@ -27,6 +27,7 @@ export default function QuickFirePreflight() {
         return;
       }
 
+      sessionStorage.setItem(`examlogic:quick-fire:${data.session_id}`, JSON.stringify(data));
       router.push(`/quick-fire/${data.session_id}/test`);
     } catch {
       setError("Something went wrong. Check your connection and try again.");
