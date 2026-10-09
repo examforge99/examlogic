@@ -44,7 +44,8 @@ export async function POST(
     }
 
     const supabase = createClient()
-    const isBulk = answers.length > 1 || forceClose
+    const isBulk = answers.length > 1
+    const forceClose = body.force_close === true || forceClose
 
     // ── Mark each answer server-side ────────────────────────────────
     const results = []
@@ -70,7 +71,7 @@ export async function POST(
     // ── Determine if session should close ───────────────────────────
     // Bulk submit always closes immediately (timed practice)
     // Single answer only closes if it was the last unanswered question
-    let shouldClose = isBulk
+    let shouldClose = isBulk || forceClose
 
     if (!isBulk) {
       const { data: remaining } = await supabase
