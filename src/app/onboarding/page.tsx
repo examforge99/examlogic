@@ -127,7 +127,7 @@ export default function OnboardingPage() {
       })
       const body = await response.json()
       if (!response.ok) throw new Error(body.error || 'Your setup could not be saved.')
-      router.replace(safeDestination(searchParams.get('redirect_url')))
+      router.replace(safeDestination(new URLSearchParams(window.location.search).get('redirect_url')))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Your setup could not be saved. Please try again.')
     } finally {
