@@ -24,6 +24,7 @@ export default function CampaignPracticePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [summary, setSummary] = useState<Summary | null>(null)
+  const [expiryHandled, setExpiryHandled] = useState(false)
 
   useEffect(() => {
     try {
@@ -94,7 +95,7 @@ export default function CampaignPracticePage() {
   }
 
   useEffect(() => {
-    if (secondsLeft === 0 && session && !summary && !loading) {
+    if (secondsLeft === 0 && session && !summary && !loading && !expiryHandled) {
       // Campaign's submit endpoint requires an answer for every submitted question.
       // If the timer expires, submit only the answered questions as a bulk attempt.
       const submitExpired = async () => {
@@ -106,7 +107,6 @@ export default function CampaignPracticePage() {
             selected_option_id: answers[question.id],
             time_taken_seconds: times[question.id] ?? 0,
           }))
-          if (!payload.length) throw new Error('Time expired before any answers were recorded.')
           const response = await fetch(`/api/sessions/campaign/${params.id}/submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -124,9 +124,10 @@ export default function CampaignPracticePage() {
           setLoading(false)
         }
       }
+      setExpiryHandled(true)
       void submitExpired()
     }
-  }, [secondsLeft, session, summary, loading, answers, times, params.id])
+  }, [secondsLeft, session, summary, loading, answers, times, params.id, expiryHandled])
 
   if (summary) {
     return <main style={{ minHeight: '100svh', background: C.bg, color: C.text, padding: '28px 16px', display: 'grid', placeItems: 'center' }}>
