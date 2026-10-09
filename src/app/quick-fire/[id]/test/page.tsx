@@ -66,6 +66,13 @@ export default function QuickFireTestPage() {
       })
       const body = await response.json()
       if (!response.ok) throw new Error(body.error || 'Your answers could not be submitted.')
+      try {
+        localStorage.setItem('examlogic:campaign-unlocked', '1')
+        sessionStorage.setItem('examlogic:show-campaign-unlock', '1')
+        localStorage.setItem('examlogic:first-session-completed', '1')
+      } catch {
+        // Completion is still recorded server-side if browser storage is unavailable.
+      }
       setResult(body as Result)
       sessionStorage.removeItem(`examlogic:quick-fire:${params.id}`)
     } catch (e) {
