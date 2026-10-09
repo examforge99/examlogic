@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import TodayMission, { type Mission } from '@/components/nba/TodayMission'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import NextMoveSection from '@/components/dashboard/NextMoveSection'
 import ExamCountdown from '@/components/dashboard/ExamCountdown'
 import StudyTimeStats from '@/components/dashboard/StudyTimeStats'
 import PracticeEntry from '@/components/dashboard/PracticeEntry'
@@ -16,7 +16,6 @@ import DashboardNavigation from '@/components/dashboard/DashboardNavigation'
 import { dashboardStyles as css } from '@/components/dashboard/styles'
 
 type DashboardData = {
-  missions: Mission[]
   schedule: TodaySchedule | null
 }
 
@@ -92,20 +91,7 @@ export default function DashboardPage() {
       <main style={css.main}>
         <ExamCountdown daysRemaining={daysRemaining} ringProgress={ringProgress} />
 
-        <section aria-label="Next best action" style={{ display: 'grid', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
-            <p style={css.label}>Next move</p>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#087A5D', fontSize: 10, fontWeight: 750 }}>
-              <span aria-hidden="true">✦</span> PERSONALIZED
-            </span>
-          </div>
-          <TodayMission
-            initialMissions={data?.missions}
-            deferFetch
-            initialError={missionError ? 'Your next recommendation is temporarily unavailable. Try again shortly.' : null}
-            onDashboardRefresh={loadDashboard}
-          />
-        </section>
+        <NextMoveSection missions={data?.missions} error={missionError} onRefresh={loadDashboard} />
 
         <StudyTimeStats
           usedSeconds={data?.schedule?.used_seconds ?? 0}
