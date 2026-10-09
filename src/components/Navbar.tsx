@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Flame, Bell, ChevronDown, User, History, Trophy, Settings, LogOut, Shield } from "lucide-react";
+import { Flame, Bell, ChevronDown, User, History, Settings, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 
@@ -67,17 +67,12 @@ export default function Navbar({ hasNotification = false }: NavbarProps) {
     {
       icon: <History size={14} />,
       label: "History",
-      action: () => { router.push("/history"); setDropdownOpen(false); },
-    },
-    {
-      icon: <Trophy size={14} />,
-      label: "Leaderboard",
-      action: () => { router.push("/leaderboard"); setDropdownOpen(false); },
+      action: () => { router.push("/accuracy"); setDropdownOpen(false); },
     },
     {
       icon: <Settings size={14} />,
       label: "Settings",
-      action: () => { router.push("/settings"); setDropdownOpen(false); },
+      action: () => { router.push("/profile"); setDropdownOpen(false); },
     },
     ...(userMeta?.isAdmin ? [{
       icon: <Shield size={14} />,

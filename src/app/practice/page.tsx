@@ -30,12 +30,12 @@ export default function PracticePage() {
   }, [])
 
   return (
-    <main style={{ minHeight: '100svh', padding: '28px 16px calc(110px + env(safe-area-inset-bottom))', background: '#071426', color: '#E8F0F7' }}>
+    <main style={{ minHeight: '100svh', padding: '28px 16px calc(110px + env(safe-area-inset-bottom))', background: '#E8E8E5', color: '#171A1C' }}>
       <div style={{ width: '100%', maxWidth: 620, margin: '0 auto' }}>
         <header style={{ marginBottom: 23 }}>
           <p style={{ margin: 0, color: '#25D6A2', fontSize: 10, fontWeight: 800, letterSpacing: '.13em' }}>YOUR TRAINING FLOOR</p>
           <h1 style={{ margin: '8px 0 0', fontSize: 30, lineHeight: 1.08, letterSpacing: '-.045em', fontWeight: 780 }}>Practice</h1>
-          <p style={{ margin: '10px 0 0', maxWidth: 390, color: '#8FA2B7', fontSize: 13, lineHeight: 1.6 }}>Everything you need to prepare, drill, simulate and master JAMB, in one place.</p>
+          <p style={{ margin: '10px 0 0', maxWidth: 390, color: '#4B5560', fontSize: 13, lineHeight: 1.6 }}>Everything you need to prepare, drill, simulate and master JAMB, in one place.</p>
         </header>
 
         {showUnlock && <section role="status" style={{ display: 'flex', alignItems: 'start', gap: 12, padding: 16, marginBottom: 16, borderRadius: 15, border: '1px solid rgba(37,214,162,.35)', background: 'linear-gradient(120deg,rgba(37,214,162,.15),rgba(13,27,46,.98))', animation: 'practiceReveal .35s ease-out both' }}>
@@ -47,16 +47,16 @@ export default function PracticePage() {
           {modes.map((mode) => {
             const Icon = mode.icon
             const locked = !mode.always && mode.name === 'Campaign' && !campaignUnlocked
-            return <button key={mode.name} type="button" onClick={() => { if (!locked) router.push(mode.href) }} disabled={locked} style={{ minWidth: 0, minHeight: 228, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: 15, borderRadius: 16, border: '1px solid ' + (locked ? 'rgba(255,255,255,.07)' : mode.color + '44'), background: locked ? '#0A1727' : 'linear-gradient(155deg,' + mode.tint + ',#0D1B2E 64%)', color: '#E8F0F7', opacity: locked ? .65 : 1, cursor: locked ? 'not-allowed' : 'pointer', transition: 'transform .18s ease,border-color .18s ease' }}>
+            return <button key={mode.name} type="button" onClick={() => { if (!locked) router.push(mode.href) }} disabled={locked} style={{ minWidth: 0, minHeight: 228, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: 15, borderRadius: 16, border: '1px solid ' + (locked ? 'rgba(23,26,28,.09)' : mode.color + '44'), background: locked ? '#EEEEEB' : 'linear-gradient(155deg,' + mode.tint + ',#F7F7F3 64%)', color: '#171A1C', opacity: locked ? .65 : 1, cursor: locked ? 'not-allowed' : 'pointer', transition: 'transform .18s ease,border-color .18s ease' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: 12, background: mode.tint, color: mode.color }}><Icon size={19}/></span>
                 {locked ? <LockKeyhole size={15} color="#718399"/> : <ArrowUpRight size={17} color={mode.color}/>}
               </div>
               <div style={{ marginTop: 19, flex: 1 }}>
                 <h2 style={{ margin: 0, fontSize: 16, lineHeight: 1.2, fontWeight: 760, letterSpacing: '-.025em' }}>{mode.name}</h2>
-                <p style={{ margin: '8px 0 0', color: '#9AAABD', fontSize: 11, lineHeight: 1.55 }}>{locked ? 'Complete your first Quick Fire session to unlock Campaign.' : mode.detail}</p>
+                <p style={{ margin: '8px 0 0', color: '#4B5560', fontSize: 11, lineHeight: 1.55 }}>{locked ? 'Complete your first Quick Fire session to unlock Campaign.' : mode.detail}</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 15, paddingTop: 11, borderTop: '1px solid rgba(255,255,255,.07)', color: mode.color, fontSize: 10, fontWeight: 750 }}><Clock3 size={12}/>{mode.meta}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 15, paddingTop: 11, borderTop: '1px solid rgba(23,26,28,.09)', color: mode.color, fontSize: 10, fontWeight: 750 }}><Clock3 size={12}/>{mode.meta}</div>
             </button>
           })}
         </div>

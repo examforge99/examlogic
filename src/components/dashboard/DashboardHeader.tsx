@@ -29,8 +29,9 @@ export default function DashboardHeader() {
         <div style={{ maxWidth: 620, margin: '0 auto', padding: '4px 16px 10px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {[
             ['Analytics', '/analytics'],
-            ['Settings', '/settings'],
-            ['Help', '/help'],
+            ['Account', '/profile'],
+            ['Subscription', '/subscription'],
+            ['Help & Support', '/help'],
           ].map(([label, href]) => (
             <button key={href} onClick={() => router.push(href)} style={{ padding: '9px 12px', borderRadius: 9, border: '1px solid ' + C.border, background: C.surface, color: C.text, fontSize: 12 }}>
               {label}

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       requests,
       time_limit_seconds
     }: {
-      requests: { subject_id: string; topic_id?: string; count: number }[]
+      requests: { subject_id: string; topic_id?: string; count: number; difficulty_level?: number }[]
       time_limit_seconds?: number | null
     } = body
 
@@ -57,6 +57,9 @@ export async function POST(req: NextRequest) {
           { error: `Maximum ${MAX_COUNT_PER_SUBJECT} questions per subject` },
           { status: 400 }
         )
+      }
+      if (r.difficulty_level !== undefined && (!Number.isInteger(r.difficulty_level) || r.difficulty_level < 1 || r.difficulty_level > 7)) {
+        return NextResponse.json({ error: 'difficulty_level must be between 1 and 7' }, { status: 400 })
       }
     }
 
@@ -199,12 +202,23 @@ export async function POST(req: NextRequest) {
         r.subject_id,
         r.topic_id
       )
+      const difficultyCandidates = r.difficulty_level
+        ? candidates.filter(candidate => candidate.setter_difficulty === r.difficulty_level)
+        : candidates
 
       const result = runCampaignLottery(
-        candidates,
+        difficultyCandidates,
         r.subject_id,
         r.count
       )
+      if (result.question_ids.length === 0) {
+        return NextResponse.json(
+          { error: r.difficulty_level
+            ? `No available questions at difficulty level ${r.difficulty_level} for one of your selected topics.`
+            : 'No questions available for one of your selected topics.' },
+          { status: 503 }
+        )
+      }
 
       lotteryResults.push(result)
     }

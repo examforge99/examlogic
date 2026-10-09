@@ -108,7 +108,7 @@ function getDegree(qs: number) {
   if (qs <= 20)  return { label: 'Low',         color: '#25d6a2', bg: '#25d6a215' }
   if (qs <= 45)  return { label: 'Medium',      color: '#25d6a2', bg: '#25d6a230' }
   if (qs <= 70)  return { label: 'High',        color: '#25d6a2', bg: '#25d6a250' }
-  return           { label: 'Peak 🔥',        color: '#071426', bg: '#25d6a2'   }
+  return           { label: 'Peak 🔥',        color: '#E8E8E5', bg: '#25d6a2'   }
 }
 
 function formatTime(mins: number) {
@@ -161,7 +161,7 @@ const levelTextColors = [
   '#25d6a250',
   '#25d6a290',
   '#e8f4ff',
-  '#071426',
+  '#E8E8E5',
 ]
 
 export default function HeatMap({
@@ -375,7 +375,7 @@ export default function HeatMap({
         <div
           className="fixed inset-0 z-[200] flex items-end justify-center"
           style={{
-            background: '#07142670',
+            background: '#E8E8E570',
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)',
           }}

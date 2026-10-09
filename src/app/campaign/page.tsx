@@ -1,7 +1,7 @@
 // app/campaign/page.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
@@ -47,59 +47,6 @@ interface SubjectConfig {
 }
 
 type Step = "subjects" | "topics" | "difficulty" | "review";
-
-// ─── Mock data (replace with API fetch) ──────────────────────────────────────
-
-const MOCK_SUBJECTS: Subject[] = [
-  {
-    id: "s1",
-    name: "English Language",
-    slug: "english",
-    calibratedBand: 3,
-    topics: [
-      { id: "t1", name: "Comprehension", slug: "comprehension", questionCount: 120 },
-      { id: "t2", name: "Lexis & Structure", slug: "lexis", questionCount: 95 },
-      { id: "t3", name: "Oral English", slug: "oral", questionCount: 60 },
-      { id: "t4", name: "Summary Writing", slug: "summary", questionCount: 45 },
-    ],
-  },
-  {
-    id: "s2",
-    name: "Mathematics",
-    slug: "mathematics",
-    calibratedBand: 4,
-    topics: [
-      { id: "t5", name: "Algebra", slug: "algebra", questionCount: 110 },
-      { id: "t6", name: "Trigonometry", slug: "trigonometry", questionCount: 75 },
-      { id: "t7", name: "Statistics", slug: "statistics", questionCount: 55 },
-      { id: "t8", name: "Calculus", slug: "calculus", questionCount: 80 },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Physics",
-    slug: "physics",
-    calibratedBand: 2,
-    topics: [
-      { id: "t9", name: "Mechanics", slug: "mechanics", questionCount: 90 },
-      { id: "t10", name: "Waves & Sound", slug: "waves", questionCount: 65 },
-      { id: "t11", name: "Electromagnetism", slug: "electromagnetism", questionCount: 70 },
-      { id: "t12", name: "Modern Physics", slug: "modern", questionCount: 40 },
-    ],
-  },
-  {
-    id: "s4",
-    name: "Chemistry",
-    slug: "chemistry",
-    calibratedBand: null,
-    topics: [
-      { id: "t13", name: "Organic Chemistry", slug: "organic", questionCount: 100 },
-      { id: "t14", name: "Inorganic Chemistry", slug: "inorganic", questionCount: 85 },
-      { id: "t15", name: "Physical Chemistry", slug: "physical", questionCount: 70 },
-      { id: "t16", name: "Stoichiometry", slug: "stoichiometry", questionCount: 50 },
-    ],
-  },
-];
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -158,8 +105,8 @@ function StepIndicator({ current }: { current: Step }) {
                     ? "#25d6a2"
                     : active
                     ? "linear-gradient(135deg, #6366F1, #3FB7FF)"
-                    : "rgba(255,255,255,0.08)",
-                  color: done || active ? "#fff" : "rgba(255,255,255,0.3)",
+                    : "rgba(23,35,44,0.09)",
+                  color: done || active ? "#fff" : "#7B858D",
                   flexShrink: 0,
                   transition: "all 0.2s ease",
                 }}
@@ -174,7 +121,7 @@ function StepIndicator({ current }: { current: Step }) {
                     ? "#fff"
                     : done
                     ? "#25d6a2"
-                    : "rgba(255,255,255,0.3)",
+                    : "#7B858D",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -188,7 +135,7 @@ function StepIndicator({ current }: { current: Step }) {
                   height: 1,
                   background: i < currentIndex
                     ? "#25d6a2"
-                    : "rgba(255,255,255,0.1)",
+                    : "rgba(23,35,44,0.1)",
                   margin: "0 8px",
                   flexShrink: 0,
                   transition: "background 0.2s ease",
@@ -229,19 +176,19 @@ function SessionSummaryBar({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <BookOpen size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: 13, color: "#4B5560" }}>
           {configs.length} subject{configs.length !== 1 ? "s" : ""}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Layers size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: 13, color: "#4B5560" }}>
           {topicsCount} topic{topicsCount !== 1 ? "s" : ""}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Target size={15} color="#6366F1" />
-        <span style={{ fontSize: 13, color: totalQuestions > 0 ? "#fff" : "rgba(255,255,255,0.5)", fontWeight: totalQuestions > 0 ? 600 : 400 }}>
+        <span style={{ fontSize: 13, color: totalQuestions > 0 ? "#17232C" : "#4B5560", fontWeight: totalQuestions > 0 ? 600 : 400 }}>
           {totalQuestions} question{totalQuestions !== 1 ? "s" : ""}
         </span>
       </div>
@@ -252,7 +199,7 @@ function SessionSummaryBar({
             style={{
               height: 4,
               borderRadius: 2,
-              background: "rgba(255,255,255,0.08)",
+              background: "rgba(23,35,44,0.09)",
               overflow: "hidden",
             }}
           >
@@ -269,7 +216,7 @@ function SessionSummaryBar({
               }}
             />
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 3, textAlign: "right" }}>
+          <div style={{ fontSize: 10, color: "#7B858D", marginTop: 3, textAlign: "right" }}>
             {totalQuestions} / {MAX_TOTAL} max
           </div>
         </div>
@@ -291,7 +238,7 @@ function SubjectStep({
 }) {
   return (
     <div>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", marginBottom: 20 }}>
         Choose which subjects to include. You'll pick specific topics next.
       </p>
       <div style={{ display: "grid", gap: 10 }}>
@@ -304,8 +251,8 @@ function SubjectStep({
               style={{
                 background: isSelected
                   ? "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(63,183,255,0.1))"
-                  : "rgba(255,255,255,0.04)",
-                border: `1px solid ${isSelected ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"}`,
+                  : "#F7F7F3",
+                border: `1px solid ${isSelected ? "rgba(99,102,241,0.5)" : "rgba(23,35,44,0.09)"}`,
                 borderRadius: 12,
                 padding: "14px 16px",
                 cursor: "pointer",
@@ -323,7 +270,7 @@ function SubjectStep({
                     width: 20,
                     height: 20,
                     borderRadius: 6,
-                    border: `2px solid ${isSelected ? "#6366F1" : "rgba(255,255,255,0.2)"}`,
+                    border: `2px solid ${isSelected ? "#6366F1" : "rgba(23,35,44,0.18)"}`,
                     background: isSelected ? "#6366F1" : "transparent",
                     display: "flex",
                     alignItems: "center",
@@ -335,10 +282,10 @@ function SubjectStep({
                   {isSelected && <Check size={11} color="#fff" />}
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#17232C" }}>
                     {subject.name}
                   </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: "#687782", marginTop: 2 }}>
                     {subject.topics.length} topics available
                     {subject.calibratedBand
                       ? ` · Band ${subject.calibratedBand}`
@@ -390,7 +337,7 @@ function TopicStep({
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Select topics and set question counts. Max {MAX_PER_TOPIC} per topic, {MAX_PER_SUBJECT} per subject.
       </p>
 
@@ -403,8 +350,8 @@ function TopicStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               overflow: "hidden",
             }}
@@ -413,17 +360,17 @@ function TopicStep({
             <div
               style={{
                 padding: "12px 16px",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                borderBottom: "1px solid rgba(23,35,44,0.07)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 background: "rgba(99,102,241,0.06)",
               }}
             >
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </div>
-              <div style={{ fontSize: 12, color: subjectAtMax ? "#F97316" : "rgba(255,255,255,0.4)" }}>
+              <div style={{ fontSize: 12, color: subjectAtMax ? "#F97316" : "#687782" }}>
                 {subjectTotal} / {MAX_PER_SUBJECT} questions
               </div>
             </div>
@@ -445,7 +392,7 @@ function TopicStep({
                       display: "flex",
                       alignItems: "center",
                       gap: 12,
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid #F7F7F3",
                     }}
                   >
                     <button
@@ -455,7 +402,7 @@ function TopicStep({
                         width: 18,
                         height: 18,
                         borderRadius: 5,
-                        border: `2px solid ${isSelected ? "#6366F1" : "rgba(255,255,255,0.15)"}`,
+                        border: `2px solid ${isSelected ? "#6366F1" : "rgba(23,35,44,0.16)"}`,
                         background: isSelected ? "#6366F1" : "transparent",
                         display: "flex",
                         alignItems: "center",
@@ -470,10 +417,10 @@ function TopicStep({
                     </button>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, color: isSelected ? "#fff" : "rgba(255,255,255,0.5)", fontWeight: isSelected ? 500 : 400 }}>
+                      <div style={{ fontSize: 13, color: isSelected ? "#17232C" : "#4B5560", fontWeight: isSelected ? 500 : 400 }}>
                         {topic.name}
                       </div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+                      <div style={{ fontSize: 11, color: "#7B858D", marginTop: 1 }}>
                         {topic.questionCount} available
                       </div>
                     </div>
@@ -482,20 +429,20 @@ function TopicStep({
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <button
                           onClick={() =>
-                            onQuestionCountChange(subject.id, topic.id, Math.max(1, count - 1))
+                            onQuestionCountChange(subject.id, topic.id, Math.max(5, count - 1))
                           }
                           style={{
                             width: 26,
                             height: 26,
                             borderRadius: "50%",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            background: "rgba(255,255,255,0.05)",
-                            color: "#fff",
+                            border: "1px solid rgba(23,35,44,0.16)",
+                            background: "#F7F7F3",
+                            color: "#17232C",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            cursor: count <= 1 ? "not-allowed" : "pointer",
-                            opacity: count <= 1 ? 0.3 : 1,
+                            cursor: count <= 5 ? "not-allowed" : "pointer",
+                            opacity: count <= 5 ? 0.3 : 1,
                           }}
                         >
                           <Minus size={11} />
@@ -504,7 +451,7 @@ function TopicStep({
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: count >= MAX_PER_TOPIC ? "#F97316" : "#fff",
+                            color: count >= MAX_PER_TOPIC ? "#B45309" : "#17232C",
                             minWidth: 20,
                             textAlign: "center",
                           }}
@@ -532,9 +479,9 @@ function TopicStep({
                             width: 26,
                             height: 26,
                             borderRadius: "50%",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            background: "rgba(255,255,255,0.05)",
-                            color: "#fff",
+                            border: "1px solid rgba(23,35,44,0.16)",
+                            background: "#F7F7F3",
+                            color: "#17232C",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -580,7 +527,7 @@ function DifficultyStep({
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Set difficulty per subject, or leave it on your calibrated band.
       </p>
 
@@ -593,8 +540,8 @@ function DifficultyStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               padding: 16,
             }}
@@ -607,7 +554,7 @@ function DifficultyStep({
                 marginBottom: 14,
               }}
             >
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </div>
               {isOverriding && (
@@ -615,7 +562,7 @@ function DifficultyStep({
                   onClick={() => onDifficultyChange(subject.id, null)}
                   style={{
                     fontSize: 11,
-                    color: "rgba(255,255,255,0.4)",
+                    color: "#687782",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
@@ -654,13 +601,13 @@ function DifficultyStep({
                       border: `1px solid ${
                         isCurrent
                           ? "rgba(99,102,241,0.6)"
-                          : "rgba(255,255,255,0.08)"
+                          : "rgba(23,35,44,0.09)"
                       }`,
                       background: isCurrent
                         ? "linear-gradient(135deg, rgba(99,102,241,0.4), rgba(63,183,255,0.2))"
                         : isCalibrated
                         ? "rgba(37,214,162,0.08)"
-                        : "rgba(255,255,255,0.03)",
+                        : "#FFFFFF",
                       cursor: "pointer",
                       display: "flex",
                       flexDirection: "column",
@@ -675,7 +622,7 @@ function DifficultyStep({
                       style={{
                         fontSize: 13,
                         fontWeight: isCurrent ? 700 : 400,
-                        color: isCurrent ? "#fff" : "rgba(255,255,255,0.4)",
+                        color: isCurrent ? "#fff" : "#687782",
                       }}
                     >
                       {level}
@@ -701,7 +648,7 @@ function DifficultyStep({
               style={{
                 marginTop: 10,
                 fontSize: 12,
-                color: "rgba(255,255,255,0.4)",
+                color: "#687782",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -751,7 +698,7 @@ function ReviewStep({
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+      <p style={{ fontSize: 14, color: "#4B5560", margin: 0 }}>
         Review your session before starting.
       </p>
 
@@ -782,8 +729,8 @@ function ReviewStep({
           <div
             key={subject.id}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(23,35,44,0.09)",
               borderRadius: 14,
               overflow: "hidden",
             }}
@@ -792,13 +739,13 @@ function ReviewStep({
               style={{
                 padding: "10px 14px",
                 background: "rgba(99,102,241,0.06)",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                borderBottom: "1px solid rgba(23,35,44,0.07)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -815,7 +762,7 @@ function ReviewStep({
                 >
                   {diffLabel}
                 </span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+                <span style={{ fontSize: 12, color: "#687782" }}>
                   {subjectTotal}q
                 </span>
               </div>
@@ -832,13 +779,13 @@ function ReviewStep({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid #F7F7F3",
                     }}
                   >
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+                    <span style={{ fontSize: 13, color: "#4B5560" }}>
                       {topic?.name}
                     </span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+                    <span style={{ fontSize: 12, color: "#687782" }}>
                       {topicConfig.questionCount} questions
                     </span>
                   </div>
@@ -861,17 +808,17 @@ function ReviewStep({
         }}
       >
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#17232C" }}>
             {totalQuestions}
           </div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: "#687782", marginTop: 1 }}>
             total questions · no time limit
           </div>
         </div>
         <div
           style={{
             fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
+            color: "#687782",
             textAlign: "right",
           }}
         >
@@ -890,11 +837,48 @@ function ReviewStep({
 export default function CampaignPreflight() {
   const router = useRouter();
 
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(true);
   const [step, setStep] = useState<Step>("subjects");
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
   const [configs, setConfigs] = useState<SubjectConfig[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSubjects() {
+      setSubjectsLoading(true);
+      try {
+        const enrolledResponse = await fetch("/api/user/subjects", { cache: "no-store" });
+        const enrolledBody = await enrolledResponse.json();
+        if (!enrolledResponse.ok) throw new Error(enrolledBody.error || "Could not load your subjects.");
+        const enrolled = Array.isArray(enrolledBody.subjects) ? enrolledBody.subjects : [];
+        const loaded = await Promise.all(enrolled.map(async (subject: { id: string; name: string; slug: string }) => {
+          const response = await fetch(`/api/topics?subject_id=${encodeURIComponent(subject.id)}`, { cache: "no-store" });
+          const body = await response.json();
+          if (!response.ok) throw new Error(body.error || `Could not load topics for ${subject.name}.`);
+          const topics = (Array.isArray(body) ? body : []).map((topic: any) => ({
+            id: String(topic.id),
+            name: String(topic.name),
+            slug: String(topic.slug || topic.id),
+            questionCount: Number(topic.question_count || 0),
+          }));
+          return { id: subject.id, name: subject.name, slug: subject.slug, topics, calibratedBand: null };
+        }));
+        if (!cancelled) {
+          setSubjects(loaded.filter(subject => subject.topics.length > 0));
+          setAvailabilityError(loaded.length ? null : "No enrolled subjects were found. Complete subject selection first.");
+        }
+      } catch (error) {
+        if (!cancelled) setAvailabilityError(error instanceof Error ? error.message : "Could not load your subjects.");
+      } finally {
+        if (!cancelled) setSubjectsLoading(false);
+      }
+    }
+    void loadSubjects();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -984,17 +968,22 @@ export default function CampaignPreflight() {
       setIsLoading(true);
       setAvailabilityError(null);
       try {
-        const res = await fetch("/api/campaign/availability", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ configs }),
-        });
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          setAvailabilityError(data.error ?? "Some topics don't have enough questions.");
-          setStep("review");
-          setIsLoading(false);
-          return;
+        for (const config of configs) {
+          if (!config.topics.length) continue;
+          const query = new URLSearchParams({
+            subject_id: config.subjectId,
+            topic_ids: config.topics.map(topic => topic.topicId).join(","),
+            ...(config.difficultyOverride !== null ? { difficulty_level: String(config.difficultyOverride) } : {}),
+          });
+          const res = await fetch(`/api/campaign/availability?${query.toString()}`, { cache: "no-store" });
+          const data = await res.json();
+          if (!res.ok || data.error) throw new Error(data.error ?? "Some topics don't have enough questions.");
+          const availability = Array.isArray(data.availability) ? data.availability : [];
+          const unavailable = config.topics.find(topic => {
+            const found = availability.find((item: any) => item.topic_id === topic.topicId);
+            return !found?.valid || (found?.available_count ?? 0) < topic.questionCount;
+          });
+          if (unavailable) throw new Error("Not enough available questions for " + (subjects.find(subject => subject.id === config.subjectId)?.topics.find(topic => topic.id === unavailable.topicId)?.name || "one of the selected topics") + ". Reduce its question count or choose another topic.");
         }
       } catch {
         setAvailabilityError("Couldn't verify availability. Check your connection.");
@@ -1009,18 +998,27 @@ export default function CampaignPreflight() {
       // Start session
       setIsLoading(true);
       try {
+        const requests = configs.flatMap(config => config.topics.map(topic => ({
+          subject_id: config.subjectId,
+          topic_id: topic.topicId,
+          count: topic.questionCount,
+          ...(config.difficultyOverride !== null ? { difficulty_level: config.difficultyOverride } : {}),
+        })));
+        const isSingleUntimedTopic = requests.length === 1;
+        const timeLimitSeconds = isSingleUntimedTopic ? null : Math.max(300, totalQuestions * 60);
         const res = await fetch("/api/sessions/campaign/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ configs }),
+          body: JSON.stringify({ requests, time_limit_seconds: timeLimitSeconds }),
         });
         const data = await res.json();
-        if (!res.ok || !data.sessionId) {
+        if (!res.ok || !data.session_id) {
           setAvailabilityError(data.error ?? "Couldn't start session. Try again.");
           setIsLoading(false);
           return;
         }
-        router.push(`/campaign/${data.sessionId}/practice`);
+        sessionStorage.setItem(`examlogic:campaign:${data.session_id}`, JSON.stringify(data));
+        router.push(`/campaign/${data.session_id}/practice`);
       } catch {
         setAvailabilityError("Couldn't start session. Check your connection.");
         setIsLoading(false);
@@ -1039,7 +1037,7 @@ export default function CampaignPreflight() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#071426",
+        background: "#F7F7F3",
         fontFamily: "'Inter', system-ui, sans-serif",
         display: "flex",
         flexDirection: "column",
@@ -1072,10 +1070,10 @@ export default function CampaignPreflight() {
             <BookOpen size={18} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#17232C", lineHeight: 1 }}>
               Campaign
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "#687782", marginTop: 3 }}>
               Deliberate practice, your way
             </div>
           </div>
@@ -1091,7 +1089,7 @@ export default function CampaignPreflight() {
           <div style={{ marginBottom: 20 }}>
             <SessionSummaryBar
               configs={configs}
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               totalQuestions={totalQuestions}
             />
           </div>
@@ -1100,8 +1098,8 @@ export default function CampaignPreflight() {
         {/* Step content card */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "#FFFFFF",
+            border: "1px solid rgba(23,35,44,0.09)",
             borderRadius: 14,
             padding: 20,
             marginBottom: 16,
@@ -1111,7 +1109,7 @@ export default function CampaignPreflight() {
             style={{
               fontSize: 16,
               fontWeight: 700,
-              color: "#fff",
+              color: "#17232C",
               margin: "0 0 16px",
             }}
           >
@@ -1121,16 +1119,24 @@ export default function CampaignPreflight() {
             {step === "review" && "Review session"}
           </h2>
 
-          {step === "subjects" && (
+          {subjectsLoading ? (
+            <div role="status" style={{ padding: 18, borderRadius: 12, background: "#F7F7F3", color: "#687782", fontSize: 13 }}>
+              Loading your enrolled subjects and available topics…
+            </div>
+          ) : subjects.length === 0 ? (
+            <div role="alert" style={{ padding: 18, borderRadius: 12, background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.24)", color: "#F97316", fontSize: 13, lineHeight: 1.6 }}>
+              {availabilityError || "No enrolled subjects with active topics were found. Check your subject selection and try again."}
+            </div>
+          ) : step === "subjects" && (
             <SubjectStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               selected={selectedSubjectIds}
               onToggle={toggleSubject}
             />
           )}
           {step === "topics" && (
             <TopicStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               onTopicToggle={toggleTopic}
               onQuestionCountChange={changeQuestionCount}
@@ -1139,14 +1145,14 @@ export default function CampaignPreflight() {
           )}
           {step === "difficulty" && (
             <DifficultyStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               onDifficultyChange={changeDifficulty}
             />
           )}
           {step === "review" && (
             <ReviewStep
-              subjects={MOCK_SUBJECTS}
+              subjects={subjects}
               configs={configs}
               totalQuestions={totalQuestions}
               availabilityError={availabilityError}
@@ -1163,9 +1169,9 @@ export default function CampaignPreflight() {
                 width: 48,
                 height: 48,
                 borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.05)",
-                color: "#fff",
+                border: "1px solid #DCE4E8",
+                background: "#F7F7F3",
+                color: "#17232C",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -1189,8 +1195,8 @@ export default function CampaignPreflight() {
               background:
                 canAdvance && !isLoading
                   ? "linear-gradient(135deg, #3FB7FF, #6366F1)"
-                  : "rgba(255,255,255,0.06)",
-              color: canAdvance && !isLoading ? "#fff" : "rgba(255,255,255,0.2)",
+                  : "rgba(23,35,44,0.07)",
+              color: canAdvance && !isLoading ? "#fff" : "#687782",
               fontSize: 15,
               fontWeight: 700,
               cursor: !canAdvance || isLoading ? "not-allowed" : "pointer",

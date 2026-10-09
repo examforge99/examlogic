@@ -27,6 +27,7 @@ export async function POST(
     const body = await req.json()
 
     // Accept either a single answer or a bulk array
+    const forceClose = body.force_close === true
     const answers: AnswerSubmission[] = body.answers
       ? body.answers
       : [{
@@ -35,7 +36,7 @@ export async function POST(
           time_taken_seconds: body.time_taken_seconds ?? 0
         }]
 
-    if (!answers[0]?.question_id || !answers[0]?.selected_option_id) {
+    if (!Array.isArray(answers) || (!forceClose && (!answers[0]?.question_id || !answers[0]?.selected_option_id))) {
       return NextResponse.json(
         { error: 'question_id and selected_option_id are required' },
         { status: 400 }
@@ -60,16 +61,18 @@ export async function POST(
 
     // Increment times_seen for all answered questions
     const questionIds = answers.map(a => a.question_id)
-    recordExposure(userId, questionIds, 'campaign').catch(err =>
-      console.error('[campaign/submit] exposure record failed:', err)
-    )
+    if (questionIds.length > 0) {
+      recordExposure(userId, questionIds, 'campaign').catch(err =>
+        console.error('[campaign/submit] exposure record failed:', err)
+      )
+    }
 
     // ── Determine if session should close ───────────────────────────
     // Bulk submit always closes immediately (timed practice)
     // Single answer only closes if it was the last unanswered question
-    let shouldClose = isBulk
+    let shouldClose = isBulk || forceClose
 
-    if (!isBulk) {
+    if (!isBulk && !forceClose) {
       const { data: remaining } = await supabase
         .from('exam_session_questions')
         .select('id')

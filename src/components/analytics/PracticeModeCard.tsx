@@ -18,7 +18,7 @@ export default function PracticeModeCard() {
   const [range, setRange] = useState<TimeRange>('30')
 
   return (
-    <section style={{ width: '100%', color: '#E8F0F7' }} aria-labelledby="practice-modes-title">
+    <section style={{ width: '100%', color: '#171A1C' }} aria-labelledby="practice-modes-title">
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
         <div>
           <h2 id="practice-modes-title" style={{ margin: 0, fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: 16, fontWeight: 700, letterSpacing: '-.025em' }}>Practice modes</h2>

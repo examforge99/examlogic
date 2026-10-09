@@ -14,6 +14,19 @@ const googleIcon = (
   </svg>
 )
 
+function getPostAuthRedirect() {
+  try {
+    const requested = new URLSearchParams(window.location.search).get('redirect_url')
+    if (!requested) return '/dashboard'
+    const destination = new URL(requested, window.location.origin)
+    if (destination.origin !== window.location.origin) return '/dashboard'
+    if (destination.pathname === '/auth' || destination.pathname.startsWith('/auth/') || destination.pathname === '/onboarding' || destination.pathname.startsWith('/onboarding/')) return '/dashboard'
+    return destination.pathname + destination.search + destination.hash
+  } catch {
+    return '/dashboard'
+  }
+}
+
 export default function AuthPage() {
   const { signIn } = useSignIn()
   const { signUp } = useSignUp()
@@ -34,8 +47,8 @@ export default function AuthPage() {
     try {
       const { error } = await signIn.sso({
         strategy: 'oauth_google',
-        redirectCallbackUrl: '/auth/sso-callback',
-        redirectUrl: '/dashboard',
+        redirectCallbackUrl: `/auth/sso-callback?redirect_url=${encodeURIComponent(getPostAuthRedirect())}`,
+        redirectUrl: getPostAuthRedirect(),
       })
 
       if (error) throw error
@@ -96,7 +109,8 @@ export default function AuthPage() {
           if (signUp.status === 'complete') {
             await signUp.finalize({
               navigate: ({ decorateUrl }) => {
-                const url = decorateUrl('/onboarding')
+                const destination = getPostAuthRedirect()
+                const url = decorateUrl(`/onboarding?redirect_url=${encodeURIComponent(destination)}`)
                 if (url.startsWith('http')) window.location.href = url
                 else router.push(url)
               },
@@ -114,7 +128,7 @@ export default function AuthPage() {
       if (signIn.status === 'complete') {
         await signIn.finalize({
           navigate: ({ decorateUrl }) => {
-            const url = decorateUrl('/dashboard')
+            const url = decorateUrl(getPostAuthRedirect())
             if (url.startsWith('http')) window.location.href = url
             else router.push(url)
           },

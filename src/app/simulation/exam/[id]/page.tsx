@@ -460,7 +460,7 @@ export default function SimulationExamPage() {
                   flex: 1,
                   padding: "6px 4px",
                   borderRadius: "8px",
-                  background: active ? "#8B5CF6" : "rgba(0,0,0,0.05)",
+                  background: active ? "#0876B8" : "rgba(0,0,0,0.05)",
                   color: active ? "#fff" : "#6B7280",
                   fontSize: "11px",
                   fontWeight: active ? 700 : 500,
@@ -545,7 +545,7 @@ export default function SimulationExamPage() {
                       padding: "14px 16px",
                       borderRadius: "12px",
                       background: selected ? "rgba(139,92,246,0.08)" : "#fff",
-                      border: `2px solid ${selected ? "#8B5CF6" : "rgba(0,0,0,0.08)"}`,
+                      border: `1px solid ${selected ? "#0876B8" : "#DCE4E8"}`,
                       cursor: "pointer",
                       transition: "all 0.15s",
                       boxShadow: selected ? "0 2px 8px rgba(139,92,246,0.15)" : "0 1px 4px rgba(0,0,0,0.04)",
@@ -556,7 +556,7 @@ export default function SimulationExamPage() {
                       width: "28px",
                       height: "28px",
                       borderRadius: "8px",
-                      background: selected ? "#8B5CF6" : "rgba(0,0,0,0.06)",
+                      background: selected ? "#0876B8" : "rgba(0,0,0,0.06)",
                       color: selected ? "#fff" : "#6B7280",
                       fontSize: "13px",
                       fontWeight: 700,
@@ -586,7 +586,7 @@ export default function SimulationExamPage() {
                         width: "8px",
                         height: "8px",
                         borderRadius: "50%",
-                        background: "#8B5CF6",
+                        background: "#0876B8",
                         flexShrink: 0,
                       }} />
                     )}
@@ -626,7 +626,7 @@ export default function SimulationExamPage() {
                   height: "28px",
                   borderRadius: "6px",
                   background: isCurrent
-                    ? "#8B5CF6"
+                    ? "#0876B8"
                       : answered
                     ? "#25d6a2"
                     : "rgba(0,0,0,0.08)",
@@ -677,7 +677,7 @@ export default function SimulationExamPage() {
               flex: 1,
               padding: "12px",
               borderRadius: "10px",
-              background: "#8B5CF6",
+              background: "#0876B8",
               border: "none",
               color: "#fff",
               fontSize: "13px",

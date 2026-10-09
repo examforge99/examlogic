@@ -4,6 +4,19 @@ import { useEffect, useRef } from 'react'
 import { useSignIn, useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
+function getPostAuthRedirect() {
+  try {
+    const requested = new URLSearchParams(window.location.search).get('redirect_url')
+    if (!requested) return '/dashboard'
+    const destination = new URL(requested, window.location.origin)
+    if (destination.origin !== window.location.origin) return '/dashboard'
+    if (destination.pathname === '/auth' || destination.pathname.startsWith('/auth/') || destination.pathname === '/onboarding' || destination.pathname.startsWith('/onboarding/')) return '/dashboard'
+    return destination.pathname + destination.search + destination.hash
+  } catch {
+    return '/dashboard'
+  }
+}
+
 export default function AuthSSOCallback() {
   const { signIn } = useSignIn()
   const { signUp } = useSignUp()
@@ -19,7 +32,7 @@ export default function AuthSSOCallback() {
         if (signIn.status === 'complete') {
           const { error } = await signIn.finalize({
             navigate: ({ decorateUrl }) => {
-              const url = decorateUrl('/dashboard')
+              const url = decorateUrl(getPostAuthRedirect())
               window.location.href = url
             },
           })
@@ -30,7 +43,8 @@ export default function AuthSSOCallback() {
         if (signUp.status === 'complete') {
           const { error } = await signUp.finalize({
             navigate: ({ decorateUrl }) => {
-              const url = decorateUrl('/onboarding')
+              const destination = getPostAuthRedirect()
+              const url = decorateUrl(`/onboarding?redirect_url=${encodeURIComponent(destination)}`)
               window.location.href = url
             },
           })

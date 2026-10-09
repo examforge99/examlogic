@@ -30,14 +30,43 @@ export default function DashboardPage() {
   const [examDate, setExamDate] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!isLoaded) return
+    let cancelled = false
+    let shouldShowFirstUse = false
     try {
-      setFirstUse(!window.localStorage.getItem('examlogic:first-session-started'))
+      shouldShowFirstUse = !window.localStorage.getItem('examlogic:first-session-started')
       const savedExamDate = window.localStorage.getItem('examlogic:exam-date')
       if (savedExamDate) setExamDate(savedExamDate)
     } catch {
       // Storage may be unavailable; keep the dashboard usable.
     }
-  }, [])
+
+    fetch('/api/onboarding', { cache: 'no-store' })
+      .then(async response => response.ok ? response.json() : null)
+      .then(body => {
+        if (cancelled) return
+        if (body) {
+          const current = body.current
+          const setupComplete = Boolean(
+            current?.exam_date &&
+            (current.study_days?.length ?? 0) >= 5 &&
+            Number(current.daily_hours) > 0 &&
+            current.subject_ids?.length === 4 &&
+            current.timetable_created
+          )
+          if (!setupComplete) {
+            router.replace('/onboarding?redirect_url=%2Fdashboard')
+            return
+          }
+        }
+        setFirstUse(shouldShowFirstUse)
+      })
+      .catch(() => {
+        if (!cancelled) setFirstUse(shouldShowFirstUse)
+      })
+
+    return () => { cancelled = true }
+  }, [isLoaded, router])
 
   const loadDashboard = useCallback(async () => {
     const headers = { Accept: 'application/json', 'Cache-Control': 'no-cache, no-store, max-age=0' }

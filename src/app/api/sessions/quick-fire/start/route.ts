@@ -81,12 +81,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 4 — resolve subject slugs to IDs
-    const { data: subjects, error: subjectError } = await supabase
+    // Onboarding stores subject IDs; older profiles may still contain slugs.
+    // Resolve both forms without passing slugs into a UUID column filter.
+    const selectedSubjects = user.jamb_subjects.filter((value: unknown): value is string =>
+      typeof value === 'string'
+    )
+    const { data: availableSubjects, error: subjectError } = await supabase
       .from('subjects')
       .select('id, slug, name')
-      .in('slug', user.jamb_subjects)
+    const subjects = (availableSubjects ?? []).filter(subject =>
+      selectedSubjects.includes(subject.id) || selectedSubjects.includes(subject.slug)
+    )
 
-    if (subjectError || !subjects || subjects.length === 0) {
+    if (subjectError || subjects.length === 0) {
       return NextResponse.json(
         { error: 'Could not resolve user subjects' },
         { status: 500 }
