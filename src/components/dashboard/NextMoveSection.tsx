@@ -2,7 +2,7 @@
 
 import { Sparkles } from 'lucide-react'
 import TodayMission, { type Mission } from '@/components/nba/TodayMission'
-import { dashboardColors as C, dashboardStyles as css } from './styles'
+import { dashboardStyles as css } from './styles'
 
 type NextMoveSectionProps = {
   missions?: Mission[]
