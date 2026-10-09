@@ -11,7 +11,7 @@ const sections = [
     { label: 'Dashboard', detail: 'Your next action and study time', icon: BookOpen, href: '/dashboard' },
     { label: 'Practice Modes', detail: 'Choose a way to practise', icon: Bookmark, href: '/practice' },
     { label: 'Analytics', detail: 'Explore your progress and consistency', icon: Activity, href: '/analytics' },
-    { label: 'Accuracy History', detail: 'Review your question history', icon: FileText, href: '/accuracy' },
+    { label: 'Accuracy History', detail: 'Review your question history', icon: FileText, href: '/accuracy-history' },
   ]},
   { title: 'ACCOUNT & SUPPORT', rows: [
     { label: 'Subscription', detail: 'Review your plan options', icon: UserRound, href: '/subscription' },
