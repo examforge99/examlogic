@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Flame, Bell, ChevronDown, User, History, Trophy, Settings, LogOut, Shield } from "lucide-react";
+import { Flame, Bell, ChevronDown, User, History, Settings, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 
