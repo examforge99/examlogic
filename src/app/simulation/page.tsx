@@ -17,7 +17,7 @@ const CARD_STYLE: React.CSSProperties = {
   borderRadius: "16px",
   padding: "20px",
   background:
-    "linear-gradient(to bottom, #1E1B4B, #0F1535 30%, #080D1F) padding-box, linear-gradient(to bottom, #8B5CF6, #3730A3) border-box",
+    "#FFFFFF",
   border: "1px solid #DCE4E8",
   boxShadow: "0 8px 24px rgba(23,35,44,0.06)",
   marginBottom: "16px",
