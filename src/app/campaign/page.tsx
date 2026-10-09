@@ -1196,7 +1196,7 @@ export default function CampaignPreflight() {
                 canAdvance && !isLoading
                   ? "linear-gradient(135deg, #3FB7FF, #6366F1)"
                   : "rgba(23,35,44,0.07)",
-              color: canAdvance && !isLoading ? "#fff" : "rgba(23,35,44,0.18)",
+              color: canAdvance && !isLoading ? "#fff" : "#687782",
               fontSize: 15,
               fontWeight: 700,
               cursor: !canAdvance || isLoading ? "not-allowed" : "pointer",
