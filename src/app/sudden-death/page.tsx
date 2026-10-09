@@ -64,7 +64,7 @@ export default function SuddenDeathPreflight() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#071426", color: "#fff" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F7F7F3", color: "#17232C" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 20px 16px" }}>
         <button
           onClick={() => router.back()}
@@ -77,7 +77,7 @@ export default function SuddenDeathPreflight() {
             alignItems: "center",
             justifyContent: "center",
             border: "none",
-            color: "#fff",
+            color: "#17232C",
           }}
         >
           ←
@@ -99,7 +99,7 @@ export default function SuddenDeathPreflight() {
             background: "linear-gradient(180deg, #3A1F0F 0%, #080D1F 100%)",
           }}
         >
-          <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#F97316", margin: "0 0 8px" }}>
+          <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: "#B45309", margin: "0 0 8px" }}>
             HOW FAR CAN YOU GO?
           </p>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: "0 0 20px", lineHeight: 1.5 }}>
@@ -146,7 +146,7 @@ export default function SuddenDeathPreflight() {
             borderRadius: "14px",
             fontWeight: 600,
             fontSize: 16,
-            color: "#fff",
+            color: "#17232C",
             border: "none",
             background: "linear-gradient(90deg, #F97316 0%, #DC2626 100%)",
             opacity: loading ? 0.6 : 1,
@@ -172,7 +172,7 @@ function Rule({
     <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
       <span style={{ flexShrink: 0 }}>{icon}</span>
       <div>
-        <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 4px", color: "#fff" }}>{title}</p>
+        <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 4px", color: "#17232C" }}>{title}</p>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
           {description}
         </p>
