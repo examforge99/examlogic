@@ -429,7 +429,7 @@ function TopicStep({
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <button
                           onClick={() =>
-                            onQuestionCountChange(subject.id, topic.id, Math.max(1, count - 1))
+                            onQuestionCountChange(subject.id, topic.id, Math.max(5, count - 1))
                           }
                           style={{
                             width: 26,
@@ -441,8 +441,8 @@ function TopicStep({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            cursor: count <= 1 ? "not-allowed" : "pointer",
-                            opacity: count <= 1 ? 0.3 : 1,
+                            cursor: count <= 5 ? "not-allowed" : "pointer",
+                            opacity: count <= 5 ? 0.3 : 1,
                           }}
                         >
                           <Minus size={11} />
