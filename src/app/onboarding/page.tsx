@@ -37,7 +37,7 @@ function safeDestination(value: string | null) {
   if (!value) return '/dashboard'
   try {
     const url = new URL(value, window.location.origin)
-    if (url.origin !== window.location.origin || url.pathname === '/auth' || url.pathname.startsWith('/auth/')) return '/dashboard'
+    if (url.origin !== window.location.origin || url.pathname === '/auth' || url.pathname.startsWith('/auth/') || url.pathname === '/onboarding' || url.pathname.startsWith('/onboarding/')) return '/dashboard'
     return url.pathname + url.search + url.hash
   } catch {
     return '/dashboard'
