@@ -47,7 +47,7 @@ export default function AuthPage() {
     try {
       const { error } = await signIn.sso({
         strategy: 'oauth_google',
-        redirectCallbackUrl: '/auth/sso-callback',
+        redirectCallbackUrl: `/auth/sso-callback?redirect_url=${encodeURIComponent(getPostAuthRedirect())}`,
         redirectUrl: getPostAuthRedirect(),
       })
 
