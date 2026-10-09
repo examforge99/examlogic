@@ -745,7 +745,7 @@ function ReviewStep({
                 justifyContent: "space-between",
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#17232C" }}>
                 {subject.name}
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1109,7 +1109,7 @@ export default function CampaignPreflight() {
             style={{
               fontSize: 16,
               fontWeight: 700,
-              color: "#fff",
+              color: "#17232C",
               margin: "0 0 16px",
             }}
           >
@@ -1171,7 +1171,7 @@ export default function CampaignPreflight() {
                 borderRadius: "50%",
                 border: "1px solid #DCE4E8",
                 background: "#F7F7F3",
-                color: "#fff",
+                color: "#17232C",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
