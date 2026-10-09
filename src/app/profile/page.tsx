@@ -1,110 +1,67 @@
 'use client'
 
+// src/app/profile/page.tsx
+import { useState } from 'react'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { LogOut, Mail, Shield, ChevronRight, UserRound } from 'lucide-react'
+import { Activity, Bell, Bookmark, BookOpen, ChevronRight, CircleHelp, Download, FileText, LogOut, MessageSquare, Settings2, Shield, Trash2, UserRound } from 'lucide-react'
 
+const sections = [
+  { title: 'EXAM TOOLS', rows: [
+    { label: 'Past Question Stats', detail: 'Review your question history', icon: Activity, href: '/accuracy' },
+    { label: 'Syllabus Check', detail: 'Keep your preparation aligned', icon: FileText, href: '/syllabus' },
+    { label: 'Study Schedule', detail: 'Your planned study sessions', icon: BookOpen, href: '/timetable' },
+    { label: 'Bookmarked Questions', detail: 'Questions saved for another look', icon: Bookmark, href: '/bookmarks' },
+    { label: 'Download Resources', detail: 'Syllabus and study materials', icon: Download, href: '/resources' },
+    { label: 'Notifications', detail: 'Manage your updates', icon: Bell, href: '/notifications' },
+  ]},
+  { title: 'ACCOUNT MANAGEMENT', rows: [
+    { label: 'Account', detail: 'Profile and personal details', icon: UserRound, href: '/profile/account' },
+    { label: 'Security', detail: 'Sign-in and account security', icon: Shield, href: '/profile/security' },
+    { label: 'Send Feedback', detail: 'Help us improve ExamLogic', icon: MessageSquare, href: '/feedback' },
+    { label: 'Help & Support', detail: 'Find answers and assistance', icon: CircleHelp, href: '/help' },
+  ]},
+]
 export default function ProfilePage() {
   const { isLoaded, user } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
-
-  if (!isLoaded) return <main style={styles.page}><div style={styles.shell}><div style={styles.skeleton} /></div></main>
+  const [signingOut, setSigningOut] = useState(false)
+  if (!isLoaded) return <main style={{ minHeight: '100svh', background: '#071426', padding: 20 }}><div style={{ maxWidth: 620, height: 180, margin: '20px auto', borderRadius: 16, background: '#0D1B2E', animation: 'profilePulse 1.2s ease-in-out infinite alternate' }}/><style>{'@keyframes profilePulse{to{opacity:.45}}'}</style></main>
 
   const name = user?.fullName || user?.firstName || 'Student'
-  const email = user?.primaryEmailAddress?.emailAddress || 'No email available'
-  const initials = name.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase()
+  const initials = name.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase()
+  async function logout() { setSigningOut(true); await signOut(); router.push('/login') }
 
-  async function handleSignOut() {
-    await signOut()
-    router.push('/login')
-  }
+  return <main style={{ minHeight: '100svh', background: '#071426', color: '#E8F0F7', padding: '28px 16px calc(110px + env(safe-area-inset-bottom))' }}>
+    <div style={{ maxWidth: 620, margin: '0 auto' }}>
+      <header style={{ marginBottom: 22 }}><p style={{ margin: 0, color: '#25D6A2', fontSize: 10, fontWeight: 800, letterSpacing: '.13em' }}>YOUR SPACE</p><h1 style={{ margin: '7px 0 0', fontSize: 29, letterSpacing: '-.04em' }}>Profile</h1></header>
+      <section style={{ textAlign: 'center', padding: '23px 16px', borderRadius: 18, border: '1px solid rgba(255,255,255,.08)', background: 'linear-gradient(145deg,#102942,#0D1B2E 70%)' }}>
+        {user?.imageUrl ? <img src={user.imageUrl} alt="" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 22, margin: '0 auto 13px', border: '1px solid rgba(63,183,255,.35)' }}/> : <div style={{ width: 68, height: 68, margin: '0 auto 13px', display: 'grid', placeItems: 'center', borderRadius: 22, background: 'linear-gradient(135deg,#3FB7FF,#25D6A2)', color: '#071426', fontSize: 20, fontWeight: 850 }}>{initials || <UserRound size={24}/>}</div>}
+        <h2 style={{ margin: 0, fontSize: 19, letterSpacing: '-.025em' }}>{name}</h2>
+        <span style={{ display: 'inline-flex', marginTop: 9, padding: '5px 9px', borderRadius: 7, background: 'rgba(63,183,255,.1)', color: '#3FB7FF', fontSize: 10, fontWeight: 750 }}>EXAMLOGIC STUDENT</span>
+      </section>
 
-  return (
-    <main style={styles.page}>
-      <div style={styles.shell}>
-        <header style={styles.header}>
-          <p style={styles.eyebrow}>ACCOUNT</p>
-          <h1 style={styles.title}>Profile</h1>
-        </header>
+      <section style={{ marginTop: 22 }}>
+        <p style={{ margin: '0 0 10px 2px', color: '#7D8A9A', fontSize: 10, fontWeight: 800, letterSpacing: '.12em' }}>PERFORMANCE SNAPSHOT</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 9 }}>
+          {[['STREAK','—','study days'],['AVG. SCORE','—','across sessions'],['TIME SPENT','—','learning time']].map(([label,value,detail]) => <div key={label} style={{ padding: '14px 11px', borderRadius: 13, border: '1px solid rgba(255,255,255,.07)', background: '#0D1B2E', minWidth: 0 }}><p style={{ margin: 0, color: '#7D8A9A', fontSize: 9, fontWeight: 800, letterSpacing: '.06em' }}>{label}</p><p style={{ margin: '12px 0 4px', fontSize: 24, fontWeight: 800, letterSpacing: '-.04em' }}>{value}</p><p style={{ margin: 0, color: '#8FA2B7', fontSize: 9, lineHeight: 1.4 }}>{detail}</p></div>)}
+        </div>
+      </section>
 
-        <section style={styles.identity}>
-          <div style={styles.avatar}>{initials || <UserRound size={24} />}</div>
-          <div style={styles.identityText}>
-            <h2 style={styles.name}>{name}</h2>
-            <p style={styles.email}>{email}</p>
-          </div>
-        </section>
+      {sections.map(section => <section key={section.title} style={{ marginTop: 25 }}>
+        <p style={{ margin: '0 0 9px 2px', color: '#7D8A9A', fontSize: 10, fontWeight: 800, letterSpacing: '.12em' }}>{section.title}</p>
+        <div style={{ overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E' }}>
+          {section.rows.map((item,index) => { const Icon = item.icon; return <button key={item.label} onClick={() => router.push(item.href)} style={{ width: '100%', minHeight: 64, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', color: '#E8F0F7', borderBottom: index === section.rows.length - 1 ? 0 : '1px solid rgba(255,255,255,.06)' }}>
+            <span style={{ width: 34, height: 34, flex: '0 0 34px', display: 'grid', placeItems: 'center', borderRadius: 10, background: 'rgba(63,183,255,.08)', color: '#3FB7FF' }}><Icon size={16}/></span>
+            <span style={{ flex: 1, minWidth: 0 }}><strong style={{ display: 'block', fontSize: 12, fontWeight: 700 }}>{item.label}</strong><span style={{ display: 'block', marginTop: 4, color: '#8FA2B7', fontSize: 10 }}>{item.detail}</span></span><ChevronRight size={16} color="#6F8298"/>
+          </button>})}
+        </div>
+      </section>)}
 
-        <section style={styles.section}>
-          <p style={styles.sectionLabel}>ACCOUNT</p>
-          <div style={styles.card}>
-            <div style={styles.row}>
-              <div style={styles.icon}><Mail size={18} /></div>
-              <div style={styles.rowText}>
-                <span style={styles.rowTitle}>Email</span>
-                <span style={styles.rowValue}>{email}</span>
-              </div>
-            </div>
-            <div style={styles.separator} />
-            <button type="button" style={styles.actionRow} onClick={() => router.push('/login')}>
-              <div style={styles.icon}><Shield size={18} /></div>
-              <div style={styles.rowText}>
-                <span style={styles.rowTitle}>Security</span>
-                <span style={styles.rowValue}>Password and sign-in methods</span>
-              </div>
-              <ChevronRight size={18} style={styles.chevron} />
-            </button>
-          </div>
-        </section>
-
-        <section style={styles.section}>
-          <p style={styles.sectionLabel}>PREPARATION</p>
-          <div style={styles.card}>
-            <button type="button" style={styles.actionRow} onClick={() => router.push('/subjects')}>
-              <div style={styles.icon}><UserRound size={18} /></div>
-              <div style={styles.rowText}>
-                <span style={styles.rowTitle}>Subjects</span>
-                <span style={styles.rowValue}>View your selected subjects</span>
-              </div>
-              <ChevronRight size={18} style={styles.chevron} />
-            </button>
-          </div>
-        </section>
-
-        <button type="button" style={styles.signOut} onClick={handleSignOut}>
-          <LogOut size={18} />
-          Sign out
-        </button>
-        <p style={styles.footer}>ExamLogic</p>
-      </div>
-    </main>
-  )
-}
-
-const styles = {
-  page: { minHeight: '100svh', boxSizing: 'border-box', padding: '28px 18px 110px', background: '#071426', color: '#E8F0F7' } as const,
-  shell: { width: '100%', maxWidth: 720, margin: '0 auto' } as const,
-  header: { marginBottom: 24 } as const,
-  eyebrow: { margin: 0, color: '#25D6A2', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '.14em' } as const,
-  title: { margin: '5px 0 0', fontFamily: 'Space Grotesk, Inter, sans-serif', fontSize: 30, lineHeight: 1.1, letterSpacing: '-.035em' } as const,
-  identity: { display: 'flex', alignItems: 'center', gap: 15, padding: 20, border: '1px solid rgba(255,255,255,.08)', borderRadius: 16, background: '#0D1B2E', boxShadow: '0 12px 30px rgba(0,0,0,.16)' } as const,
-  avatar: { width: 58, height: 58, flex: '0 0 58px', display: 'grid', placeItems: 'center', borderRadius: 17, background: 'linear-gradient(135deg, #3FB7FF, #25D6A2)', color: '#071426', fontFamily: 'Space Grotesk, Inter, sans-serif', fontSize: 19, fontWeight: 800 } as const,
-  identityText: { minWidth: 0 } as const,
-  name: { margin: 0, fontFamily: 'Space Grotesk, Inter, sans-serif', fontSize: 19, fontWeight: 700 } as const,
-  email: { margin: '5px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, color: '#8FA2B7', fontFamily: 'Inter, sans-serif', fontSize: 13 } as const,
-  section: { marginTop: 28 } as const,
-  sectionLabel: { margin: '0 0 9px 3px', color: '#6F8298', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '.12em' } as const,
-  card: { overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, background: '#0D1B2E' } as const,
-  row: { display: 'flex', alignItems: 'center', gap: 13, padding: 16 } as const,
-  actionRow: { width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: 16, border: 0, background: 'transparent', color: 'inherit', textAlign: 'left' as const, cursor: 'pointer' } as const,
-  icon: { width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: 10, background: 'rgba(63,183,255,.08)', color: '#3FB7FF' } as const,
-  rowText: { minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column' as const, gap: 3 } as const,
-  rowTitle: { color: '#DDE7F0', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 650 } as const,
-  rowValue: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, color: '#7F91A6', fontFamily: 'Inter, sans-serif', fontSize: 11 } as const,
-  separator: { height: 1, margin: '0 16px', background: 'rgba(255,255,255,.06)' } as const,
-  chevron: { color: '#5D7086', flex: '0 0 auto' } as const,
-  signOut: { width: '100%', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 32, border: '1px solid rgba(255,100,100,.18)', borderRadius: 11, background: 'rgba(255,100,100,.05)', color: '#FF9D9D', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, cursor: 'pointer' } as const,
-  footer: { margin: '22px 0 0', textAlign: 'center' as const, color: '#42566D', fontFamily: 'Inter, sans-serif', fontSize: 11 } as const,
-  skeleton: { width: '100%', height: 240, borderRadius: 16, background: '#0D1B2E', opacity: .7 } as const,
+      <button onClick={() => router.push('/profile/delete-account')} style={{ width: '100%', marginTop: 22, padding: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 11, border: '1px solid rgba(255,119,119,.2)', color: '#FF8989', fontSize: 12, fontWeight: 700 }}><Trash2 size={15}/> Delete account</button>
+      <button disabled={signingOut} onClick={logout} style={{ width: '100%', marginTop: 10, padding: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 11, background: '#162538', color: '#D8E0E8', fontSize: 12, fontWeight: 700, opacity: signingOut ? .6 : 1 }}><LogOut size={15}/>{signingOut ? 'Signing out…' : 'Sign out'}</button>
+      <p style={{ marginTop: 22, textAlign: 'center', color: '#53677D', fontSize: 10 }}>ExamLogic · Your preparation, in motion.</p>
+    </div>
+  </main>
 }

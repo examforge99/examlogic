@@ -1,473 +1,67 @@
 'use client'
 
-import { useState } from 'react'
-import Divider from '@/components/ui/Divider'
+// src/app/practice/page.tsx
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowUpRight, BookOpen, Check, Clock3, LockKeyhole, Play, ShieldAlert, Target, Zap } from 'lucide-react'
 
-
-type TimeRange = '7' | '30' | 'all'
-
-interface ModeStats {
-  sessions: number
-  accuracy: number
-  bestScore: string
-}
-
-interface ModeData {
-  name: string
-  icon: string
-  color: string
-  iconBg: string
-  stats: Record<TimeRange, ModeStats>
-}
-
-const modes: ModeData[] = [
-  {
-    name: 'Quick Fire',
-    icon: '⚡',
-    color: '#facc15',
-    iconBg: 'rgba(250,204,21,0.15)',
-    stats: {
-      '7':   { sessions: 8,  accuracy: 74, bestScore: '18/20'   },
-      '30':  { sessions: 28, accuracy: 76, bestScore: '18/20'   },
-      'all': { sessions: 54, accuracy: 72, bestScore: '19/20'   },
-    },
-  },
-  {
-    name: 'Campaign',
-    icon: '🎯',
-    color: '#25d6a2',
-    iconBg: 'rgba(37,214,162,0.15)',
-    stats: {
-      '7':   { sessions: 4,  accuracy: 70, bestScore: '65%'     },
-      '30':  { sessions: 16, accuracy: 72, bestScore: '68%'     },
-      'all': { sessions: 30, accuracy: 69, bestScore: '71%'     },
-    },
-  },
-  {
-    name: 'JAMB Simulation',
-    icon: '📋',
-    color: '#3FB7FF',
-    iconBg: 'rgba(63,183,255,0.15)',
-    stats: {
-      '7':   { sessions: 2,  accuracy: 66, bestScore: '264/400' },
-      '30':  { sessions: 6,  accuracy: 68, bestScore: '276/400' },
-      'all': { sessions: 11, accuracy: 65, bestScore: '276/400' },
-    },
-  },
-  {
-    name: 'Sudden Death',
-    icon: '💀',
-    color: '#ef4444',
-    iconBg: 'rgba(239,68,68,0.15)',
-    stats: {
-      '7':   { sessions: 3,  accuracy: 59, bestScore: '10/20'   },
-      '30':  { sessions: 9,  accuracy: 61, bestScore: '12/20'   },
-      'all': { sessions: 17, accuracy: 58, bestScore: '13/20'   },
-    },
-  },
+const modes = [
+  { name: 'Quick Fire', detail: 'Your daily habit. 20 sharp questions across all subjects, short enough to return to and focused enough to compound.', meta: '20 questions', href: '/quick-fire', color: '#FACC15', tint: 'rgba(250,204,21,.09)', icon: Zap, always: true },
+  { name: 'Campaign', detail: 'Go deep on what matters. Pick a subject, pick a topic, and work at your own pace.', meta: 'Subject · Topic', href: '/campaign', color: '#25D6A2', tint: 'rgba(37,214,162,.09)', icon: Target, always: false },
+  { name: 'Sudden Death', detail: 'Train your accuracy and composure. One incorrect answer ends the run.', meta: 'Accuracy challenge', href: '/sudden-death', color: '#FF7777', tint: 'rgba(255,119,119,.09)', icon: ShieldAlert, always: false },
+  { name: 'JAMB Simulation', detail: 'Experience the full exam format with 180 questions in 2 hours.', meta: '180 questions · 2 hours', href: '/simulation', color: '#3FB7FF', tint: 'rgba(63,183,255,.09)', icon: BookOpen, always: false },
 ]
 
-export default function PracticeModeCard({ className = '' }: { className?: string }) {
-  const [range, setRange]         = useState<TimeRange>('30')
-  const [reviewing, setReviewing] = useState<ModeData | null>(null)
+export default function PracticePage() {
+  const router = useRouter()
+  const [campaignUnlocked, setCampaignUnlocked] = useState(false)
+  const [showUnlock, setShowUnlock] = useState(false)
+
+  useEffect(() => {
+    try {
+      const unlocked = window.localStorage.getItem('examlogic:campaign-unlocked') === '1'
+      setCampaignUnlocked(unlocked)
+      if (window.sessionStorage.getItem('examlogic:show-campaign-unlock') === '1') {
+        window.sessionStorage.removeItem('examlogic:show-campaign-unlock')
+        setShowUnlock(true)
+        window.setTimeout(() => setShowUnlock(false), 4200)
+      }
+    } catch {}
+  }, [])
 
   return (
-    <>
-      <div
-        className={className}
-        style={{
-          margin: '0 14px',
-          backgroundColor: '#0d1f35',
-          border: '1px solid #1a3a5c',
-          borderRadius: '16px',
-          padding: '14px',
-        }}
-      >
+    <main style={{ minHeight: '100svh', padding: '28px 16px calc(110px + env(safe-area-inset-bottom))', background: '#071426', color: '#E8F0F7' }}>
+      <div style={{ width: '100%', maxWidth: 620, margin: '0 auto' }}>
+        <header style={{ marginBottom: 23 }}>
+          <p style={{ margin: 0, color: '#25D6A2', fontSize: 10, fontWeight: 800, letterSpacing: '.13em' }}>YOUR TRAINING FLOOR</p>
+          <h1 style={{ margin: '8px 0 0', fontSize: 30, lineHeight: 1.08, letterSpacing: '-.045em', fontWeight: 780 }}>Practice</h1>
+          <p style={{ margin: '10px 0 0', maxWidth: 390, color: '#8FA2B7', fontSize: 13, lineHeight: 1.6 }}>Everything you need to prepare, drill, simulate and master JAMB, in one place.</p>
+        </header>
 
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="#3FB7FF" strokeWidth={2}>
-              <path d="M9 11l3 3L22 4"/>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-            </svg>
-            <span
-              style={{
-                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: '#4d6a87',
-              }}
-            >
-              Practice Mode Performance
-            </span>
-          </div>
+        {showUnlock && <section role="status" style={{ display: 'flex', alignItems: 'start', gap: 12, padding: 16, marginBottom: 16, borderRadius: 15, border: '1px solid rgba(37,214,162,.35)', background: 'linear-gradient(120deg,rgba(37,214,162,.15),rgba(13,27,46,.98))', animation: 'practiceReveal .35s ease-out both' }}>
+          <span style={{ width: 34, height: 34, flex: '0 0 34px', display: 'grid', placeItems: 'center', borderRadius: 10, background: 'rgba(37,214,162,.16)', color: '#25D6A2' }}><Check size={18}/></span>
+          <div><strong style={{ display: 'block', fontSize: 15 }}>Campaign Unlocked</strong><p style={{ margin: '5px 0 0', color: '#A9C8C1', fontSize: 12, lineHeight: 1.5 }}>Practice any subject, any topic, at your own pace.</p></div>
+        </section>}
 
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value as TimeRange)}
-            style={{
-              fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-              backgroundColor: '#112236',
-              border: '1px solid #1a3a5c',
-              borderRadius: '8px',
-              padding: '4px 28px 4px 10px',
-              fontSize: '10px',
-              fontWeight: 600,
-              color: '#a8c8e8',
-              outline: 'none',
-              cursor: 'pointer',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234d6a87' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 6px center',
-            }}
-          >
-            <option value="7">7 Days</option>
-            <option value="30">30 Days</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-
-        {/* Mode cards grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: '10px',
-            marginBottom: '16px',
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 11 }}>
           {modes.map((mode) => {
-            const s = mode.stats[range]
-            return (
-              <div
-                key={mode.name}
-                style={{
-                  backgroundColor: '#112236',
-                  border: '1px solid #1a3a5c',
-                  borderRadius: '12px',
-                  padding: '14px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-
-                {/* Mode header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div
-                    style={{
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '13px',
-                      flexShrink: 0,
-                      background: mode.iconBg,
-                    }}
-                  >
-                    {mode.icon}
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      color: '#e8f4ff',
-                      lineHeight: 1.3,
-                      minWidth: 0,
-                    }}
-                  >
-                    {mode.name}
-                  </span>
-                </div>
-
-                {/* Sessions */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '11px', color: '#4d6a87' }}>
-                    Sessions
-                  </span>
-                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
-                    {s.sessions}
-                  </span>
-                </div>
-
-                {/* Accuracy */}
-                <div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '26px',
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      color: mode.color,
-                    }}
-                  >
-                    {s.accuracy}%
-                  </span>
-                  <p
-                    style={{
-                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                      fontSize: '11px',
-                      color: '#4d6a87',
-                      marginTop: '2px',
-                    }}
-                  >
-                    Accuracy
-                  </p>
-                </div>
-
-                <Divider />
-
-                {/* Best score */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '11px', color: '#4d6a87' }}>
-                    Best Score
-                  </span>
-                  <span style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
-                    {s.bestScore}
-                  </span>
-                </div>
-
-                {/* Review button */}
-                <button
-                  onClick={() => setReviewing(mode)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 0',
-                    borderRadius: '8px',
-                    fontFamily: 'var(--font-inter), Inter, sans-serif',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    border: `1px solid ${mode.color}99`,
-                    background: `linear-gradient(135deg, ${mode.color}ee 0%, ${mode.color} 45%, ${mode.color}cc 100%)`,
-                    color: mode.color === '#ef4444' ? '#ffffff' : '#071426',
-                    boxShadow: `
-                      inset 0 1px 0 rgba(255,255,255,0.25),
-                      inset 0 -1px 0 rgba(0,0,0,0.12),
-                      0 3px 10px ${mode.color}25
-                    `,
-                  }}
-                >
-                  Review
-                </button>
-
+            const Icon = mode.icon
+            const locked = !mode.always && mode.name === 'Campaign' && !campaignUnlocked
+            return <button key={mode.name} type="button" onClick={() => { if (!locked) router.push(mode.href) }} disabled={locked} style={{ minWidth: 0, minHeight: 228, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: 15, borderRadius: 16, border: '1px solid ' + (locked ? 'rgba(255,255,255,.07)' : mode.color + '44'), background: locked ? '#0A1727' : 'linear-gradient(155deg,' + mode.tint + ',#0D1B2E 64%)', color: '#E8F0F7', opacity: locked ? .65 : 1, cursor: locked ? 'not-allowed' : 'pointer', transition: 'transform .18s ease,border-color .18s ease' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: 12, background: mode.tint, color: mode.color }}><Icon size={19}/></span>
+                {locked ? <LockKeyhole size={15} color="#718399"/> : <ArrowUpRight size={17} color={mode.color}/>}
               </div>
-            )
+              <div style={{ marginTop: 19, flex: 1 }}>
+                <h2 style={{ margin: 0, fontSize: 16, lineHeight: 1.2, fontWeight: 760, letterSpacing: '-.025em' }}>{mode.name}</h2>
+                <p style={{ margin: '8px 0 0', color: '#9AAABD', fontSize: 11, lineHeight: 1.55 }}>{locked ? 'Complete your first Quick Fire session to unlock Campaign.' : mode.detail}</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 15, paddingTop: 11, borderTop: '1px solid rgba(255,255,255,.07)', color: mode.color, fontSize: 10, fontWeight: 750 }}><Clock3 size={12}/>{mode.meta}</div>
+            </button>
           })}
         </div>
-
-        <Divider />
-
-        {/* Footer */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingTop: '14px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-              fontSize: '11px',
-              color: '#475569',
-              lineHeight: 1.4,
-            }}
-          >
-            Tap Review to see session history and missed questions
-          </span>
-          <span style={{ color: '#3FB7FF', fontSize: '16px', flexShrink: 0 }}>›</span>
-        </div>
-
       </div>
-
-      {/* Review bottom sheet */}
-      {reviewing && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 200,
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            background: '#07142670',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-          }}
-          onClick={(e) => e.target === e.currentTarget && setReviewing(null)}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '480px',
-              backgroundColor: '#0d1f35',
-              border: '1px solid #1a3a5c',
-              borderRadius: '20px 20px 0 0',
-              padding: '14px 18px 40px',
-              animation: 'slideUp 0.2s ease',
-            }}
-          >
-
-            {/* Handle */}
-            <div
-              style={{
-                width: '32px',
-                height: '3px',
-                backgroundColor: '#1a3a5c',
-                borderRadius: '999px',
-                margin: '0 auto 16px',
-              }}
-            />
-
-            {/* Header */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '16px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px',
-                    background: reviewing.iconBg,
-                  }}
-                >
-                  {reviewing.icon}
-                </div>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-inter), Inter, sans-serif',
-                    fontSize: '17px',
-                    fontWeight: 700,
-                    color: '#e8f4ff',
-                  }}
-                >
-                  {reviewing.name}
-                </span>
-              </div>
-
-              <button
-                onClick={() => setReviewing(null)}
-                style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '7px',
-                  backgroundColor: '#112236',
-                  border: '1px solid #1a3a5c',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#4d6a87',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Stats summary */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                gap: '8px',
-                marginBottom: '16px',
-              }}
-            >
-              {[
-                { label: 'Sessions', value: String(reviewing.stats[range].sessions) },
-                { label: 'Accuracy', value: `${reviewing.stats[range].accuracy}%`   },
-                { label: 'Best',     value: reviewing.stats[range].bestScore         },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  style={{
-                    backgroundColor: '#112236',
-                    borderRadius: '10px',
-                    padding: '10px 12px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-inter), Inter, sans-serif',
-                      fontSize: '18px',
-                      fontWeight: 700,
-                      display: 'block',
-                      lineHeight: 1,
-                      marginBottom: '4px',
-                      color: reviewing.color,
-                    }}
-                  >
-                    {s.value}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                      fontSize: '10px',
-                      color: '#4d6a87',
-                    }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <Divider />
-            </div>
-
-            {/* Placeholder for session list */}
-            <p
-              style={{
-                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                fontSize: '12px',
-                color: '#4d6a87',
-                textAlign: 'center',
-                paddingTop: '24px',
-                paddingBottom: '24px',
-              }}
-            >
-              Session history will appear here once data is connected
-            </p>
-
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(24px); opacity: 0; }
-          to   { transform: translateY(0);    opacity: 1; }
-        }
-      `}</style>
-    </>
+      <style>{'@keyframes practiceReveal{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}'}</style>
+    </main>
   )
-                    }
+}
