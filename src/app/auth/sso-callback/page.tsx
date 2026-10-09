@@ -32,7 +32,8 @@ export default function AuthSSOCallback() {
         if (signIn.status === 'complete') {
           const { error } = await signIn.finalize({
             navigate: ({ decorateUrl }) => {
-              const url = decorateUrl(getPostAuthRedirect())
+              const destination = getPostAuthRedirect()
+              const url = decorateUrl(`/onboarding?redirect_url=${encodeURIComponent(destination)}`)
               window.location.href = url
             },
           })
