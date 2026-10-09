@@ -33,6 +33,10 @@ export default function QuickFireTestPage() {
   }, [params.id])
 
   const current = session?.questions?.[index]
+
+  useEffect(() => {
+    setStartedAt(Date.now())
+  }, [current?.id])
   const answeredCount = Object.keys(answers).length
   const allAnswered = Boolean(session && session.questions.every(question => answers[question.id]))
   const progress = session?.questions?.length ? ((index + 1) / session.questions.length) * 100 : 0
