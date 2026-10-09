@@ -34,6 +34,7 @@ export default function QuickFireTestPage() {
 
   const current = session?.questions?.[index]
   const answeredCount = Object.keys(answers).length
+  const allAnswered = Boolean(session && session.questions.every(question => answers[question.id]))
   const progress = session?.questions?.length ? ((index + 1) / session.questions.length) * 100 : 0
   const optionLetters = useMemo(() => ['A', 'B', 'C', 'D', 'E', 'F'], [])
 
@@ -54,8 +55,8 @@ export default function QuickFireTestPage() {
         selected_option_id: answers[q.id],
         time_taken_seconds: times[q.id] ?? 0,
       }))
-      if (!payload.length) {
-        setError('Answer at least one question before submitting.')
+      if (payload.length !== session.questions.length) {
+        setError('Answer every question before submitting so your score reflects the full session.')
         setLoading(false)
         return
       }
@@ -132,8 +133,8 @@ export default function QuickFireTestPage() {
       <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
         <button disabled={index === 0 || loading} onClick={() => { setIndex(i => i - 1); setStartedAt(Date.now()) }} style={{ flex: 1, padding: 13, border: '1px solid ' + C.border, borderRadius: 11, background: C.surface, color: C.text, fontWeight: 700 }}>Previous</button>
         {index < session.questions.length - 1
-          ? <button onClick={() => { setIndex(i => i + 1); setStartedAt(Date.now()) }} style={{ flex: 1, padding: 13, border: 0, borderRadius: 11, background: C.blue, color: '#fff', fontWeight: 750, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>Next <ArrowRight size={15}/></button>
-          : <button disabled={loading} onClick={submitSession} style={{ flex: 1, padding: 13, border: 0, borderRadius: 11, background: C.green, color: '#fff', fontWeight: 750, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>{loading ? <><LoaderCircle size={15}/> Submitting</> : `Submit (${answeredCount})`}</button>}
+          ? <button disabled={!answers[current.id] || loading} onClick={() => { setIndex(i => i + 1); setStartedAt(Date.now()) }} style={{ flex: 1, padding: 13, border: 0, borderRadius: 11, background: C.blue, color: '#fff', fontWeight: 750, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, opacity: !answers[current.id] || loading ? .55 : 1 }}>Next <ArrowRight size={15}/></button>
+          : <button disabled={!allAnswered || loading} onClick={submitSession} style={{ flex: 1, padding: 13, border: 0, borderRadius: 11, background: C.green, color: '#fff', fontWeight: 750, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, opacity: !allAnswered || loading ? .55 : 1 }}>{loading ? <><LoaderCircle size={15}/> Submitting</> : `Submit (${answeredCount})`}</button>}
       </div>
       <p style={{ color: C.muted, fontSize: 11, marginTop: 14, textAlign: 'center' }}>Your answers are submitted securely for scoring.</p>
     </section>
