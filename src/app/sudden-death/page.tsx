@@ -37,27 +37,27 @@ export default function SuddenDeathPreflight() {
 
   const rules = [
     {
-      icon: <Zap size={28} color=#0876B8 />,
+      icon: <Zap size={28} color="#0876B8" />,
       title: "Start At Your Level",
       description: "You begin exactly where your ability currently stands.",
     },
     {
-      icon: <TrendingUp size={28} color=#0876B8 />,
+      icon: <TrendingUp size={28} color="#0876B8" />,
       title: "Climb As You Answer",
       description: "Correct answers push you toward harder, more rewarding questions.",
     },
     {
-      icon: <Flame size={28} color=#0876B8 />,
+      icon: <Flame size={28} color="#0876B8" />,
       title: "Build Your Streak",
       description: "Each level asks for a longer streak before you climb again.",
     },
     {
-      icon: <Timer size={28} color=#0876B8 />,
+      icon: <Timer size={28} color="#0876B8" />,
       title: "Stay Sharp",
       description: "Every question runs on the clock — harder ones give you more time.",
     },
     {
-      icon: <Trophy size={28} color=#0876B8 />,
+      icon: <Trophy size={28} color="#0876B8" />,
       title: "Your Best Run Is Saved",
       description: "Track your peak level and streak on the leaderboard.",
     },
@@ -130,7 +130,7 @@ export default function SuddenDeathPreflight() {
         </div>
 
         {error && (
-          <p style={{ fontSize: 14, color: #B42318, marginTop: 16, textAlign: "center" }}>
+          <p style={{ fontSize: 14, color: "#B42318", marginTop: 16, textAlign: "center" }}>
             {error}
           </p>
         )}
