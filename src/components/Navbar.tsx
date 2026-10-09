@@ -67,7 +67,7 @@ export default function Navbar({ hasNotification = false }: NavbarProps) {
     {
       icon: <History size={14} />,
       label: "History",
-      action: () => { router.push("/history"); setDropdownOpen(false); },
+      action: () => { router.push("/accuracy-history"); setDropdownOpen(false); },
     },
     {
       icon: <Trophy size={14} />,
@@ -77,7 +77,7 @@ export default function Navbar({ hasNotification = false }: NavbarProps) {
     {
       icon: <Settings size={14} />,
       label: "Settings",
-      action: () => { router.push("/settings"); setDropdownOpen(false); },
+      action: () => { router.push("/profile"); setDropdownOpen(false); },
     },
     ...(userMeta?.isAdmin ? [{
       icon: <Shield size={14} />,
