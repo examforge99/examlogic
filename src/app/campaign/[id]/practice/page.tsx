@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, LoaderCircle } from 'lucide-react'
 
 type Option = { id: string; option_text: string; position: number }
 type Question = { id: string; subject_id: string; topic_id: string; question_text: string; setter_difficulty: number; options: Option[] }
-type CampaignSession = { session_id: string; questions: Question[]; total_questions: number; is_timed: boolean; time_limit_seconds: number | null; started_at: string }
+type CampaignSession = { session_id: string; questions: Question[]; total_questions: number; is_timed: boolean; time_limit_seconds: number | null; started_at: string; expires_at?: string | null }
 type Summary = { total_questions: number; correct_count: number; accuracy_percent: number; total_time_seconds: number }
 type Submission = { session_completed: boolean; session_summary: Summary | null; error?: string }
 
@@ -39,7 +39,11 @@ export default function CampaignPracticePage() {
         return
       }
       setSession(saved)
-      setSecondsLeft(saved.time_limit_seconds ?? null)
+      setSecondsLeft(saved.is_timed
+        ? saved.expires_at
+          ? Math.max(0, Math.ceil((new Date(saved.expires_at).getTime() - Date.now()) / 1000))
+          : saved.time_limit_seconds ?? null
+        : null)
     } catch {
       setError('This session could not be restored on this device. Return to Campaign and start again.')
     }
