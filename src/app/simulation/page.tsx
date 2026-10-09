@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const PAGE_STYLE: React.CSSProperties = {
   minHeight: "100vh",
-  background: "#071426",
+  background: "#F7F7F3",
   display: "flex",
   flexDirection: "column",
   padding: "24px 20px",
@@ -18,8 +18,8 @@ const CARD_STYLE: React.CSSProperties = {
   padding: "20px",
   background:
     "linear-gradient(to bottom, #1E1B4B, #0F1535 30%, #080D1F) padding-box, linear-gradient(to bottom, #8B5CF6, #3730A3) border-box",
-  border: "2px solid transparent",
-  boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
+  border: "1px solid #DCE4E8",
+  boxShadow: "0 8px 24px rgba(23,35,44,0.06)",
   marginBottom: "16px",
 };
 
@@ -28,27 +28,27 @@ const RULE_ITEM_STYLE: React.CSSProperties = {
   alignItems: "flex-start",
   gap: "12px",
   padding: "12px 0",
-  borderBottom: "1px solid rgba(255,255,255,0.06)",
+  borderBottom: "1px solid rgba(23,35,44,0.08)",
 };
 
 const BEGIN_BTN_STYLE: React.CSSProperties = {
   width: "100%",
   padding: "16px",
   borderRadius: "14px",
-  background: "linear-gradient(135deg, #8B5CF6, #6D28D9)",
+  background: "#0876B8",
   border: "none",
   color: "#fff",
   fontSize: "16px",
   fontWeight: 700,
   cursor: "pointer",
-  boxShadow: "0 8px 24px rgba(139,92,246,0.35)",
+  boxShadow: "none",
   letterSpacing: "0.3px",
 };
 
 const DISABLED_BTN_STYLE: React.CSSProperties = {
   ...BEGIN_BTN_STYLE,
-  background: "rgba(139,92,246,0.2)",
-  color: "rgba(255,255,255,0.4)",
+  background: "#DCE4E8",
+  color: "#687782",
   cursor: "not-allowed",
   boxShadow: "none",
 };
@@ -169,45 +169,45 @@ export default function SimulationPreflightPage() {
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
         <div
           onClick={() => router.back()}
-          style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+          style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D8E0E8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "18px", fontWeight: 700, color: "#D8E0E8" }}>JAMB Simulation</div>
-          <div style={{ fontSize: "12px", color: "#7D8A9A", marginTop: "2px" }}>Full CBT Experience</div>
+          <div style={{ fontSize: "18px", fontWeight: 700, color: "#17232C" }}>JAMB Simulation</div>
+          <div style={{ fontSize: "12px", color: "#687782", marginTop: "2px" }}>Full CBT Experience</div>
         </div>
       </div>
 
       {/* Active session banner */}
       {activeSession && (
-        <div style={{ borderRadius: "12px", padding: "12px 16px", background: "rgba(37,214,162,0.08)", border: "1px solid rgba(37,214,162,0.3)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ borderRadius: "12px", padding: "12px 16px", background: "#E6F5EF", border: "1px solid #B7E4D3", marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
           <span style={{ fontSize: "16px" }}>⚡</span>
           <div>
-            <div style={{ fontSize: "13px", fontWeight: 600, color: "#25d6a2" }}>Active session found</div>
-            <div style={{ fontSize: "11px", color: "#7D8A9A", marginTop: "2px" }}>Tap Begin to resume where you left off</div>
+            <div style={{ fontSize: "13px", fontWeight: 600, color: "#087A5D" }}>Active session found</div>
+            <div style={{ fontSize: "11px", color: "#687782", marginTop: "2px" }}>Tap Begin to resume where you left off</div>
           </div>
         </div>
       )}
 
       {/* Rules card */}
       <div style={CARD_STYLE}>
-        <div style={{ fontSize: "14px", fontWeight: 700, color: "#8B5CF6", marginBottom: "4px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+        <div style={{ fontSize: "14px", fontWeight: 700, color: "#0876B8", marginBottom: "4px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
           Before You Begin
         </div>
-        <div style={{ fontSize: "12px", color: "#7D8A9A", marginBottom: "16px" }}>
+        <div style={{ fontSize: "12px", color: "#687782", marginBottom: "16px" }}>
           Read carefully — these rules apply during your exam
         </div>
 
         <div>
           {rules.map((rule, i) => (
-            <div key={i} style={{ ...RULE_ITEM_STYLE, borderBottom: i === rules.length - 1 ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
+            <div key={i} style={{ ...RULE_ITEM_STYLE, borderBottom: i === rules.length - 1 ? "none" : "1px solid rgba(23,35,44,0.08)" }}>
               <div style={{ fontSize: "20px", flexShrink: 0, marginTop: "1px" }}>{rule.icon}</div>
               <div>
-                <div style={{ fontSize: "13px", fontWeight: 600, color: "#D8E0E8" }}>{rule.title}</div>
-                <div style={{ fontSize: "12px", color: "#7D8A9A", marginTop: "3px", lineHeight: "1.5" }}>{rule.description}</div>
+                <div style={{ fontSize: "13px", fontWeight: 600, color: "#17232C" }}>{rule.title}</div>
+                <div style={{ fontSize: "12px", color: "#687782", marginTop: "3px", lineHeight: "1.5" }}>{rule.description}</div>
               </div>
             </div>
           ))}
@@ -216,11 +216,11 @@ export default function SimulationPreflightPage() {
 
       {/* Error message */}
       {stage === "error" && (
-        <div style={{ borderRadius: "12px", padding: "12px 16px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", marginBottom: "16px" }}>
-          <div style={{ fontSize: "13px", color: "#F87171" }}>{errorMessage}</div>
+        <div style={{ borderRadius: "12px", padding: "12px 16px", background: "#FCECEB", border: "1px solid #F2B8B5", marginBottom: "16px" }}>
+          <div style={{ fontSize: "13px", color: "#B42318" }}>{errorMessage}</div>
           <div
             onClick={() => setStage("preflight")}
-            style={{ fontSize: "12px", color: "#8B5CF6", marginTop: "6px", cursor: "pointer", fontWeight: 600 }}
+            style={{ fontSize: "12px", color: "#0876B8", marginTop: "6px", cursor: "pointer", fontWeight: 600 }}
           >
             Try again →
           </div>
@@ -244,7 +244,7 @@ export default function SimulationPreflightPage() {
 
       {/* Generating hint */}
       {isGenerating && (
-        <div style={{ textAlign: "center", marginTop: "12px", fontSize: "12px", color: "#7D8A9A", lineHeight: "1.6" }}>
+        <div style={{ textAlign: "center", marginTop: "12px", fontSize: "12px", color: "#687782", lineHeight: "1.6" }}>
           Building your personalized 180-question exam.{"\n"}This takes a few seconds.
         </div>
       )}
