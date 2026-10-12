@@ -17,6 +17,7 @@ export default function QuickFireTestPage() {
   const [session, setSession] = useState<SessionPayload | null>(null)
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answersRestored, setAnswersRestored] = useState(false)
   const [startedAt, setStartedAt] = useState<number>(Date.now())
   const [times, setTimes] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(false)
@@ -36,12 +37,15 @@ export default function QuickFireTestPage() {
       }
     } catch {
       setError('Saved session data could not be restored on this device.')
+    } finally {
+      setAnswersRestored(true)
     }
   }, [params.id])
 
   // Keep the batch locally so a refresh or temporary network loss does not
   // discard selected answers before the server acknowledges final submission.
   useEffect(() => {
+    if (!answersRestored) return
     try {
       localStorage.setItem(
         `examlogic:quick-fire:${params.id}:answers`,
@@ -50,7 +54,7 @@ export default function QuickFireTestPage() {
     } catch {
       // The in-memory batch remains available for the current page session.
     }
-  }, [params.id, answers, times])
+  }, [params.id, answers, times, answersRestored])
 
   const current = session?.questions?.[index]
 
