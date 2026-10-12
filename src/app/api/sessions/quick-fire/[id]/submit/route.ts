@@ -133,20 +133,37 @@ export async function POST(
       }
     })
 
-    // Step 5 — bulk update exam_session_questions
-    const updatePromises = updateRows.map(row =>
-      supabase
-        .from('exam_session_questions')
-        .update({
-          selected_answer: row.selected_answer,
-          correct_option_id: row.correct_option_id,
-          is_correct: row.is_correct,
-          time_spent_seconds: row.time_spent_seconds
-        })
-        .eq('id', row.id)
+    // Step 5 — persist every answer before writing attempts or finalizing.
+    // Select the updated row so a zero-row update is treated as a failure too.
+    const updateResults = await Promise.all(
+      updateRows.map(row =>
+        supabase
+          .from('exam_session_questions')
+          .update({
+            selected_answer: row.selected_answer,
+            correct_option_id: row.correct_option_id,
+            is_correct: row.is_correct,
+            time_spent_seconds: row.time_spent_seconds
+          })
+          .eq('id', row.id)
+          .select('id')
+          .maybeSingle()
+      )
     )
 
-    await Promise.all(updatePromises)
+    const failedAnswerWrite = updateResults.some(
+      result => result.error || !result.data
+    )
+
+    if (failedAnswerWrite) {
+      console.error(
+        '[quickfire/submit] one or more answer writes failed; session remains active'
+      )
+      return NextResponse.json(
+        { error: 'Could not save all answers. Please retry submitting your session.' },
+        { status: 500 }
+      )
+    }
 
     // Step 6 — insert attempts for analytics
     const attemptRows = answers.map(ans => {
