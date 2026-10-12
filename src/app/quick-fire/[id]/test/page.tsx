@@ -27,10 +27,30 @@ export default function QuickFireTestPage() {
     try {
       const raw = sessionStorage.getItem(`examlogic:quick-fire:${params.id}`)
       if (raw) setSession(JSON.parse(raw) as SessionPayload)
+
+      const savedAnswers = localStorage.getItem(`examlogic:quick-fire:${params.id}:answers`)
+      if (savedAnswers) {
+        const parsed = JSON.parse(savedAnswers) as { answers?: Record<string, string>; times?: Record<string, number> }
+        if (parsed.answers && typeof parsed.answers === 'object') setAnswers(parsed.answers)
+        if (parsed.times && typeof parsed.times === 'object') setTimes(parsed.times)
+      }
     } catch {
-      setError('This session could not be restored on this device.')
+      setError('Saved session data could not be restored on this device.')
     }
   }, [params.id])
+
+  // Keep the batch locally so a refresh or temporary network loss does not
+  // discard selected answers before the server acknowledges final submission.
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        `examlogic:quick-fire:${params.id}:answers`,
+        JSON.stringify({ answers, times })
+      )
+    } catch {
+      // The in-memory batch remains available for the current page session.
+    }
+  }, [params.id, answers, times])
 
   const current = session?.questions?.[index]
 
@@ -80,6 +100,7 @@ export default function QuickFireTestPage() {
       }
       setResult(body as Result)
       sessionStorage.removeItem(`examlogic:quick-fire:${params.id}`)
+      localStorage.removeItem(`examlogic:quick-fire:${params.id}:answers`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Try again.')
     } finally {
