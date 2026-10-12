@@ -42,17 +42,13 @@ export async function submitAnswer(
   // Step 2 — verify this question belongs to this session
   const { data: sessionQuestion, error: sqError } = await supabase
     .from('exam_session_questions')
-    .select('id, question_id, selected_answer')
+    .select('id, question_id')
     .eq('session_id', sessionId)
     .eq('question_id', questionId)
     .single()
 
   if (sqError || !sessionQuestion) {
     throw new Error('Question does not belong to this session')
-  }
-
-  if (sessionQuestion.selected_answer !== null) {
-    throw new Error('Question already answered')
   }
 
   // Step 3 — fetch the real correct_option_id server-side
@@ -68,8 +64,9 @@ export async function submitAnswer(
 
   const isCorrect = question.correct_option_id === selectedOptionId
 
-  // Step 4 — update exam_session_questions with the result
-  const { error: updateError } = await supabase
+  // Step 4 — atomically claim the unanswered question. Concurrent requests
+  // can both pass the earlier reads, but only one can update a NULL answer.
+  const { data: claimedQuestion, error: updateError } = await supabase
     .from('exam_session_questions')
     .update({
       selected_answer: selectedOptionId,
@@ -78,9 +75,16 @@ export async function submitAnswer(
       time_spent_seconds: timeTakenSeconds
     })
     .eq('id', sessionQuestion.id)
+    .is('selected_answer', null)
+    .select('id')
+    .maybeSingle()
 
   if (updateError) {
     throw new Error('Failed to record answer')
+  }
+
+  if (!claimedQuestion) {
+    throw new Error('Question already answered')
   }
 
   // Step 5 — insert into attempts table for analytics
