@@ -139,10 +139,11 @@ export default function ReadSession({ schedule, subjectNames, topicNames }: Read
     setUiState('submitting');
 
     try {
-      const response = await fetch('/api/nba/read-complete', {
+      const response = await fetch('/api/nba/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          batch_id: current.batch_id,
           concept_window_id: current.concept_window_id,
           action_type: current.action_type,
         }),
@@ -257,7 +258,7 @@ export default function ReadSession({ schedule, subjectNames, topicNames }: Read
           </header>
 
           <div
-                        style={{
+            style={{
               ...styles.contentWrap,
               animation: uiState === 'reading' || uiState === 'loading' ? 'readSessionSlideUp 300ms ease-out' : undefined,
               transform: isTransitioning ? 'translateY(-20px)' : undefined,
